@@ -4,17 +4,31 @@
 
 Dynamic system to integrate small scale side-missions into larger objectives
 These missions are embedded within existing objectives objectives to add variety to Liberation
-Outcome of these missions allow greater influence on alert level and intelligence apart from the secondary objectives 
+Outcome of these missions allow greater influence on alert level and intelligence apart from the secondary objectives
+
+Designed for Arma 3
 
 ## Features
 
-- X
+- Adjustable factors regarding:
+    - Building selection
+    - Unit spawning
+    - Mission timer range
+    - Mission radius
+    - Chance of mission generation
+    - Mission marker properties
+- Works in any map
+- Custom markers with timer function 
+- Optimized and reasonably lightweight 
+
 
 
 ## Roadmap
 
 - More mission types and variety
 - GRAD_Civilians integration
+- Further optimize pickMission.sqf with CBA_eventHandlers
+- Offload customization to CBA settings 
 
 
 
