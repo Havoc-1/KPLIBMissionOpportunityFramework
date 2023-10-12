@@ -15,22 +15,32 @@
 *
 */
 
-//GLOBAL SETTINGS
-activeMission = false;
-Btypes = ["BUILDING", "HOUSE"];
-spawnBuilding = [];
+//--------LMO Adjustable Parameters--------//
+
+//Mission Timer Range (minutes)
+moTimeMin = 10;
+moTimeMax = 20;
+
+//Objective Marker Radius Range
+mkrRngLow = 50;
+mkrRngHigh = 300;
+
 //Minimum garrisonable spots in building to be considered a possible objective spot
 buildingSize = 8;
 
 //Distance to search building array on enemy units
 Bradius = 500;
-missionChance = 0;
+
+//How often (in minutes) the server will check to start an LMO
+missionCheckRNG = 1;
+//Percentage chance of determining LMO per check rate
 missionChanceSelect = 60;
+
 //Minimum range of MO target to spawn on MO start
 BplayerRange = 1000;
 
+//Hostage Rescue win radius
 objMarkerRadiusRescue = 300;
-
 
 //Building exclusion array to make sure seaports are not included, list is not exhaustive
 XEPKEY_blacklistBuildings = [
@@ -43,50 +53,16 @@ XEPKEY_blacklistBuildings = [
 	"Land_Sea_Wall_F"
 ];
 
+//-----------------------------------------//
+
+//GLOBAL SETTINGS
+activeMission = false;
+Btypes = ["BUILDING", "HOUSE"];
+spawnBuilding = [];
+missionChance = 0;
+
 //!!!!!
-//add missioncheckRNG sleep func + variable init
-
-
-
-// make a space for array of enemy units 
-
-//UNIT ARRAYS
-//LIBERATION VARIABLES
-//--------------------------------
-civilians = [
-    "C_Man_casual_1_F_tanoan",
-    "C_Man_casual_2_F_tanoan",
-    "C_Man_casual_3_F_tanoan",
-    "C_Man_casual_4_F_tanoan",
-    "C_Man_casual_5_F_tanoan",
-    "C_Man_casual_6_F_tanoan",
-    "C_man_sport_1_F_tanoan",
-    "C_man_sport_2_F_tanoan",
-    "C_man_sport_3_F_tanoan",
-    "C_Man_Fisherman_01_F",
-    "C_Man_UtilityWorker_01_F",
-    "C_man_hunter_1_F",
-    "C_journalist_F",
-    "C_Journalist_01_War_F"
-];
-
-opfor_officer = "I_officer_F";                                          // Officer
-opfor_squad_leader = "I_Soldier_SL_F";                                  // Squad Leader
-opfor_team_leader = "I_Soldier_TL_F";                                   // Team Leader
-opfor_sentry = "I_Soldier_lite_F";                                      // Rifleman (Lite)
-opfor_rifleman = "I_soldier_F";                                         // Rifleman
-opfor_rpg = "I_Soldier_LAT2_F";                                         // Rifleman (LAT)
-opfor_grenadier = "I_Soldier_GL_F";                                     // Grenadier
-opfor_machinegunner = "I_Soldier_AR_F";                                 // Autorifleman
-opfor_heavygunner = "I_Soldier_AR_F";                                   // Heavy Gunner
-opfor_marksman = "I_Soldier_M_F";                                       // Marksman
-opfor_sharpshooter = "I_Soldier_M_F";                                   // Sharpshooter
-opfor_sniper = "I_ghillie_sard_F";                                      // Sniper
-opfor_at = "I_Soldier_AT_F";                                            // AT Specialist
-opfor_aa = "I_Soldier_AA_F";                                            // AA Specialist
-opfor_medic = "I_medic_F";                                              // Combat Life Saver
-opfor_engineer = "I_engineer_F";                                        // Engineer
-opfor_paratrooper = "I_Soldier_lite_F";      
+//add variable init
 
 //--------------------------------
 
@@ -126,5 +102,5 @@ while {true} do {
 		call XEPKEY_fn_pickMission;
 	};
 	hint format ["Mission Chance: %1\nActive Mission: %2\nSpawn Building: %3\nEnyCount: %4\nInsideBuilding Player: %5", missionChance, activeMission, spawnBuilding, count enyList, insideBuilding player];
-	sleep 5;
+	sleep missioncheckRNG;
 };
