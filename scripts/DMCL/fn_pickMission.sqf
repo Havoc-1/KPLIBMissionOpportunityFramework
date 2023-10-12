@@ -95,7 +95,7 @@ switch (_missionType) do {
 			_x setDir random 360;
 		}forEach (units _hostages);
 	};
-
+	
 	//Eliminate HVT
 	case 2:{
 		
@@ -120,7 +120,29 @@ switch (_missionType) do {
 		
 		[getPos spawnBuilding, Btypes, (units _enyUnits), 30, 1, true, true] call ace_ai_fnc_garrison;
 		
-		_hvt = selectRandom units _enyUnits;
+		{
+			_noMove = random 1;
+			if (_noMove <= 0.3) then {
+				_x disableAI "PATH";
+			};
+		}forEach units _enyUnits;
+		
+		_enyUnitsInside = ((units _enyUnits) select {insideBuilding _x == 1});
+		_enyUnitsInside = _enyUnitsInside select {(getPosATL _x) select 2 > 3};
+		
+		if (count _enyUnitsInside >= 1) then {
+			
+			_hvt = selectRandom _enyUnitsInside;
+		
+		} else {
+			_enyUnitsInside = ((units _enyUnits) select {insideBuilding _x == 1});
+			if (count _enyUnitsInside > 0) then {
+				_hvt = selectRandom _enyUnitsInside;
+			} else {
+				_hvt = selectRandom units _enyUnits;
+			};
+		};
+		
 		
 		//Eliminiate HVT Parameters
 		removeHeadgear _hvt;
@@ -198,22 +220,26 @@ while {activeMission == true} do {
 		}forEach units _enyUnits;
 		
 		_enyUnitPlayers = [];
-		
-		while {{alive _x} count units _enyUnits > 0} do {
-			
-			{
-				_enyUnitPlayers = (nearestObjects [_x, ["Man"], (Bradius * 0.8)]) select {isPlayer _x};
-			}forEach units _enyUnits;
-			
-			if (count _enyUnitPlayers == 0) exitWith {
+		[_enyUnits] spawn {
+			params ["_enyUnits"];
+			_enyUnits = _this select 0;
+			_enyUnitPlayers = [];
+			while {{alive _x} count units _enyUnits > 0} do {
+				
 				{
-					deleteVehicle _x;
+					_enyUnitPlayers = (nearestObjects [_x, ["Man"], (Bradius * 0.8)]) select {isPlayer _x};
 				}forEach units _enyUnits;
-			deleteGroup _enyUnits;
-			deleteGroup _hostages;
+				
+				if (count _enyUnitPlayers == 0) exitWith {
+					{
+						deleteVehicle _x;
+					}forEach units _enyUnits;
+				deleteGroup _enyUnits;
+				deleteGroup _hostages;
+				};
+				sleep 5;
 			};
-			sleep 5;
-		};	
+		};
 	};
 
 	//Hostage Rescue Win Conditions
@@ -239,20 +265,25 @@ while {activeMission == true} do {
 		_missionFailed = true;
 		deleteVehicle _hvt;
 		
-		while {{alive _x} count units _enyUnits > 0} do {
-			
-			{
-				_enyUnitPlayers = (nearestObjects [_x, ["Man"], (Bradius * 0.8)]) select {isPlayer _x};
-			}forEach units _enyUnits;
-			
-			if (count _enyUnitPlayers == 0) exitWith {
-				_missionFailed = true;
+		[_enyUnits] spawn {
+			params ["_enyUnits"];
+			_enyUnits = _this select 0;
+			_enyUnitPlayers = [];
+			while {{alive _x} count units _enyUnits > 0} do {
+				
 				{
-					deleteVehicle _x;
+					_enyUnitPlayers = (nearestObjects [_x, ["Man"], (Bradius * 0.8)]) select {isPlayer _x};
 				}forEach units _enyUnits;
-			deleteGroup _enyUnits;
+				
+				if (count _enyUnitPlayers == 0) exitWith {
+					_missionFailed = true;
+					{
+						deleteVehicle _x;
+					}forEach units _enyUnits;
+				deleteGroup _enyUnits;
+				};
+				sleep 5;
 			};
-			sleep 5;
 		};
 	};
 	
@@ -261,25 +292,23 @@ while {activeMission == true} do {
 	
 		_missionSuccess = true;
 		
-		//scheduled environment
 		[_enyUnits] spawn {
 			params ["_enyUnits"];
 			_enyUnits = _this select 0;
 			_enyUnitPlayers = [];
 			while {{alive _x} count units _enyUnits > 0} do {
-			
-			{
-				_enyUnitPlayers = (nearestObjects [_x, ["Man"], (Bradius * 0.8)]) select {isPlayer _x};
-			}forEach units _enyUnits;
-			
-			//hint format ["%1", units _enyUnits];
-			if (count _enyUnitPlayers == 0) exitWith {
 				{
-					deleteVehicle _x;
+					_enyUnitPlayers = (nearestObjects [_x, ["Man"], (Bradius * 0.8)]) select {isPlayer _x};
 				}forEach units _enyUnits;
+				
+				//hint format ["%1", units _enyUnits];
+				if (count _enyUnitPlayers == 0) exitWith {
+									{
+						deleteVehicle _x;
+					}forEach units _enyUnits;
 				deleteGroup _enyUnits;
-			};
-			sleep 5;
+				};
+				sleep 5;
 			};
 		};
 	};
