@@ -1,0 +1,5 @@
+//CFG FUNCTIONS
+class CfgFunctions
+{
+	#include "scripts\DMCL\lib-MO.hpp"															// Liberation Mission of Opportunity
+};
