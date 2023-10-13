@@ -20,7 +20,7 @@ Designed for Arma 3
 - Works in any map
 - Custom markers with timer function 
 - Optimized and reasonably lightweight 
-
+- HVT has a chance of running away 
 
 
 ## Roadmap
@@ -40,7 +40,7 @@ Designed for Arma 3
 
 ## Acknowledgements
 
- - KP Liberation for the original mission framework we built on
+ - KillahPotatoes for the wonderful Liberation gamemode
 
  Testing and Suggesstions
  - DMCL 
