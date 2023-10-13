@@ -1,11 +1,15 @@
-//XEPKEY_fnc_markerFunctions
-//Function to 
-//Params: NONE
-//Returns: 
-//	
+/*
+ * Function to create objective marker and choose objective name
+ * 
+ * Return Value: 
+ * NONE
+ *
+ * Example:
+ * call XEPKEY_fnc_markerFunctions
+ *
+ */
 
 //Variables
-
 //Array for objective names
 _objNamesArray = ["Albatross","Alpaca","Arcadia","Aegis","Arowana","Astral","Aurora","Bastion","Beacon","Catalyst","Cicada","Cipher","Citadel","Cobra","Crow","Dynamo","Eagle","Eclipse","Empyrean","Enigma","Falcon","Firefly","Goliath","Havoc","Hawk","Heron","Inferno","Kingfish","Lemur","Lion","Mallet","Mantis","Maverick","Mirage","Monolith","Nebula","Nexus","Nighthawk","Obsidian","Opah","Ostrich","Otter","Pantheon","Paradigm","Paragon","Pelican","Phoenix","Radiance","Rhino","Robin","Ruby","Sapphire","Seagull","Sparrow","Staple","Swift","Swan","Umbra","Vanguard","Velvet","Vertex","Vulture","Weevil","Zenith","Zebra"];
 

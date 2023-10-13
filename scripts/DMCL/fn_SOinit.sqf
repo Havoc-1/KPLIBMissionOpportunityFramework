@@ -50,7 +50,13 @@ XEPKEY_blacklistBuildings = [
 	"Land_Pier_small_F",
 	"Land_Pier_Box_F",
 	"Land_Pier_addon", 
-	"Land_Sea_Wall_F"
+	"Land_Sea_Wall_F",
+	"Land_Airport_01_hangar_F",
+	"Land_ContainerLine_01_F",
+	"Land_ContainerLine_02_F",
+	"Land_ContainerLine_03_F",
+	"Land_SCF_01_heap_bagasse_F",
+	"Land_SCF_01_heap_sugarcane_F"
 ];
 
 //-----------------------------------------//

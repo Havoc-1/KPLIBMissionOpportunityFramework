@@ -1,9 +1,13 @@
-//XEPKEY_fnc_getBuildings
-//Function to 
-//Params: NONE
-//Returns: 
-//	spawnBuilding
-
+/*
+ * Function to populate array of buildings near enemy units to help choose 
+ * a target building 
+ * 
+ * Return Value: spawnBuilding
+ *
+ * Example:
+ * call XEPKEY_fnc_getBuildings
+ *
+ */
 
 //Initializing local variables
 _allBuildings = [];

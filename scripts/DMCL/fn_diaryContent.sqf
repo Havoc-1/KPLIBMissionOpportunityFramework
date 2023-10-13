@@ -1,5 +1,8 @@
 //Ran as post-init
-//Diary entry to show its active
+//Diary entry to show its active 
+
+//TO DO
+//Add details of rewards depending on mission success 
 
 if !(hasInterface) exitWith {};
 

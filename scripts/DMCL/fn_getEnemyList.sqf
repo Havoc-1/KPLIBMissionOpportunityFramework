@@ -1,17 +1,20 @@
-//XEPKEY_fnc_getEnemyList
-//Function to populate enemy list near players
-//Params: NONE
-//Returns: 
-//	enyList
-//	missionChance
+/*
+ * Function to populate enemy list near players
+ * 
+ * Return Value: 
+ * enyList
+ * missionChance
+ *
+ * Example:
+ * call XEPKEY_fnc_getEnemyList
+ *
+ */
 
 //Variables
 _enyRange = 2500;
-
-
-	missionChance = random 100;
-	enyList = nil;
-	enyList = [];
+missionChance = random 100;
+enyList = nil;
+enyList = [];
 
 	//populate enemy list near players 
 	{
