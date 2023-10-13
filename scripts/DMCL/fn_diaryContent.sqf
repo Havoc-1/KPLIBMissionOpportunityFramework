@@ -1,12 +1,36 @@
 //Ran as post-init
 //Diary entry to show its active 
 
-//TO DO
-//Add details of rewards depending on mission success 
-
 if !(hasInterface) exitWith {};
 
 player createDiarySubject ["LMO_INFO", "LMO"];
+player createDiaryRecord [
+    "LMO_INFO",
+    ["Rewards System",
+    format ["
+    <br/>
+    HOSTAGE RESCUE:
+    <br/><br/>
+    Win:
+    <br/>
+    Successfully exfiled = +%1 CIVILIAN REPUTATION and +%2 INTELLIGENCE
+	<br/>
+    Lose:
+	<br/>
+    Hostage killed = -%3 CIVILIAN REPUTATION
+    <br/><br/>
+    HVT KILL OR CAPTURE
+    <br/><br/>
+    Captured, no weapon = +%4 INTELLIGENCE and -%5 ALERT LEVEL<br/>
+    Captured, weapon = +%6 INTELLIGENCE and -%5 ALERT LEVEL<br/>
+    Killed, no weapon/weapon = -%7 ALERT LEVEL
+    ", XEPKEY_LMO_HR_REWARD_CIVREP, XEPKEY_LMO_HR_REWARD_INTEL, KP_liberation_cr_kill_penalty, XEPKEY_LMO_HVT_REWARD_INTEL1, XEPKEY_LMO_HVT_REWARD_ALERT_HIGH, XEPKEY_LMO_HVT_REWARD_INTEL2, XEPKEY_LMO_HVT_REWARD_ALERT_LOW]
+    ],
+    taskNull,
+    "",
+    false
+];
+
 player createDiaryRecord [
 	"LMO_INFO",
 	["Liberation Missions of Opportunity",
@@ -25,3 +49,5 @@ player createDiaryRecord [
 	"",
 	false
 ];
+
+

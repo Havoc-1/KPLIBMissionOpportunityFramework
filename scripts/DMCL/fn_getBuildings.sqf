@@ -5,7 +5,7 @@
  * Return Value: spawnBuilding
  *
  * Example:
- * call XEPKEY_fnc_getBuildings
+ * call XEPKEY_fn_getBuildings
  *
  */
 

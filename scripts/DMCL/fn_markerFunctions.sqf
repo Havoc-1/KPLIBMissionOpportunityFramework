@@ -5,7 +5,7 @@
  * NONE
  *
  * Example:
- * call XEPKEY_fnc_markerFunctions
+ * call XEPKEY_fn_markerFunctions
  *
  */
 

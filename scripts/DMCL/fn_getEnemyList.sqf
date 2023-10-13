@@ -6,7 +6,7 @@
  * missionChance
  *
  * Example:
- * call XEPKEY_fnc_getEnemyList
+ * call XEPKEY_fn_getEnemyList
  *
  */
 

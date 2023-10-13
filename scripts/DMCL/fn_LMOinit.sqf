@@ -59,7 +59,6 @@ XEPKEY_blacklistBuildings = [
 	"Land_SCF_01_heap_sugarcane_F"
 ];
 
-//-----------------------------------------//
 
 //GLOBAL SETTINGS
 activeMission = false;
@@ -67,10 +66,13 @@ Btypes = ["BUILDING", "HOUSE"];
 spawnBuilding = [];
 missionChance = 0;
 
-//!!!!!
-//add variable init
-
-//--------------------------------
+//REWARDS SETTINGS 
+XEPKEY_LMO_HR_REWARD_CIVREP = 40;
+XEPKEY_LMO_HR_REWARD_INTEL = 15;
+XEPKEY_LMO_HVT_REWARD_ALERT_LOW = 1;
+XEPKEY_LMO_HVT_REWARD_ALERT_HIGH = 5;
+XEPKEY_LMO_HVT_REWARD_INTEL1 = 25;
+XEPKEY_LMO_HVT_REWARD_INTEL2 = 40;
 
 //Squad composition of enemies that will spawn on the objective, reference liberation global variables
 XEPKEY_SideOpsORBAT = [
@@ -108,5 +110,5 @@ while {true} do {
 		call XEPKEY_fn_pickMission;
 	};
 	hint format ["Mission Chance: %1\nActive Mission: %2\nSpawn Building: %3\nEnyCount: %4\nInsideBuilding Player: %5", missionChance, activeMission, spawnBuilding, count enyList, insideBuilding player];
-	sleep missioncheckRNG;
+	sleep (missioncheckRNG*60);
 };
