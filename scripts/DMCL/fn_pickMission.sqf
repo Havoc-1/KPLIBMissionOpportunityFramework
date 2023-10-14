@@ -27,7 +27,9 @@ switch (_missionType) do {
 	case 1:{
 		
 		//Creates Task
-		[west, ["_taskMissionMO", "_taskMO"], [format ["Our intel indicates a small group of combatants holding a hostage at <marker name =%1>%2</marker>. Locate and extract the hostage.", objMarkerName,objMarkerText], "MO: Hostage Rescue", "REGROUP_MARKER"], objNull, 1, 3, true] call BIS_fnc_taskCreate;
+		[west, ["_taskMissionMO", "_taskMO"], [format ["Our intel indicates a small group of combatants holding a hostage at <marker name =%1>%2</marker>. Locate and extract the hostage.", objMarkerName,objMarkerText], "MO: Hostage Rescue", "Meet"], objNull, 1, 3, false] call BIS_fnc_taskCreate;
+		["_taskMO","Box"] call BIS_fnc_taskSetType;
+		["_taskMissionMO","Meet"] call BIS_fnc_taskSetType;
 		objMarkerName setMarkerColor "ColorBlue";
 		objMarker setMarkerColor "ColorBlue";
 		
@@ -124,7 +126,9 @@ switch (_missionType) do {
 	//Eliminate HVT
 	case 2:{
 		
-		[west, ["_taskMissionMO", "_taskMO"], [format ["Some guy needs to die at <marker name =%1>%2</marker>. Locate and extract kill the dude.", objMarkerName,objMarkerText], "MO: Eliminate HVT", "REGROUP_MARKER"], objNull, 1, 3, true] call BIS_fnc_taskCreate;
+		[west, ["_taskMissionMO", "_taskMO"], [format ["Some guy needs to die at <marker name =%1>%2</marker>. Locate and extract kill the dude.", objMarkerName,objMarkerText], "MO: Eliminate HVT", "Kill"], objNull, 1, 3, false] call BIS_fnc_taskCreate;
+		["_taskMO","Box"] call BIS_fnc_taskSetType;
+		["_taskMissionMO","Kill"] call BIS_fnc_taskSetType;
 		objMarkerName setMarkerColor "ColorOrange";
 		objMarker setMarkerColor "ColorOrange";
 		_enyUnits = createGroup east;
