@@ -80,12 +80,20 @@ switch (_missionType) do {
 			[_x, true] call ace_captives_fnc_setSurrendered;
 			[_x, true, objNull] call ACE_captives_fnc_setHandcuffed;
 			_hostagePosOffset = selectRandom [-0.5,0.5];
+			_hostageDisOffset = random 2;
+			
+			if (_hostageDisOffset < 0.5) then {
+				_hostageDisOffset = 0.5;
+			};
+			
 			if (count _enyUnitsInside >= 1) then {
 				
 				_hostageTaker = selectRandom _enyUnitsInside;
 				_hostageTaker disableAI "PATH";
-				_hostagePos = getPosASL _hostageTaker;
-				_x setPosASL [((_hostagePos select 0) + _hostagePosOffset), ((_hostagePos select 1) + _hostagePosOffset), _hostagePos select 2];
+				_hostageRelDir = _hostageTaker getDir spawnBuilding;
+				//_hostagePos = getPosASL _hostageTaker;
+				_hostagePos = [getPos _hostageTaker, _hostageDisOffset, _hostageRelDir] call BIS_fnc_relPos;
+				_x setPosASL [((_hostagePos select 0) + _hostagePosOffset), ((_hostagePos select 1) + _hostagePosOffset), (getPosASL _hostageTaker) select 2];
 			
 			} else {
 				_enyUnitsInside = ((units _enyUnits) select {insideBuilding _x == 1});
@@ -93,15 +101,19 @@ switch (_missionType) do {
 					
 					_hostageTaker = selectRandom _enyUnitsInside;
 					_hostageTaker disableAI "PATH";
-					_hostagePos = getPosASL _hostageTaker;
-					_x setPosASL [((_hostagePos select 0) + _hostagePosOffset), ((_hostagePos select 1) + _hostagePosOffset), _hostagePos select 2];
+					_hostageRelDir = _hostageTaker getDir spawnBuilding;
+					//_hostagePos = getPosASL _hostageTaker;
+					_hostagePos = [getPos _hostageTaker, _hostageDisOffset, _hostageRelDir] call BIS_fnc_relPos;
+					_x setPosASL [((_hostagePos select 0) + _hostagePosOffset), ((_hostagePos select 1) + _hostagePosOffset), (getPosASL _hostageTaker) select 2];
 				
 				} else {
 					
 					_hostageTaker = selectRandom units _enyUnits;
 					_hostageTaker disableAI "PATH";
-					_hostagePos = getPosASL _hostageTaker;
-					_x setPosASL [((_hostagePos select 0) + _hostagePosOffset), ((_hostagePos select 1) + _hostagePosOffset), _hostagePos select 2];
+					_hostageRelDir = _hostageTaker getDir spawnBuilding;
+					//_hostagePos = getPosASL _hostageTaker;
+					_hostagePos = [getPos _hostageTaker, _hostageDisOffset, _hostageRelDir] call BIS_fnc_relPos;
+					_x setPosASL [((_hostagePos select 0) + _hostagePosOffset), ((_hostagePos select 1) + _hostagePosOffset), (getPosASL _hostageTaker) select 2];
 					
 				};
 			};

@@ -17,7 +17,7 @@ _objNamesArray = ["Albatross","Alpaca","Arcadia","Aegis","Arowana","Astral","Aur
 objMarkerText = format ["OBJ %1", selectRandom _objNamesArray];
 objMarkerRadius = [mkrRngLow,mkrRngHigh] call BIS_fnc_randomInt;
 objMarkerPos = [[[position spawnBuilding, (objMarkerRadius/1.5)]], []] call BIS_fnc_randomPos;
-objMarker = createMarker ["", objMarkerPos];
+objMarker = createMarker ["objMarker", objMarkerPos];
 objMarker setMarkerShape "ELLIPSE";
 objMarker setMarkerSize [objMarkerRadius,objMarkerRadius];
 objMarker setMarkerBrush "FDiagonal";
