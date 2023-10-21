@@ -23,6 +23,14 @@ objMarker setMarkerSize [objMarkerRadius,objMarkerRadius];
 objMarker setMarkerBrush "FDiagonal";
 
 //Set OBJ Marker Name & Timer
+
+//if (missionTimeSenChance <= moTimeSenChanceSelect) then {
+//	_moTimeMin = moTimeSenMin;
+//	_moTimeMax = moTimeSenMax;
+//} else {
+//	_moTimeMin = moTimeMin;
+//	_moTimeMax = moTimeMax;
+//};
 missionTimer = [((moTimeMin)*60),((moTimeMax)*60)] call BIS_fnc_randomInt;
 missionTimerStr = [missionTimer, "MM:SS"] call BIS_fnc_secondsToString;
 objMarkerName = createMarker ["Marker1", objMarkerPos];

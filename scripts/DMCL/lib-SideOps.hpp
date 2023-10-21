@@ -6,6 +6,9 @@ class XEPKEY_functions { //Create category
 		class getBuildings {};
 		class markerFunctions {};
 		class pickMission {};
+		class fogBehavior {};
+		//class createLMOTask {};
+		//class missionOutcome {};
 		class diaryContent {postInit=1};
 	};
 };

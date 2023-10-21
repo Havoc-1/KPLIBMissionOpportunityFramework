@@ -18,8 +18,15 @@
 //--------LMO Adjustable Parameters--------//
 
 //Mission Timer Range (minutes)
-moTimeMin = 10;
-moTimeMax = 20;
+moTimeMin = 30;
+moTimeMax = 60;
+
+//Time Sensitive Mission Timer Range (minutes)
+moTimeSenMin = 10;
+moTimeSenMax = 15;
+
+//Percentage chance of Time Sensitive Mission
+moTimeSenChanceSelect = 20;
 
 //Objective Marker Radius Range
 mkrRngLow = 50;
@@ -32,15 +39,21 @@ buildingSize = 8;
 Bradius = 500;
 
 //How often (in minutes) the server will check to start an LMO
-missionCheckRNG = 1;
+missionCheckRNG = 10;
 //Percentage chance of determining LMO per check rate
-missionChanceSelect = 60;
+missionChanceSelect = 20;
 
 //Minimum range of MO target to spawn on MO start
 BplayerRange = 1000;
 
 //Hostage Rescue win radius
 objMarkerRadiusRescue = 300;
+
+//HVT Runner Params
+HVTrunSearchRng = 200;				//Runs away from BLUFOR units within this range
+HVTrunSurrenderRange = 5;			//Distance to determine whether HVT will consider surrender
+HVTrunDist = 400;					//Distance HVT runs once spooked
+HVTescapeRng = Bradius * 0.6;		//HVT Escape radius from spawnBuilding
 
 //Building exclusion array to make sure seaports are not included, list is not exhaustive
 XEPKEY_blacklistBuildings = [
@@ -56,7 +69,9 @@ XEPKEY_blacklistBuildings = [
 	"Land_ContainerLine_02_F",
 	"Land_ContainerLine_03_F",
 	"Land_SCF_01_heap_bagasse_F",
-	"Land_SCF_01_heap_sugarcane_F"
+	"Land_SCF_01_heap_sugarcane_F",
+	"Land_SCF_01_generalBuilding_F",
+	"Land_SCF_01_clarifier_F"
 ];
 
 
@@ -65,6 +80,9 @@ activeMission = false;
 Btypes = ["BUILDING", "HOUSE"];
 spawnBuilding = [];
 missionChance = 0;
+missionTimeSenChance = 0;
+LMO_Debug = 1;
+//LMO_VCOM_On = false;
 
 //REWARDS SETTINGS 
 XEPKEY_LMO_HR_REWARD_CIVREP = 40;
@@ -74,10 +92,11 @@ XEPKEY_LMO_HVT_REWARD_ALERT_HIGH = 5;
 XEPKEY_LMO_HVT_REWARD_INTEL1 = 25;
 XEPKEY_LMO_HVT_REWARD_INTEL2 = 40;
 
+
 //Squad composition of enemies that will spawn on the objective, reference liberation global variables
 XEPKEY_SideOpsORBAT = [
 	opfor_squad_leader,
-	opfor_medic, 
+	opfor_medic,
 	opfor_machinegunner,
 	opfor_heavygunner,
 	opfor_medic, 
@@ -91,6 +110,11 @@ XEPKEY_SideOpsORBAT = [
 
 if !(isDedicated || (isServer && hasInterface)) exitWith {};
 
+//Checks if VCOM is loaded
+//if (isClass (configfile >> "CfgPatches" >> "VCOM_AI")) then {
+//  LMO_VCOM_On = true;
+//};
+
 while {true} do {
 
 	//calling populate enemy list function
@@ -99,16 +123,18 @@ while {true} do {
 	};
 	//actual groupChat (format ["%1", enyList]);
 	//call XEPKEY_fnc_getBuildings;
-	if (activeMission == false && missionChance <= missionChanceSelect && count enyList > 1) then {
+	if (activeMission == false && count enyList > 0 && ((missionChance <= missionChanceSelect) || LMO_Debug == 1)) then {
 		activeMission = true;
 		call XEPKEY_fn_getBuildings;
-		if (activeMission == false) exitWith {activeMission = false};
-		//actual groupChat (format ["Second run: %1", activeMission]);	
-		//actual groupChat (format ["made it to line 34"]);
-		//actual groupChat (format ["%1", spawnBuilding]);
+		if (activeMission == false) exitWith {
+			activeMission = false;
+			if (LMO_Debug == 1) then {systemChat "LMO Debug: No suitable buildings found, exiting scope fn_getBuildings.sqf"};
+		};
 		call XEPKEY_fn_markerFunctions;
 		call XEPKEY_fn_pickMission;
 	};
-	hint format ["Mission Chance: %1\nActive Mission: %2\nSpawn Building: %3\nEnyCount: %4\nInsideBuilding Player: %5", missionChance, activeMission, spawnBuilding, count enyList, insideBuilding player];
-	sleep (missioncheckRNG*60);
+	if (LMO_Debug == 1) then {
+		sleep 10;
+	hintSilent format ["LMO Debug Hint\n\nMission Chance: %1\nActive Mission: %2\nSpawn Building: %3\nEnyCount: %4\nInsideBuilding Player: %5", missionChance, activeMission, spawnBuilding, count enyList, insideBuilding player];	
+	} else {sleep (missioncheckRNG*60)};
 };

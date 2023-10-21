@@ -58,7 +58,7 @@ _allBuildings = _allBuildings - _bCheckExclude;
 
 if (count _allBuildings < 1) exitWith {
 		activeMission = false;
-		actual groupChat "No Buildings Found, exiting fn_getBuildings.sqf";
+		systemChat "No Buildings Found, exiting fn_getBuildings.sqf";
 };
 
 //Selects random building from filtered array

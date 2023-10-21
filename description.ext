@@ -1,5 +1,5 @@
 //CFG FUNCTIONS
 class CfgFunctions
 {
-	#include "scripts\DMCL\lib-MO.hpp"															// Liberation Mission of Opportunity
+	#include "scripts\DMCL\lib-SideOps.hpp"															// Liberation Mission of Opportunity
 };
