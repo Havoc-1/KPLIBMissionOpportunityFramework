@@ -2,8 +2,8 @@
 * Function to populate enemy list near players
 * 
 * Return Value: 
-* enyList
-* missionChance
+* LMO_enyList
+* LMO_mChance
 *
 * Example:
 * call XEPKEY_fn_getEnemyList
@@ -12,14 +12,13 @@
 
 
 //Variables
-_enyRange = 2500;
-missionChance = random 100;
-enyList = nil;
-enyList = [];
+LMO_mChance = random 100;
+LMO_enyList = nil;
+LMO_enyList = [];
 
 //populate enemy list near players 
 {
-	_enyListSelect = (_x nearEntities [["Man","LandVehicle"],_enyRange]) select {side _x == east};
-	enyList append _enyListSelect;
+	_enyListSelect = (_x nearEntities [["Man","LandVehicle"], LMO_enyRng]) select {side _x == east};
+	LMO_enyList append _enyListSelect;
 }forEach allPlayers;
 

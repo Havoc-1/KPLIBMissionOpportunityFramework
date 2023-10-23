@@ -33,27 +33,30 @@ mkrRngLow = 50;
 mkrRngHigh = 300;
 
 //Minimum garrisonable spots in building to be considered a possible objective spot
-buildingSize = 8;
+LMO_bSize = 8;
 
 //Distance to search building array on enemy units
-Bradius = 500;
+LMO_bRadius = 500;
+
+//Minimum distance of enemy to players to start LMO
+LMO_enyRng = 2500;
 
 //How often (in minutes) the server will check to start an LMO
-missionCheckRNG = 10;
+LMO_mCheckRNG = 10;
 //Percentage chance of determining LMO per check rate
-missionChanceSelect = 20;
+LMO_mChanceSelect = 20;
 
 //Minimum range of MO target to spawn on MO start
-BplayerRange = 1000;
+LMO_bPlayerRng = 1000;
 
 //Hostage Rescue win radius
-objMarkerRadiusRescue = 300;
+LMO_objMkrRadRescue = 300;
 
 //HVT Runner Params
 HVTrunSearchRng = 200;				//Runs away from BLUFOR units within this range
-HVTrunSurrenderRange = 5;			//Distance to determine whether HVT will consider surrender
+HVTrunSurRng = 5;			//Distance to determine whether HVT will consider surrender
 HVTrunDist = 400;					//Distance HVT runs once spooked
-HVTescapeRng = Bradius * 0.6;		//HVT Escape radius from spawnBuilding
+HVTescapeRng = LMO_bRadius * 0.6;		//HVT Escape radius from LMO_spawnBldg
 
 //Building exclusion array to make sure seaports are not included, list is not exhaustive
 XEPKEY_blacklistBuildings = [
@@ -77,12 +80,13 @@ XEPKEY_blacklistBuildings = [
 
 //GLOBAL SETTINGS
 activeMission = false;
-Btypes = ["BUILDING", "HOUSE"];
-spawnBuilding = [];
-missionChance = 0;
-missionTimeSenChance = 0;
+LMO_bTypes = ["BUILDING", "HOUSE"];
+LMO_spawnBldg = [];
+LMO_mChance = 0;
+LMO_mTimeSenChance = 0;
 LMO_Debug = 1;
-//LMO_VCOM_On = false;
+LMO_HVTDebug = 1;
+LMO_VCOM_On = false;
 
 //REWARDS SETTINGS 
 XEPKEY_LMO_HR_REWARD_CIVREP = 40;
@@ -111,9 +115,9 @@ XEPKEY_SideOpsORBAT = [
 if !(isDedicated || (isServer && hasInterface)) exitWith {};
 
 //Checks if VCOM is loaded
-//if (isClass (configfile >> "CfgPatches" >> "VCOM_AI")) then {
-//  LMO_VCOM_On = true;
-//};
+if (isClass (configfile >> "CfgPatches" >> "VCOM_AI") || "VCOM_AI" in (allMissionObjects "Mod")) then {
+  LMO_VCOM_On = true;
+};
 
 while {true} do {
 
@@ -121,9 +125,8 @@ while {true} do {
 	if (activeMission == false) then {
 		call XEPKEY_fn_getEnemyList;
 	};
-	//actual groupChat (format ["%1", enyList]);
-	//call XEPKEY_fnc_getBuildings;
-	if (activeMission == false && count enyList > 0 && ((missionChance <= missionChanceSelect) || LMO_Debug == 1)) then {
+	
+	if (activeMission == false && count LMO_enyList > 0 && ((LMO_mChance <= LMO_mChanceSelect) || LMO_Debug == 1)) then {
 		activeMission = true;
 		call XEPKEY_fn_getBuildings;
 		if (activeMission == false) exitWith {
@@ -133,8 +136,9 @@ while {true} do {
 		call XEPKEY_fn_markerFunctions;
 		call XEPKEY_fn_pickMission;
 	};
+	
 	if (LMO_Debug == 1) then {
 		sleep 10;
-	hintSilent format ["LMO Debug Hint\n\nMission Chance: %1\nActive Mission: %2\nSpawn Building: %3\nEnyCount: %4\nInsideBuilding Player: %5", missionChance, activeMission, spawnBuilding, count enyList, insideBuilding player];	
-	} else {sleep (missioncheckRNG*60)};
+		hintSilent format ["LMO Debug Hint\n\nMission Chance: %1\nActive Mission: %2\nSpawn Building: %3\nEnyCount: %4\nInsideBuilding Player: %5, VCOM Enabled: %6", LMO_mChance, activeMission, LMO_spawnBldg, count LMO_enyList, insideBuilding player, LMO_VCOM_On];	
+	} else {sleep (LMO_mCheckRNG*60)};
 };

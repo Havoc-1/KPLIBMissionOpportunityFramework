@@ -2,14 +2,15 @@
  * Function to populate array of buildings near enemy units to help choose 
  * a target building 
  * 
- * Return Value: spawnBuilding
+ * Return Value: LMO_spawnBldg
  *
  * Example:
  * call XEPKEY_fn_getBuildings
  *
  */
 
-//Initializing local variables
+//Initializing Variables
+LMO_spawnBldg = nil;
 _allBuildings = [];
 _allBuildingsFilter = [];
 _bCheckExclude = [];
@@ -18,15 +19,15 @@ _bCheckExclude = [];
 {
 	if (!isPlayer _x && side _x == east) then {
 		
-		_buildingArray = nearestTerrainObjects [_x, Btypes, Bradius, false, true];
+		_buildingArray = nearestTerrainObjects [_x, LMO_bTypes, LMO_bRadius, false, true];
 		_allBuildings append _buildingArray;
 	};
-}forEach enyList;
+}forEach LMO_enyList;
 
-//Filters buildings with garrison positions less than buildingSize, minimum MO range for player
+//Filters buildings with garrison positions less than LMO_bSize, minimum MO range for player
 {
 	_checkBuildingPos = [_x] call BIS_fnc_buildingPositions;		
-	if (count _checkBuildingPos < buildingSize) then {
+	if (count _checkBuildingPos < LMO_bSize) then {
 	
 		_allBuildingsFilter append [_x];
 
@@ -35,9 +36,10 @@ _bCheckExclude = [];
 
 _allBuildings = _allBuildings - _allBuildingsFilter;
 
+
 {
 	//prevent spawning from too close to player 		
-	_playerRangeCheck = nearestTerrainObjects [_x, Btypes, BplayerRange, false, true];
+	_playerRangeCheck = nearestTerrainObjects [_x, LMO_bTypes, LMO_bPlayerRng, false, true];
 	//hint format ["%1", _playerRangeCheck];
 	_allBuildings = _allBuildings - _playerRangeCheck;
 	
@@ -53,14 +55,15 @@ _allBuildings = _allBuildings - _allBuildingsFilter;
     }forEach XEPKEY_blacklistBuildings;
 }forEach _allBuildings;
 
+if (LMO_Debug == 1) then {systemChat format ["All Buildings: %1, Excluded Buildings: %2", count _allBuildings, count _bCheckExclude]};
 _allBuildings = _allBuildings - _bCheckExclude;
-//actual groupChat (format ["%1", _allBuildings]);
+if (LMO_Debug == 1) then {systemChat format ["Suitable LMO Buildings: %1", count _allBuildings};
 
 if (count _allBuildings < 1) exitWith {
 		activeMission = false;
-		systemChat "No Buildings Found, exiting fn_getBuildings.sqf";
+		if (LMO_Debug == 1) then {systemChat "No Buildings Found, exiting fn_getBuildings.sqf"};
 };
 
 //Selects random building from filtered array
-spawnBuilding = selectRandom _allBuildings;
+LMO_spawnBldg = selectRandom _allBuildings;
 

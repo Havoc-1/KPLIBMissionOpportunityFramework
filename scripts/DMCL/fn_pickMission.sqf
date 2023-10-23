@@ -93,7 +93,7 @@ switch (_missionType) do {
 		//Spawn Hostages
 		_hostageGrp createUnit [
 			(selectRandom civilians), //classname 
-			getPos spawnBuilding,
+			getPos LMO_spawnBldg,
 			[],
 			0,
 			"NONE"
@@ -105,7 +105,7 @@ switch (_missionType) do {
 		{
 			_enyUnitsHolder = _enyUnits createUnit [
 				_x, //classname 
-				getPos spawnBuilding,
+				getPos LMO_spawnBldg,
 				[],
 				0,
 				"NONE"
@@ -115,8 +115,8 @@ switch (_missionType) do {
 			
 		} forEach XEPKEY_SideOpsORBAT;
 		
-		//[(units _enyUnits), getPos spawnBuilding, 30, 1, true] call zen_ai_fnc_garrison;
-		[getPos spawnBuilding, Btypes, (units _enyUnits), 30, 1, true, true] call ace_ai_fnc_garrison;
+		//[(units _enyUnits), getPos LMO_spawnBldg, 30, 1, true] call zen_ai_fnc_garrison;
+		[getPos LMO_spawnBldg, LMO_bTypes, (units _enyUnits), 30, 1, true, true] call ace_ai_fnc_garrison;
 		
 		{
 			_noMove = random 1;
@@ -154,7 +154,7 @@ switch (_missionType) do {
 				_hostageTaker = selectRandom _enyUnitsInside;
 				_hostageTaker disableAI "PATH";
 				
-				_hostageRelDir = _hostageTaker getDir spawnBuilding;
+				_hostageRelDir = _hostageTaker getDir LMO_spawnBldg;
 				//_hostagePos = getPosASL _hostageTaker;
 				_hostagePos = [getPos _hostageTaker, _hostageDisOffset, _hostageRelDir] call BIS_fnc_relPos;
 				_x setPosASL [((_hostagePos select 0) + _hostagePosOffset), ((_hostagePos select 1) + _hostagePosOffset), (getPosASL _hostageTaker) select 2];
@@ -165,7 +165,7 @@ switch (_missionType) do {
 					
 					_hostageTaker = selectRandom _enyUnitsInside;
 					_hostageTaker disableAI "PATH";
-					_hostageRelDir = _hostageTaker getDir spawnBuilding;
+					_hostageRelDir = _hostageTaker getDir LMO_spawnBldg;
 					//_hostagePos = getPosASL _hostageTaker;
 					_hostagePos = [getPos _hostageTaker, _hostageDisOffset, _hostageRelDir] call BIS_fnc_relPos;
 					_x setPosASL [((_hostagePos select 0) + _hostagePosOffset), ((_hostagePos select 1) + _hostagePosOffset), (getPosASL _hostageTaker) select 2];
@@ -174,7 +174,7 @@ switch (_missionType) do {
 					
 					_hostageTaker = selectRandom units _enyUnits;
 					_hostageTaker disableAI "PATH";
-					_hostageRelDir = _hostageTaker getDir spawnBuilding;
+					_hostageRelDir = _hostageTaker getDir LMO_spawnBldg;
 					//_hostagePos = getPosASL _hostageTaker;
 					_hostagePos = [getPos _hostageTaker, _hostageDisOffset, _hostageRelDir] call BIS_fnc_relPos;
 					_x setPosASL [((_hostagePos select 0) + _hostagePosOffset), ((_hostagePos select 1) + _hostagePosOffset), (getPosASL _hostageTaker) select 2];
@@ -200,7 +200,7 @@ switch (_missionType) do {
 		{
 			_enyUnitsHolder = _enyUnits createUnit [
 				_x, //classname 
-				getPos spawnBuilding,
+				getPos LMO_spawnBldg,
 				[],
 				0,
 				"NONE"
@@ -210,8 +210,8 @@ switch (_missionType) do {
 			
 		} forEach XEPKEY_SideOpsORBAT;
 		
-		//[(units _enyUnits), getPos spawnBuilding, 30, 1, true] call zen_ai_fnc_garrison;
-		[getPos spawnBuilding, Btypes, (units _enyUnits), 30, 1, true, true] call ace_ai_fnc_garrison;
+		//[(units _enyUnits), getPos LMO_spawnBldg, 30, 1, true] call zen_ai_fnc_garrison;
+		[getPos LMO_spawnBldg, LMO_bTypes, (units _enyUnits), 30, 1, true, true] call ace_ai_fnc_garrison;
 		{
 			_noMove = random 1;
 			
@@ -304,14 +304,14 @@ switch (_missionType) do {
 					_hvt = _this select 0;
 					while {_hvt getVariable ["ace_captives_isSurrendering", true]} do {
 						
-						_surrenderInRangeWest = ((_hvt nearEntities [["Man","LandVehicle"],HVTrunSurrenderRange]) select {side _x == west}) select {!(currentWeapon _x == "")};
-						_surrenderInRangeEast = ((_hvt nearEntities [["Man","LandVehicle"],HVTrunSurrenderRange]) select {side _x == east}) select {!(currentWeapon _x == "")};
-						if (count _surrenderInRangeWest > count _surrenderInRangeEast && _hvt call BIS_fnc_enemyDetected) exitWith {
+						_surInRngWest = ((_hvt nearEntities [["Man","LandVehicle"],HVTrunSurRng]) select {side _x == west}) select {!(currentWeapon _x == "")};
+						_surInRngEast = ((_hvt nearEntities [["Man","LandVehicle"],HVTrunSurRng]) select {side _x == east}) select {!(currentWeapon _x == "")};
+						if (count _surInRngWest > count _surInRngEast && _hvt call BIS_fnc_enemyDetected) exitWith {
 							[_hvt, true] call ace_captives_fnc_setSurrendered;
-							//systemChat "Man surrendered, exiting scope";
+							if (LMO_HVTDebug == 1) then {systemChat "HVT surrendered, exiting scope"};
 						};
-						//systemChat format ["SurrenderInRangeWest: %1",_surrenderInRangeWest];
-						//systemChat format ["SurrenderInRangeEast: %1",_surrenderInRangeEast];
+						//systemChat format ["SurrenderInRangeWest: %1",_surInRngWest];
+						//systemChat format ["SurrenderInRangeEast: %1",_surInRngEast];
 						sleep 1;
 					};
 				};
@@ -341,10 +341,10 @@ switch (_missionType) do {
 					//systemChat format ["Direction to Run: %1",_angularDegrees];
 					//systemChat format ["Directions Sorted: %1",_angularDiffSort];
 					//systemChat format ["MovePos: %1",_movePos];
-					if (LMO_Debug == 1) then {systemChat format ["TargetList: %1",_targetsList]};
+					if (LMO_HVTDebug == 1) then {systemChat format ["HVT TargetsList Run: %1",_targetsList]};
 					
 					if (_hvt getVariable ["ace_captives_isSurrendering", false]) exitWith {
-						//systemChat "Main Scope surrender check complete, exiting script";
+						if (LMO_HVTDebug == 1) then {systemChat "Main Scope surrender check complete, exiting script"};
 					};
 					sleep 40;
 				};
@@ -352,10 +352,12 @@ switch (_missionType) do {
 		};
 	};
 	
-	//Blow shit up
+	//Locate Cache
 	case 3:{
 						
-		[west, ["_taskMissionMO", "_taskMO"], ["Destroy this thing", "MO: Destroy Cache", "objMarker"], objNull, 1, 3, false] call BIS_fnc_taskCreate;
+		[west, ["_taskMissionMO", "_taskMO"], [format ["Blow some shit up nearby <marker name =%1>%2</marker>. Big boom mission.", objMarkerName,objMarkerText], "LMO: Destroy or Secure Cache", "Kill"], objNull, 1, 3, false] call BIS_fnc_taskCreate;
+		["_taskMissionMO","Kill"] call BIS_fnc_taskSetType;
+		["LMOTask", ["Destroy or Secure Cache", "\A3\ui_f\data\igui\cfg\simpletasks\types\kill_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 		objMarkerName setMarkerColor "ColorGreen";
 		objMarker setMarkerColor "ColorGreen";
 		
@@ -377,14 +379,14 @@ while {activeMission == true} do {
 				missionTimerStr = [missionTimer, "MM:SS"] call BIS_fnc_secondsToString;
 				objMarkerName setMarkerColor "ColorGrey";
 				objMarker setMarkerColor "ColorGrey";
-				objMarker setMarkerPos getPos spawnBuilding;
-				objMarker setMarkerSize [objMarkerRadiusRescue,objMarkerRadiusRescue];
+				objMarker setMarkerPos getPos LMO_spawnBldg;
+				objMarker setMarkerSize [LMO_objMkrRadRescue,LMO_objMkrRadRescue];
 				objMarker setMarkerBrush "Solid";
 		} else {
 				objMarkerName setMarkerColor "ColorBlue";
 				objMarker setMarkerColor "ColorBlue";
 				objMarker setMarkerPos objMarkerPos;
-				objMarker setMarkerSize [objMarkerRadius,objMarkerRadius];
+				objMarker setMarkerSize [LMO_objMkrRad,LMO_objMkrRad];
 				objMarker setMarkerBrush "FDiagonal";
 				missionTimer = missionTimer - 1;
 				missionTimerStr = [missionTimer, "MM:SS"] call BIS_fnc_secondsToString;
@@ -433,7 +435,7 @@ while {activeMission == true} do {
 			while {{alive _x} count units _enyUnits > 0} do {
 				
 				{
-					_enyUnitPlayers = (nearestObjects [_x, ["Man"], (Bradius * 0.8)]) select {isPlayer _x};
+					_enyUnitPlayers = (nearestObjects [_x, ["Man"], (LMO_bRadius * 0.8)]) select {isPlayer _x};
 				}forEach units _enyUnits;
 				
 				if (count _enyUnitPlayers == 0) exitWith {
@@ -449,7 +451,7 @@ while {activeMission == true} do {
 	};
 
 	//Hostage Rescue Win Conditions
-	if (_missionType == 1 && (_hostage distance2D position spawnBuilding > objMarkerRadiusRescue) && alive _hostage && missionTimer > 0) then {
+	if (_missionType == 1 && (_hostage distance2D position LMO_spawnBldg > LMO_objMkrRadRescue) && alive _hostage && missionTimer > 0) then {
 		
 		["LMOTaskOutcome", ["Hostage secured", "\A3\ui_f\data\igui\cfg\simpletasks\types\run_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 		
@@ -477,7 +479,7 @@ while {activeMission == true} do {
 	if (_missionType == 2) then {
 		
 		//if HVT is alive, mission timer expired, or not handcuffed or surrendered and exited escape zone
-		if (alive _hvt && (missionTimer == 0 || ((_hvt getVariable ["ace_captives_isSurrendering", true] || _hvt getVariable ["ace_captives_isHandcuffed", true]) && (_hvt distance2D position spawnBuilding > HVTescapeRng)))) then {
+		if (alive _hvt && (missionTimer == 0 || ((_hvt getVariable ["ace_captives_isSurrendering", true] || _hvt getVariable ["ace_captives_isHandcuffed", true]) && (_hvt distance2D position LMO_spawnBldg > HVTescapeRng)))) then {
 		
 			["LMOTaskOutcome", ["HVT has escaped", "\A3\ui_f\data\igui\cfg\simpletasks\types\run_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 			_missionState = 2;
@@ -495,7 +497,7 @@ while {activeMission == true} do {
 				while {{alive _x} count units _enyUnits > 0} do {
 					
 					{
-						_enyUnitPlayers = (nearestObjects [_x, ["Man"], (Bradius * 0.8)]) select {isPlayer _x};
+						_enyUnitPlayers = (nearestObjects [_x, ["Man"], (LMO_bRadius * 0.8)]) select {isPlayer _x};
 					}forEach units _enyUnits;
 					
 					if (count _enyUnitPlayers == 0) exitWith {
@@ -517,7 +519,7 @@ while {activeMission == true} do {
 		//if HVT is alive, Mission Timer not expired, HVT has exited escape zone, is surrendered or handcuffed
 		//OR
 		//if HVT is dead, mission timer not expired
-		if ((alive _hvt && missionTimer > 0 && (_hvt distance2D position spawnBuilding > Bradius * 0.8) && (_hvt getVariable ["ace_captives_isSurrendering", false] || _hvt getVariable ["ace_captives_isHandcuffed", false])) || (!alive _hvt && (missionTimer > 0))) then {
+		if ((alive _hvt && missionTimer > 0 && (_hvt distance2D position LMO_spawnBldg > LMO_bRadius * 0.8) && (_hvt getVariable ["ace_captives_isSurrendering", false] || _hvt getVariable ["ace_captives_isHandcuffed", false])) || (!alive _hvt && (missionTimer > 0))) then {
 			
 			if (_hvtRunner < 0.5) then {
 				deleteGroup _hvtRunnerGrp;
@@ -555,7 +557,7 @@ while {activeMission == true} do {
 				_enyUnitPlayers = [];
 				while {{alive _x} count units _enyUnits > 0} do {
 					{
-						_enyUnitPlayers = (nearestObjects [_x, ["Man"], (Bradius * 0.8)]) select {isPlayer _x};
+						_enyUnitPlayers = (nearestObjects [_x, ["Man"], (LMO_bRadius * 0.8)]) select {isPlayer _x};
 					}forEach units _enyUnits;
 					
 					//hint format ["%1", units _enyUnits];
