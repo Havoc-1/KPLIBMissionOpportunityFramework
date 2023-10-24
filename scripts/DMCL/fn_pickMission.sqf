@@ -64,7 +64,7 @@ _enyUnitsInside = [];
 _enyUnitPlayers = [];
 _enyUnitHostages = [];
 
-[west, "_taskMO", ["A mission of opporunity has appeared on the map, complete the task before the timer expires.", "Mission of Opportunity", "objMarker"], objNull, 1, 3, false] call BIS_fnc_taskCreate;
+[west, "_taskMO", ["A mission of opporunity has appeared on the map, complete the task before the timer expires.", "Mission of Opportunity", "LMO_Mkr"], objNull, 1, 3, false] call BIS_fnc_taskCreate;
 ["_taskMO","Box"] call BIS_fnc_taskSetType;
 
 
@@ -75,12 +75,12 @@ switch (_missionType) do {
 	case 1:{
 		
 		//Creates Task
-		[west, ["_taskMissionMO", "_taskMO"], [format ["Our intel indicates a small group of combatants holding a hostage at <marker name =%1>%2</marker>. Locate and extract the hostage.", objMarkerName,objMarkerText], "LMO: Hostage Rescue", "Meet"], objNull, 1, 3, false] call BIS_fnc_taskCreate;																						
-		["_taskMissionMO","meet"] call BIS_fnc_taskSetType;
+		[west, ["_taskMisMO", "_taskMO"], [format ["Our intel indicates a small group of combatants holding a hostage at <marker name =%1>%2</marker>. Locate and extract the hostage.", LMO_MkrName,LMO_MkrText], "LMO: Hostage Rescue", "Meet"], objNull, 1, 3, false] call BIS_fnc_taskCreate;																						
+		["_taskMisMO","meet"] call BIS_fnc_taskSetType;
 		["LMOTask", ["Hostage Rescue", "\A3\ui_f\data\igui\cfg\simpletasks\types\meet_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 
-		objMarkerName setMarkerColor "ColorBlue";
-		objMarker setMarkerColor "ColorBlue";
+		LMO_MkrName setMarkerColor "ColorBlue";
+		LMO_Mkr setMarkerColor "ColorBlue";
 		
 		//Empties Variables
 		_enyUnitHostages = [];
@@ -188,12 +188,12 @@ switch (_missionType) do {
 	//Eliminate HVT
 	case 2:{
 		
-		[west, ["_taskMissionMO", "_taskMO"], [format ["A high value target was reported to be within the vicinity nearby <marker name =%1>%2</marker>. Locate and extract kill the high value target.", objMarkerName,objMarkerText], "LMO: Capture or Kill HVT", "Kill"], objNull, 1, 3, false] call BIS_fnc_taskCreate;
-		["_taskMissionMO","Kill"] call BIS_fnc_taskSetType;
+		[west, ["_taskMisMO", "_taskMO"], [format ["A high value target was reported to be within the vicinity nearby <marker name =%1>%2</marker>. Locate and extract kill the high value target.", LMO_MkrName,LMO_MkrText], "LMO: Capture or Kill HVT", "Kill"], objNull, 1, 3, false] call BIS_fnc_taskCreate;
+		["_taskMisMO","Kill"] call BIS_fnc_taskSetType;
 		["LMOTask", ["Kill or Capture HVT", "\A3\ui_f\data\igui\cfg\simpletasks\types\kill_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 		
-		objMarkerName setMarkerColor "ColorOrange";
-		objMarker setMarkerColor "ColorOrange";
+		LMO_MkrName setMarkerColor "ColorOrange";
+		LMO_Mkr setMarkerColor "ColorOrange";
 		_enyUnits = createGroup east;
 		
 		//Spawns Enemies
@@ -337,14 +337,16 @@ switch (_missionType) do {
 					};
 					
 					group _hvt move _movePos;
-
-					//systemChat format ["Direction to Run: %1",_angularDegrees];
-					//systemChat format ["Directions Sorted: %1",_angularDiffSort];
-					//systemChat format ["MovePos: %1",_movePos];
-					if (LMO_HVTDebug == 1) then {systemChat format ["HVT TargetsList Run: %1",_targetsList]};
 					
+
+					if (LMO_HVTDebug == 1) then {
+						systemChat format ["HVT TargetsList Run: %1",_targetsList];
+						systemChat format ["Direction to Run: %1",_angularDegrees];
+						systemChat format ["MovePos: %1",_movePos];
+					};
+				
 					if (_hvt getVariable ["ace_captives_isSurrendering", false]) exitWith {
-						if (LMO_HVTDebug == 1) then {systemChat "Main Scope surrender check complete, exiting script"};
+						if (LMO_HVTDebug == 1) then {systemChat "Main Scope HVT surrender check complete, exiting script"};
 					};
 					sleep 40;
 				};
@@ -355,16 +357,16 @@ switch (_missionType) do {
 	//Locate Cache
 	case 3:{
 						
-		[west, ["_taskMissionMO", "_taskMO"], [format ["Blow some shit up nearby <marker name =%1>%2</marker>. Big boom mission.", objMarkerName,objMarkerText], "LMO: Destroy or Secure Cache", "Kill"], objNull, 1, 3, false] call BIS_fnc_taskCreate;
-		["_taskMissionMO","Kill"] call BIS_fnc_taskSetType;
+		[west, ["_taskMisMO", "_taskMO"], [format ["Blow some shit up nearby <marker name =%1>%2</marker>. Big boom mission.", LMO_MkrName,LMO_MkrText], "LMO: Destroy or Secure Cache", "Kill"], objNull, 1, 3, false] call BIS_fnc_taskCreate;
+		["_taskMisMO","Kill"] call BIS_fnc_taskSetType;
 		["LMOTask", ["Destroy or Secure Cache", "\A3\ui_f\data\igui\cfg\simpletasks\types\kill_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
-		objMarkerName setMarkerColor "ColorGreen";
-		objMarker setMarkerColor "ColorGreen";
+		LMO_MkrName setMarkerColor "ColorGreen";
+		LMO_Mkr setMarkerColor "ColorGreen";
 		
 	};
 };
 
-while {activeMission == true} do {
+while {LMO_active == true} do {
 	
 	//Hostage Rescue Parameters
 	if (_missionType == 1) then {
@@ -375,42 +377,42 @@ while {activeMission == true} do {
 		}forEach units _hostageGrp;
 		
 		if ((count _playerUnitHostages > 0) && (count _enyUnitHostages == 0)) then {
-				missionTimer = missionTimer - 0;
-				missionTimerStr = [missionTimer, "MM:SS"] call BIS_fnc_secondsToString;
-				objMarkerName setMarkerColor "ColorGrey";
-				objMarker setMarkerColor "ColorGrey";
-				objMarker setMarkerPos getPos LMO_spawnBldg;
-				objMarker setMarkerSize [LMO_objMkrRadRescue,LMO_objMkrRadRescue];
-				objMarker setMarkerBrush "Solid";
+				LMO_mTimer = LMO_mTimer - 0;
+				LMO_mTimerStr = [LMO_mTimer, "MM:SS"] call BIS_fnc_secondsToString;
+				LMO_MkrName setMarkerColor "ColorGrey";
+				LMO_Mkr setMarkerColor "ColorGrey";
+				LMO_Mkr setMarkerPos getPos LMO_spawnBldg;
+				LMO_Mkr setMarkerSize [LMO_objMkrRadRescue,LMO_objMkrRadRescue];
+				LMO_Mkr setMarkerBrush "Solid";
 		} else {
-				objMarkerName setMarkerColor "ColorBlue";
-				objMarker setMarkerColor "ColorBlue";
-				objMarker setMarkerPos objMarkerPos;
-				objMarker setMarkerSize [LMO_objMkrRad,LMO_objMkrRad];
-				objMarker setMarkerBrush "FDiagonal";
-				missionTimer = missionTimer - 1;
-				missionTimerStr = [missionTimer, "MM:SS"] call BIS_fnc_secondsToString;
+				LMO_MkrName setMarkerColor "ColorBlue";
+				LMO_Mkr setMarkerColor "ColorBlue";
+				LMO_Mkr setMarkerPos LMO_MkrPos;
+				LMO_Mkr setMarkerSize [LMO_objMkrRad,LMO_objMkrRad];
+				LMO_Mkr setMarkerBrush "FDiagonal";
+				LMO_mTimer = LMO_mTimer - 1;
+				LMO_mTimerStr = [LMO_mTimer, "MM:SS"] call BIS_fnc_secondsToString;
 		};
 		
 	} else {
 	
-		missionTimer = missionTimer - 1;
-		missionTimerStr = [missionTimer, "MM:SS"] call BIS_fnc_secondsToString;
+		LMO_mTimer = LMO_mTimer - 1;
+		LMO_mTimerStr = [LMO_mTimer, "MM:SS"] call BIS_fnc_secondsToString;
 	
 	};
 	
-	//hintSilent format ["Time Remaining: %1", missionTimerStr];
+	//hintSilent format ["Time Remaining: %1", LMO_mTimerStr];
 	
-	objMarkerName setMarkerText format [" %1 [%2]",objMarkerText, missionTimerStr];
+	LMO_MkrName setMarkerText format [" %1 [%2]",LMO_MkrText, LMO_mTimerStr];
 	
-	if (missionTimer == 0) then {
+	if (LMO_mTimer == 0) then {
 		_missionState = 2;
 	};
 	
 	//----Win Lose Conditions----//
 	
 	//Hostage Rescue Lose Conditions
-	if (_missionType == 1 && (!alive _hostage || missionTimer == 0)) then {
+	if (_missionType == 1 && (!alive _hostage || LMO_mTimer == 0)) then {
 		["LMOTaskOutcome", ["Hostage was killed", "\A3\ui_f\data\igui\cfg\simpletasks\types\rifle_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 	
 		_missionState = 2;
@@ -451,7 +453,7 @@ while {activeMission == true} do {
 	};
 
 	//Hostage Rescue Win Conditions
-	if (_missionType == 1 && (_hostage distance2D position LMO_spawnBldg > LMO_objMkrRadRescue) && alive _hostage && missionTimer > 0) then {
+	if (_missionType == 1 && (_hostage distance2D position LMO_spawnBldg > LMO_objMkrRadRescue) && alive _hostage && LMO_mTimer > 0) then {
 		
 		["LMOTaskOutcome", ["Hostage secured", "\A3\ui_f\data\igui\cfg\simpletasks\types\run_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 		
@@ -478,15 +480,13 @@ while {activeMission == true} do {
 	//Eliminate HVT Lose Conditions	
 	if (_missionType == 2) then {
 		
-		//if HVT is alive, mission timer expired, or not handcuffed or surrendered and exited escape zone
-		if (alive _hvt && (missionTimer == 0 || ((_hvt getVariable ["ace_captives_isSurrendering", true] || _hvt getVariable ["ace_captives_isHandcuffed", true]) && (_hvt distance2D position LMO_spawnBldg > HVTescapeRng)))) then {
+		//if HVT is alive, mission timer expired, or not handcuffed and exited escape zone
+		if (alive _hvt && (LMO_mTimer == 0 || (_hvt getVariable ["ace_captives_isHandcuffed", true] && (_hvt distance2D position LMO_spawnBldg > HVTescapeRng)))) then {
 		
 			["LMOTaskOutcome", ["HVT has escaped", "\A3\ui_f\data\igui\cfg\simpletasks\types\run_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 			_missionState = 2;
 			
-			if (_hvtRunner < 0.5) then {
-				deleteGroup _hvtRunnerGrp;
-			};
+			if (_hvtRunner < 0.5) then {deleteGroup _hvtRunnerGrp};
 			
 			deleteVehicle _hvt;
 					
@@ -501,11 +501,8 @@ while {activeMission == true} do {
 					}forEach units _enyUnits;
 					
 					if (count _enyUnitPlayers == 0) exitWith {
-						_missionState = 2;
-						{
-							deleteVehicle _x;
-						}forEach units _enyUnits;
-					deleteGroup _enyUnits;
+						{deleteVehicle _x}forEach units _enyUnits;
+						deleteGroup _enyUnits;
 					};
 					sleep 5;
 				};
@@ -519,7 +516,7 @@ while {activeMission == true} do {
 		//if HVT is alive, Mission Timer not expired, HVT has exited escape zone, is surrendered or handcuffed
 		//OR
 		//if HVT is dead, mission timer not expired
-		if ((alive _hvt && missionTimer > 0 && (_hvt distance2D position LMO_spawnBldg > LMO_bRadius * 0.8) && (_hvt getVariable ["ace_captives_isSurrendering", false] || _hvt getVariable ["ace_captives_isHandcuffed", false])) || (!alive _hvt && (missionTimer > 0))) then {
+		if ((alive _hvt && LMO_mTimer > 0 && (_hvt distance2D position LMO_spawnBldg > LMO_bRadius * 0.8) && (_hvt getVariable ["ace_captives_isSurrendering", false] || _hvt getVariable ["ace_captives_isHandcuffed", false])) || (!alive _hvt && (LMO_mTimer > 0))) then {
 			
 			if (_hvtRunner < 0.5) then {
 				deleteGroup _hvtRunnerGrp;
@@ -576,25 +573,23 @@ while {activeMission == true} do {
 	if (_missionState == 2) exitWith {
 	
 		["_taskMO", "FAILED", false] call BIS_fnc_taskSetState;
-		deleteMarker objMarker;
-		deleteMarker objMarkerName;
-		//deleteMarker _objMarkerName2;
+		deleteMarker LMO_Mkr;
+		deleteMarker LMO_MkrName;
 		sleep 5;
 		["_taskMO"] call BIS_fnc_deleteTask;
-		["_taskMissionMO"] call BIS_fnc_deleteTask;
-		activeMission = false;
+		["_taskMisMO"] call BIS_fnc_deleteTask;
+		LMO_active = false;
 	};
 	
 	if (_missionState == 1) exitWith {
 	
 		["_taskMO", "SUCCEEDED", false] call BIS_fnc_taskSetState;
-		deleteMarker objMarker;
-		deleteMarker objMarkerName;
-		//deleteMarker _objMarkerName2;
+		deleteMarker LMO_Mkr;
+		deleteMarker LMO_MkrName;
 		sleep 5;
 		["_taskMO"] call BIS_fnc_deleteTask;
-		["_taskMissionMO"] call BIS_fnc_deleteTask;
-		activeMission = false;
+		["_taskMisMO"] call BIS_fnc_deleteTask;
+		LMO_active = false;
 	};
 sleep 1;
 };

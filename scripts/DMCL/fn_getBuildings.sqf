@@ -60,7 +60,7 @@ _allBuildings = _allBuildings - _bCheckExclude;
 if (LMO_Debug == 1) then {systemChat format ["Suitable LMO Buildings: %1", count _allBuildings};
 
 if (count _allBuildings < 1) exitWith {
-		activeMission = false;
+		LMO_active = false;
 		if (LMO_Debug == 1) then {systemChat "No Buildings Found, exiting fn_getBuildings.sqf"};
 };
 

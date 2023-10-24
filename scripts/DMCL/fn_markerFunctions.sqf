@@ -11,16 +11,16 @@
 
 //Variables
 //Array for objective names
-_objNamesArray = ["Albatross","Alpaca","Arcadia","Aegis","Arowana","Astral","Aurora","Bastion","Beacon","Catalyst","Cicada","Cipher","Citadel","Cobra","Crow","Dynamo","Eagle","Eclipse","Empyrean","Enigma","Falcon","Firefly","Goliath","Havoc","Hawk","Heron","Inferno","Kingfish","Lemur","Lion","Mallet","Mantis","Maverick","Mirage","Monolith","Nebula","Nexus","Nighthawk","Obsidian","Opah","Ostrich","Otter","Pantheon","Paradigm","Paragon","Pelican","Phoenix","Radiance","Rhino","Robin","Ruby","Sapphire","Seagull","Sparrow","Staple","Swift","Swan","Umbra","Vanguard","Velvet","Vertex","Vulture","Weevil","Zenith","Zebra"];
+_objNamesArray = ["Aegis", "Astral", "Aurora", "Albatross", "Alpaca", "Arcadia", "Arowana", "Bastion", "Beacon", "Catalyst", "Cicada", "Chimera", "Cipher", "Citadel", "Cobra", "Celestial", "Crow", "Phoenix", "Dynamo", "Eagle", "Eclipse", "Empyrean", "Enigma", "Falcon", "Firefly", "Goliath", "Havoc", "Hawk", "Heron", "Inferno", "Kingfish", "Lemur", "Lion", "Mallet", "Mantis", "Maverick", "Mirage", "Monolith", "Nebula", "Nexus", "Nighthawk", "Nebulus", "Obsidian", "Opah", "Orion", "Ostrich", "Otter", "Pantheon", "Paradigm", "Paragon", "Pelican", "Radiance", "Rhino", "Sapphire", "Seagull", "Serenade", "Sparrow", "Staple", "Swift", "Swan", "Tempest", "Pulsar", "Umbra", "Vanguard", "Velvet", "Vertex", "Vulture", "Weevil", "Zenith", "Zebra"];
 
 //Create Ellipse Marker on Obj
-objMarkerText = format ["OBJ %1", selectRandom _objNamesArray];
+LMO_MkrText = format ["OBJ %1", selectRandom _objNamesArray];
 LMO_objMkrRad = [mkrRngLow,mkrRngHigh] call BIS_fnc_randomInt;
-objMarkerPos = [[[position LMO_spawnBldg, (LMO_objMkrRad/1.5)]], []] call BIS_fnc_randomPos;
-objMarker = createMarker ["objMarker", objMarkerPos];
-objMarker setMarkerShape "ELLIPSE";
-objMarker setMarkerSize [LMO_objMkrRad,LMO_objMkrRad];
-objMarker setMarkerBrush "FDiagonal";
+LMO_MkrPos = [[[position LMO_spawnBldg, (LMO_objMkrRad/1.5)]], []] call BIS_fnc_randomPos;
+LMO_Mkr = createMarker ["LMO_Mkr", LMO_MkrPos];
+LMO_Mkr setMarkerShape "ELLIPSE";
+LMO_Mkr setMarkerSize [LMO_objMkrRad,LMO_objMkrRad];
+LMO_Mkr setMarkerBrush "FDiagonal";
 
 //Set OBJ Marker Name & Timer
 
@@ -31,9 +31,9 @@ objMarker setMarkerBrush "FDiagonal";
 //	_moTimeMin = moTimeMin;
 //	_moTimeMax = moTimeMax;
 //};
-missionTimer = [((moTimeMin)*60),((moTimeMax)*60)] call BIS_fnc_randomInt;
-missionTimerStr = [missionTimer, "MM:SS"] call BIS_fnc_secondsToString;
-objMarkerName = createMarker ["Marker1", objMarkerPos];
-objMarkerName setMarkerShape "ICON";
-objMarkerName setMarkerSize [1,1];
-objMarkerName setMarkerType "mil_unknown";
+LMO_mTimer = [((moTimeMin)*60),((moTimeMax)*60)] call BIS_fnc_randomInt;
+LMO_mTimerStr = [LMO_mTimer, "MM:SS"] call BIS_fnc_secondsToString;
+LMO_MkrName = createMarker ["Marker1", LMO_MkrPos];
+LMO_MkrName setMarkerShape "ICON";
+LMO_MkrName setMarkerSize [1,1];
+LMO_MkrName setMarkerType "mil_unknown";
