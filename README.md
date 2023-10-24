@@ -30,7 +30,9 @@ Designed for Arma 3
 - Further optimize pickMission.sqf with CBA_eventHandlers
 - Offload customization to CBA settings 
 
-
+## Installation
+- Place / Paste code or files within mission directory
+- For notifications, liberation_notifications.hpp is under the `ui` folder
 
 ## Authors
 
