@@ -35,7 +35,6 @@ _bCheckExclude = [];
 
 _allBuildings = _allBuildings - _allBuildingsFilter;
 
-
 {
 	//prevent spawning from too close to player 		
 	_playerRangeCheck = nearestTerrainObjects [_x, LMO_bTypes, LMO_bPlayerRng, false, true];
@@ -54,8 +53,8 @@ _allBuildings = _allBuildings - _allBuildingsFilter;
     }forEach XEPKEY_blacklistBuildings;
 }forEach _allBuildings;
 
-if (LMO_Debug == 1) then {systemChat format ["All Buildings: %1, Excluded Buildings: %2", count _allBuildings, count _bCheckExclude]};
-_allBuildings = _allBuildings - _bCheckExclude;
+if (LMO_Debug == 1) then {systemChat format ["All Buildings: %1, Excluded Buildings: %2, Blacklisted Buildings: %3", count _allBuildings, count _bCheckExclude, count LMO_objBlacklist]};
+_allBuildings = _allBuildings - _bCheckExclude - LMO_objBlacklist;
 if (LMO_Debug == 1) then {systemChat format ["Suitable LMO Buildings: %1", count _allBuildings]};
 
 if (count _allBuildings < 1) exitWith {
@@ -65,4 +64,4 @@ if (count _allBuildings < 1) exitWith {
 
 //Selects random building from filtered array
 LMO_spawnBldg = selectRandom _allBuildings;
-
+LMO_objBlacklist = _allBuildings;

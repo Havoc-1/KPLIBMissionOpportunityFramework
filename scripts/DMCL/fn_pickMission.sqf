@@ -63,6 +63,7 @@ _playerUnitHostages = [];
 _enyUnitsInside = [];
 _enyUnitPlayers = [];
 _enyUnitHostages = [];
+_hostageRescueRad = LMO_objMkrRadRescue;
 
 [west, "_taskMO", ["A mission of opporunity has appeared on the map, complete the task before the timer expires.", "Mission of Opportunity", "LMO_Mkr"], objNull, 1, 3, false] call BIS_fnc_taskCreate;
 ["_taskMO","Box"] call BIS_fnc_taskSetType;
@@ -81,6 +82,11 @@ switch (_missionType) do {
 
 		LMO_MkrName setMarkerColor "ColorBlue";
 		LMO_Mkr setMarkerColor "ColorBlue";
+		
+		//Checks whether hostage is in city
+		_nearbyBuildings = nearestTerrainObjects [LMO_spawnBldg, LMO_bTypes, (LMO_objMkrRadRescue/2), false, true];
+		//Increase escape radius if not in city
+		if (count _nearbyBuildings < 10) then {_hostageRescueRad = LMO_objMkrRadRescue * 1.5};
 		
 		//Empties Variables
 		_enyUnitHostages = [];
@@ -382,7 +388,7 @@ while {LMO_active == true} do {
 				LMO_MkrName setMarkerColor "ColorGrey";
 				LMO_Mkr setMarkerColor "ColorGrey";
 				LMO_Mkr setMarkerPos getPos LMO_spawnBldg;
-				LMO_Mkr setMarkerSize [LMO_objMkrRadRescue,LMO_objMkrRadRescue];
+				LMO_Mkr setMarkerSize [_hostageRescueRad,_hostageRescueRad];
 				LMO_Mkr setMarkerBrush "Solid";
 		} else {
 				LMO_MkrName setMarkerColor "ColorBlue";
@@ -416,16 +422,14 @@ while {LMO_active == true} do {
 		["LMOTaskOutcome", ["Hostage was killed", "\A3\ui_f\data\igui\cfg\simpletasks\types\rifle_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 	
 		_missionState = 2;
-		{
-			_x setdamage 1;
-		}forEach units _hostageGrp;
 		
-		{
-			_x enableAI "PATH";
-		}forEach units _enyUnits;
+		{_x setdamage 1} forEach units _hostageGrp;
+		{_x enableAI "PATH"} forEach units _enyUnits;
 		
+		if (LMO_Penalties == true) then {
 		//Deduct Civilian reputation as defined in kp_liberation_config.sqf
 		KP_liberation_civ_rep = KP_liberation_civ_rep - KP_liberation_cr_kill_penalty;
+		};
 
 		_enyUnitPlayers = [];
 		if (alive _hostage) then {_hostage setdamage 1};
@@ -453,7 +457,7 @@ while {LMO_active == true} do {
 	};
 
 	//Hostage Rescue Win Conditions
-	if (_missionType == 1 && (_hostage distance2D position LMO_spawnBldg > LMO_objMkrRadRescue) && alive _hostage && LMO_mTimer > 0) then {
+	if (_missionType == 1 && (_hostage distance2D position LMO_spawnBldg > _hostageRescueRad) && alive _hostage && LMO_mTimer > 0) then {
 		
 		["LMOTaskOutcome", ["Hostage secured", "\A3\ui_f\data\igui\cfg\simpletasks\types\run_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 		

@@ -32,7 +32,7 @@ moTimeSenChanceSelect = 20;	//Percentage chance of Time Sensitive LMO per check 
 mkrRngLow = 50;				//Objective Marker Minimum Radius Range
 mkrRngHigh = 300;				//Objective Marker Maximum Radius Range
 LMO_bSize = 8;				//Minimum garrison spots in target building for LMO
-LMO_bRadius = 500;			//Distance to search building array on enemy units
+LMO_bRadius = 500;			//Distance to search building array on enemy units (Default: 500)
 
 //LMO Range Params
 LMO_enyRng = 2500;			//Minimum distance of enemy to players to start LMO
@@ -46,6 +46,9 @@ HVTrunSearchRng = 200;				//Runs away from BLUFOR units within this range
 HVTrunSurRng = 5;					//Distance to determine whether HVT will consider surrender
 HVTrunDist = 400;					//Distance HVT runs once spooked
 HVTescapeRng = LMO_bRadius * 0.6;	//HVT Escape radius from LMO_spawnBldg
+
+//Enable or disable failed LMO penalties
+LMO_Penalties = true;
 
 //Building exclusion array to make sure seaports are not included, list is not exhaustive
 XEPKEY_blacklistBuildings = [
@@ -69,17 +72,18 @@ XEPKEY_blacklistBuildings = [
 
 //GLOBAL SETTINGS
 LMO_active = false;
-LMO_bTypes = ["BUILDING", "HOUSE"];
+LMO_bTypes = ["BUILDING", "HOUSE"];		//Types of buildings to consider for LMO target
 LMO_spawnBldg = [];
 LMO_mChance = 0;
 LMO_mTimeSenChance = 0;
-LMO_Debug = 1;
-LMO_HVTDebug = 1;
+LMO_Debug = 1;				//Hints, systemChats, and 10s mission check rate for debugging
+LMO_HVTDebug = 1;				//Hints and systemChats for debugging HVT missions
 LMO_VCOM_On = false;
+LMO_objBlacklist = [];
 
 //REWARDS SETTINGS 
-XEPKEY_LMO_HR_REWARD_CIVREP = 40;
-XEPKEY_LMO_HR_REWARD_INTEL = 15;
+XEPKEY_LMO_HR_REWARD_CIVREP = 40;			//Hostage Rescue Civilian Reputation Win
+XEPKEY_LMO_HR_REWARD_INTEL = 15;			//Hostage Rescue Intelligence Win
 XEPKEY_LMO_HVT_REWARD_ALERT_LOW = 1;
 XEPKEY_LMO_HVT_REWARD_ALERT_HIGH = 5;
 XEPKEY_LMO_HVT_REWARD_INTEL1 = 25;
