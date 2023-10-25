@@ -10,7 +10,6 @@
  */
 
 //Initializing Variables
-LMO_spawnBldg = nil;
 _allBuildings = [];
 _allBuildingsFilter = [];
 _bCheckExclude = [];
