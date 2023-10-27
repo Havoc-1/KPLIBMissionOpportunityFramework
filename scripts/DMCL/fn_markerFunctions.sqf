@@ -16,17 +16,17 @@ _TimeMin = 0;
 _TimeMax = 0;
 
 //Time Sensitive Mission check
-moTimeSenRNG = random 100;
-if (LMO_TimeSen == true && moTimeSenRNG <= moTimeSenChanceSelect) then {
-	LMO_TimeSenState = true;
+LMO_TimeSenRNG = random 100;
+if (LMO_TST == true && LMO_TimeSenRNG <= LMO_TSTchance) then {
+	LMO_TSTState = true;
 	if (LMO_Debug == true) then {systemChat "Time Sensitive Mission Started."};
 } else {
-	LMO_TimeSenState = false;
+	LMO_TSTState = false;
 };
 
 //Create Ellipse Marker on Obj
 LMO_MkrText = format ["OBJ %1", selectRandom _objNamesArray];
-LMO_objMkrRad = [mkrRngLow,mkrRngHigh] call BIS_fnc_randomInt;
+LMO_objMkrRad = [LMO_mkrRngLow,LMO_mkrRngHigh] call BIS_fnc_randomInt;
 LMO_MkrPos = [[[position LMO_spawnBldg, (LMO_objMkrRad/1.5)]], []] call BIS_fnc_randomPos;
 LMO_Mkr = createMarker ["LMO_Mkr", LMO_MkrPos];
 LMO_Mkr setMarkerShape "ELLIPSE";
@@ -35,12 +35,12 @@ LMO_Mkr setMarkerBrush "FDiagonal";
 
 //Set OBJ Marker Name & Timer
 
-if (LMO_TimeSenState == true) then {
-	_TimeMin = moTimeSenMin;
-	_TimeMax = moTimeSenMax;
+if (LMO_TSTState == true) then {
+	_TimeMin = LMO_TSTmin;
+	_TimeMax = LMO_TSTmax;
 } else {
-	_TimeMin = moTimeMin;
-	_TimeMax = moTimeMax;
+	_TimeMin = LMO_TimeMin;
+	_TimeMax = LMO_TimeMax;
 };
 LMO_mTimer = [((_TimeMin)*60),((_TimeMax)*60)] call BIS_fnc_randomInt;
 LMO_mTimerStr = [LMO_mTimer, "MM:SS"] call BIS_fnc_secondsToString;

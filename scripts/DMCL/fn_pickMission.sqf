@@ -332,8 +332,8 @@ switch (_missionType) do {
 					_hvt = _this select 0;
 					while {_hvt getVariable ["ace_captives_isSurrendering", true]} do {
 						
-						_surInRngWest = ((_hvt nearEntities [["Man","LandVehicle"],HVTrunSurRng]) select {side _x == west}) select {!(currentWeapon _x == "")};
-						_surInRngEast = ((_hvt nearEntities [["Man","LandVehicle"],HVTrunSurRng]) select {side _x == east}) select {!(currentWeapon _x == "")};
+						_surInRngWest = ((_hvt nearEntities [["Man","LandVehicle"],LMO_HVTrunSurRng]) select {side _x == west}) select {!(currentWeapon _x == "")};
+						_surInRngEast = ((_hvt nearEntities [["Man","LandVehicle"],LMO_HVTrunSurRng]) select {side _x == east}) select {!(currentWeapon _x == "")};
 						if (count _surInRngWest > count _surInRngEast && _hvt call BIS_fnc_enemyDetected) exitWith {
 							[_hvt, true] call ace_captives_fnc_setSurrendered;
 							if (LMO_HVTDebug == true) then {systemChat "LMO: HVT surrendered, exiting scope"};
@@ -348,7 +348,7 @@ switch (_missionType) do {
 				while {true} do {
 					_targetsList = [];
 					_movePos = [];
-					_targetsInRange = ((_hvt nearEntities [["Man","LandVehicle"],HVTrunSearchRng]) select {side _x == west}) select {!(currentWeapon _x == "")};
+					_targetsInRange = ((_hvt nearEntities [["Man","LandVehicle"],LMO_HVTrunSearchRng]) select {side _x == west}) select {!(currentWeapon _x == "")};
 					_targetsList append _targetsInRange;
 					
 					{
@@ -358,10 +358,10 @@ switch (_missionType) do {
 					}forEach _targetsList;
 
 					if (count _targetsInRange == 0 || _targetDir == 0) then {
-						_movePos = [getPos _hvt, HVTrunDist, random 360] call BIS_fnc_relPos;
+						_movePos = [getPos _hvt, LMO_HVTrunDist, random 360] call BIS_fnc_relPos;
 					} else {	
 						_angularDegrees = ((_targetDir/count _targetsInRange) + 180) % 360;
-						_movePos = [getPos _hvt, HVTrunDist, _angularDegrees] call BIS_fnc_relPos;
+						_movePos = [getPos _hvt, LMO_HVTrunDist, _angularDegrees] call BIS_fnc_relPos;
 					};
 					
 					group _hvt move _movePos;
@@ -618,7 +618,7 @@ while {LMO_active == true} do {
 	if (_missionType == 2) then {
 		
 		//if HVT is alive, mission timer expired, or not handcuffed and exited escape zone
-		if (alive _hvt && (LMO_mTimer == 0 || (_hvt getVariable ["ace_captives_isHandcuffed", true] && (_hvt distance2D position LMO_spawnBldg > HVTescapeRng)))) then {
+		if (alive _hvt && (LMO_mTimer == 0 || (_hvt getVariable ["ace_captives_isHandcuffed", true] && (_hvt distance2D position LMO_spawnBldg > LMO_HVTescRng)))) then {
 		
 			["LMOTaskOutcome", ["HVT has escaped", "\A3\ui_f\data\igui\cfg\simpletasks\types\run_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 			_missionState = 2;

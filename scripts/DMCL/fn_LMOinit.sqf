@@ -18,36 +18,37 @@
 //--------LMO Adjustable Parameters--------//
 
 //Mission Timer Range (minutes)
-moTimeMin = 30;				//Minimum minutes for LMO Objective
-moTimeMax = 60;				//Maximum minutes for LMO Objective
-moTimeSenMin = 10;			//Minimum minutes for Time Sensitive LMO Objective
-moTimeSenMax = 15;			//Maximum minutes for Time Sensitive LMO Objective
-LMO_TimeSen = true;			//Enable or disable Time Sensitive Missions
+
+LMO_TimeMin = 30;			//Minimum minutes for LMO Objective
+LMO_TimeMax = 60;			//Maximum minutes for LMO Objective
+LMO_TSTmin = 10;			//Minimum minutes for Time Sensitive LMO Objective
+LMO_TSTmax = 15;			//Maximum minutes for Time Sensitive LMO Objective
+LMO_TST = true;				//Enable or disable Time Sensitive Tasks
 
 //Mission Chance
 LMO_mCheckRNG = 10;			//How often (in minutes) the server will check to start an LMO
 LMO_mChanceSelect = 20;		//Percentage chance of LMO per check rate
-moTimeSenChanceSelect = 20;	//Percentage chance of Time Sensitive LMO per check rate once LMO has been determined
+LMO_TSTchance = 20;			//Percentage chance of Time Sensitive LMO per check rate once LMO has been determined
 
 //Building Params
-mkrRngLow = 50;				//Objective Marker Minimum Radius Range
-mkrRngHigh = 300;				//Objective Marker Maximum Radius Range
-LMO_bSize = 8;				//Minimum garrison spots in target building for LMO
-LMO_bRadius = 500;			//Distance to search building array on enemy units (Default: 500)
+LMO_mkrRngLow = 50;				//Objective Marker Minimum Radius Range
+LMO_mkrRngHigh = 300;			//Objective Marker Maximum Radius Range
+LMO_bSize = 8;					//Minimum garrison spots in target building for LMO
+LMO_bRadius = 500;				//Distance to search building array on enemy units (Default: 500)
 LMO_objBlacklistRng = 500;		//Distance to blacklist buildings preventing objectives spawning in the same area
 
 //LMO Range Params
-LMO_enyRng = 2500;			//Minimum distance of enemy to players to start LMO
+LMO_enyRng = 2500;				//Minimum distance of enemy to players to start LMO
 LMO_bPlayerRng = 1000;			//Minimum range of MO target to spawn on MO start
 
 //Hostage Rescue win radius
 LMO_objMkrRadRescue = 300;
 
 //HVT Runner Params
-HVTrunSearchRng = 200;				//Runs away from BLUFOR units within this range
-HVTrunSurRng = 5;					//Distance to determine whether HVT will consider surrender
-HVTrunDist = 400;					//Distance HVT runs once spooked
-HVTescapeRng = LMO_bRadius * 0.6;	//HVT Escape radius from LMO_spawnBldg
+LMO_HVTrunSearchRng = 200;				//Runs away from BLUFOR units within this range
+LMO_HVTrunSurRng = 5;					//Distance to determine whether HVT will consider surrender
+LMO_HVTrunDist = 400;					//Distance HVT runs once spooked
+LMO_HVTescRng = LMO_bRadius * 0.6;		//HVT Escape radius from LMO_spawnBldg
 
 //Cache Params
 LMO_FultonRng = 150;					//No players in radius to begin fulton uplift
@@ -64,7 +65,7 @@ LMO_Penalties = true;
 
 //Debug Mode (Adds Hints and systemChat)
 LMO_Debug = true;				//10s mission check rate for debugging
-LMO_HVTDebug = true;				//Debugging HVT missions
+LMO_HVTDebug = true;			//Debugging HVT missions
 
 //Building exclusion array to make sure seaports are not included, list is not exhaustive
 XEPKEY_blacklistBuildings = [
@@ -91,11 +92,10 @@ LMO_active = false;
 LMO_bTypes = ["BUILDING", "HOUSE"];		//Types of buildings to consider for LMO target
 LMO_spawnBldg = [];
 LMO_mChance = 0;
-LMO_mTimeSenChance = 0;
+LMO_TimeSenRNG = 0;
 LMO_VCOM_On = false;
 LMO_objBlacklist = [];
-LMO_TimeSenState = false;
-moTimeSenRNG = 0;
+LMO_TSTState = false;
 
 //REWARDS SETTINGS 
 XEPKEY_LMO_HR_REWARD_CIVREP = 40;			//Hostage Rescue Civilian Reputation Win
@@ -147,6 +147,6 @@ while {true} do {
 	
 	if (LMO_Debug == true) then {
 		sleep 10;
-		hintSilent format ["LMO Debug Hint\n\nMission Chance: %1\nTime Sensitive Chance: %7\nActive Mission: %2\nSpawn Building: %3\nEnyCount: %4\nInsideBuilding Player: %5\nVCOM Enabled: %6", LMO_mChance, LMO_active, LMO_spawnBldg, count LMO_enyList, insideBuilding player, LMO_VCOM_On, moTimeSenRNG];	
+		hintSilent format ["LMO Debug Hint\n\nMission Chance: %1\nTime Sensitive Chance: %7\nActive Mission: %2\nSpawn Building: %3\nEnyCount: %4\nInsideBuilding Player: %5\nVCOM Enabled: %6", LMO_mChance, LMO_active, LMO_spawnBldg, count LMO_enyList, insideBuilding player, LMO_VCOM_On, LMO_TSTchance];	
 	} else {sleep (LMO_mCheckRNG*60)};
 };
