@@ -48,20 +48,19 @@ _allBuildings = _allBuildings - _allBuildingsFilter;
     {
         if (typeOf _bCheck == _x) then {
             _bCheckExclude append [_bCheck];
-			//actual groupChat (format ["%1", _bCheckExclude]);
         };
     }forEach XEPKEY_blacklistBuildings;
 }forEach _allBuildings;
 
-if (LMO_Debug == 1) then {systemChat format ["All Buildings: %1, Excluded Buildings: %2, Blacklisted Buildings: %3", count _allBuildings, count _bCheckExclude, count LMO_objBlacklist]};
+if (LMO_Debug == true) then {systemChat format ["LMO: All Buildings: %1, Excluded Buildings: %2, Blacklisted Buildings: %3", count _allBuildings, count _bCheckExclude, count LMO_objBlacklist]};
 _allBuildings = _allBuildings - _bCheckExclude - LMO_objBlacklist;
-if (LMO_Debug == 1) then {systemChat format ["Suitable LMO Buildings: %1", count _allBuildings]};
+if (LMO_Debug == true) then {systemChat format ["LMO: Suitable LMO Buildings: %1", count _allBuildings]};
 
 if (count _allBuildings < 1) exitWith {
 		LMO_active = false;
-		if (LMO_Debug == 1) then {systemChat "No Buildings Found, exiting fn_getBuildings.sqf"};
+		if (LMO_Debug == true) then {systemChat "LMO: No Buildings Found, exiting fn_getBuildings.sqf"};
 };
 
 //Selects random building from filtered array
 LMO_spawnBldg = selectRandom _allBuildings;
-LMO_objBlacklist = _allBuildings;
+LMO_objBlacklist = nearestTerrainObjects [LMO_spawnBldg, LMO_bTypes, LMO_objBlacklistRng, false, true];

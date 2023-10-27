@@ -33,6 +33,7 @@ mkrRngLow = 50;				//Objective Marker Minimum Radius Range
 mkrRngHigh = 300;				//Objective Marker Maximum Radius Range
 LMO_bSize = 8;				//Minimum garrison spots in target building for LMO
 LMO_bRadius = 500;			//Distance to search building array on enemy units (Default: 500)
+LMO_objBlacklistRng = 500;		//Distance to blacklist buildings preventing objectives spawning in the same area
 
 //LMO Range Params
 LMO_enyRng = 2500;			//Minimum distance of enemy to players to start LMO
@@ -47,8 +48,20 @@ HVTrunSurRng = 5;					//Distance to determine whether HVT will consider surrende
 HVTrunDist = 400;					//Distance HVT runs once spooked
 HVTescapeRng = LMO_bRadius * 0.6;	//HVT Escape radius from LMO_spawnBldg
 
+//Cache Params
+LMO_CacheItems = true;						//Include explosives in cache spawn
+LMO_CacheEmpty = true;						//Empty contents of cache on spawn
+LMO_CacheItemArray = [						//Items to include in cache ["Item", Quantity]
+	["DemoCharge_Remote_Mag", 2],
+	["HandGrenade", 1]
+];
+
 //Enable or disable failed LMO penalties
 LMO_Penalties = true;
+
+//Debug Mode (Adds Hints and systemChat)
+LMO_Debug = true;				//10s mission check rate for debugging
+LMO_HVTDebug = true;				//Debugging HVT missions
 
 //Building exclusion array to make sure seaports are not included, list is not exhaustive
 XEPKEY_blacklistBuildings = [
@@ -76,8 +89,6 @@ LMO_bTypes = ["BUILDING", "HOUSE"];		//Types of buildings to consider for LMO ta
 LMO_spawnBldg = [];
 LMO_mChance = 0;
 LMO_mTimeSenChance = 0;
-LMO_Debug = 1;				//Hints, systemChats, and 10s mission check rate for debugging
-LMO_HVTDebug = 1;				//Hints and systemChats for debugging HVT missions
 LMO_VCOM_On = false;
 LMO_objBlacklist = [];
 
@@ -119,19 +130,19 @@ while {true} do {
 		call XEPKEY_fn_getEnemyList;
 	};
 	
-	if (LMO_active == false && count LMO_enyList > 0 && ((LMO_mChance <= LMO_mChanceSelect) || LMO_Debug == 1)) then {
+	if (LMO_active == false && count LMO_enyList > 0 && ((LMO_mChance <= LMO_mChanceSelect) || LMO_Debug == true)) then {
 		LMO_active = true;
 		call XEPKEY_fn_getBuildings;
 		if (LMO_active == false) exitWith {
 			LMO_active = false;
-			if (LMO_Debug == 1) then {systemChat "LMO Debug: No suitable buildings found, exiting scope fn_getBuildings.sqf"};
+			if (LMO_Debug == true) then {systemChat "LMO Debug: No suitable buildings found, exiting scope fn_getBuildings.sqf"};
 		};
 		call XEPKEY_fn_markerFunctions;
 		call XEPKEY_fn_pickMission;
 	};
 	
-	if (LMO_Debug == 1) then {
+	if (LMO_Debug == true) then {
 		sleep 10;
-		hintSilent format ["LMO Debug Hint\n\nMission Chance: %1\nActive Mission: %2\nSpawn Building: %3\nEnyCount: %4\nInsideBuilding Player: %5, VCOM Enabled: %6", LMO_mChance, LMO_active, LMO_spawnBldg, count LMO_enyList, insideBuilding player, LMO_VCOM_On];	
+		hintSilent format ["LMO Debug Hint\n\nMission Chance: %1\nActive Mission: %2\nSpawn Building: %3\nEnyCount: %4\nInsideBuilding Player: %5\nVCOM Enabled: %6", LMO_mChance, LMO_active, LMO_spawnBldg, count LMO_enyList, insideBuilding player, LMO_VCOM_On];	
 	} else {sleep (LMO_mCheckRNG*60)};
 };

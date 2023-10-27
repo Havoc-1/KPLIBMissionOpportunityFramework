@@ -8,10 +8,14 @@
 _missionState = 0;
 
 //Randomizes LMO Mission Type
-_missionType = [1,2] call BIS_fnc_randomInt;
+//_missionType = [1,3] call BIS_fnc_randomInt;
+_missionType = 3;
 
 //Hostage Pause Timer Range
 _hostagePauseRng = 10;
+
+//Model used for Cache OBJ
+_cacheModel = "Box_FIA_Wps_F";
 
 //HVT Headgear and Goggles
 _hvtHeadgear = [
@@ -64,6 +68,7 @@ _enyUnitsInside = [];
 _enyUnitPlayers = [];
 _enyUnitHostages = [];
 _hostageRescueRad = LMO_objMkrRadRescue;
+_cache = objNull;
 
 [west, "_taskMO", ["A mission of opporunity has appeared on the map, complete the task before the timer expires.", "Mission of Opportunity", "LMO_Mkr"], objNull, 1, 3, false] call BIS_fnc_taskCreate;
 ["_taskMO","Box"] call BIS_fnc_taskSetType;
@@ -82,6 +87,13 @@ switch (_missionType) do {
 
 		LMO_MkrName setMarkerColor "ColorBlue";
 		LMO_Mkr setMarkerColor "ColorBlue";
+		
+		if (LMO_Debug == true) then {
+			LMO_MkrDebug = createMarker ["LMO_MkrDebug", position LMO_spawnBldg];
+			LMO_MkrDebug setMarkerShape "ICON";
+			LMO_MkrDebug setMarkerSize [1,1];
+			LMO_MkrDebug setMarkerType "mil_dot";
+		};
 		
 		//Checks whether hostage is in city
 		_nearbyBuildings = nearestTerrainObjects [LMO_spawnBldg, LMO_bTypes, (LMO_objMkrRadRescue/2), false, true];
@@ -200,6 +212,14 @@ switch (_missionType) do {
 		
 		LMO_MkrName setMarkerColor "ColorOrange";
 		LMO_Mkr setMarkerColor "ColorOrange";
+		
+		if (LMO_Debug == true) then {
+			LMO_MkrDebug = createMarker ["LMO_MkrDebug", position LMO_spawnBldg];
+			LMO_MkrDebug setMarkerShape "ICON";
+			LMO_MkrDebug setMarkerSize [1,1];
+			LMO_MkrDebug setMarkerType "mil_dot";
+		};
+		
 		_enyUnits = createGroup east;
 		
 		//Spawns Enemies
@@ -314,10 +334,10 @@ switch (_missionType) do {
 						_surInRngEast = ((_hvt nearEntities [["Man","LandVehicle"],HVTrunSurRng]) select {side _x == east}) select {!(currentWeapon _x == "")};
 						if (count _surInRngWest > count _surInRngEast && _hvt call BIS_fnc_enemyDetected) exitWith {
 							[_hvt, true] call ace_captives_fnc_setSurrendered;
-							if (LMO_HVTDebug == 1) then {systemChat "HVT surrendered, exiting scope"};
+							if (LMO_HVTDebug == true) then {systemChat "LMO: HVT surrendered, exiting scope"};
 						};
-						//systemChat format ["SurrenderInRangeWest: %1",_surInRngWest];
-						//systemChat format ["SurrenderInRangeEast: %1",_surInRngEast];
+						//systemChat format ["LMO: SurrenderInRangeWest: %1",_surInRngWest];
+						//systemChat format ["LMO: SurrenderInRangeEast: %1",_surInRngEast];
 						sleep 1;
 					};
 				};
@@ -331,7 +351,7 @@ switch (_missionType) do {
 					
 					{
 						_targetGetDir = _hvt getDir _x;
-						//systemChat format ["%1", _targetGetDir];
+						//systemChat format ["LMO: %1", _targetGetDir];
 						_targetDir = _targetDir + _targetGetDir;
 					}forEach _targetsList;
 
@@ -345,14 +365,14 @@ switch (_missionType) do {
 					group _hvt move _movePos;
 					
 
-					if (LMO_HVTDebug == 1) then {
-						systemChat format ["HVT TargetsList Run: %1",_targetsList];
-						systemChat format ["Direction to Run: %1",_angularDegrees];
-						systemChat format ["MovePos: %1",_movePos];
+					if (LMO_HVTDebug == true) then {
+						systemChat format ["LMO: HVT TargetsList Run: %1",_targetsList];
+						systemChat format ["LMO: Direction to Run: %1",_angularDegrees];
+						systemChat format ["LMO: MovePos: %1",_movePos];
 					};
 				
 					if (_hvt getVariable ["ace_captives_isSurrendering", false]) exitWith {
-						if (LMO_HVTDebug == 1) then {systemChat "Main Scope HVT surrender check complete, exiting script"};
+						if (LMO_HVTDebug == true) then {systemChat "LMO: Main Scope HVT surrender check complete, exiting script"};
 					};
 					sleep 40;
 				};
@@ -362,12 +382,114 @@ switch (_missionType) do {
 	
 	//Locate Cache
 	case 3:{
-						
+		
 		[west, ["_taskMisMO", "_taskMO"], [format ["Blow some shit up nearby <marker name =%1>%2</marker>. Big boom mission.", LMO_MkrName,LMO_MkrText], "LMO: Destroy or Secure Cache", "Kill"], objNull, 1, 3, false] call BIS_fnc_taskCreate;
 		["_taskMisMO","Kill"] call BIS_fnc_taskSetType;
 		["LMOTask", ["Destroy or Secure Cache", "\A3\ui_f\data\igui\cfg\simpletasks\types\kill_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
+		
 		LMO_MkrName setMarkerColor "ColorGreen";
 		LMO_Mkr setMarkerColor "ColorGreen";
+
+		_cacheSpawnPos = getPosATL LMO_spawnBldg findEmptyPosition [0, 40, _cacheModel];
+		_cache = objNull;
+		
+		//Spawn Cache
+		if (count _cacheSpawnPos > 0) then {
+			_cache = createVehicle [_cacheModel, _cacheSpawnPos, [], 0, "CAN_COLLIDE"];
+			if (LMO_Debug == true) then {systemChat format ["LMO: Cache created at %1", getPos _cache]};
+		} else {
+			_cache = createVehicle [getPos LMO_spawnBldg, _cacheModel, [], 0, "CAN_COLLIDE"];
+			if (LMO_Debug == true) then {systemChat format ["LMO: No suitable cache spot found. Creating cache in target building at %1", getPos _cache]};
+		};
+		
+		//Empty contents of Cache
+		if (LMO_CacheEmpty == true) then {
+			clearItemCargo _cache;
+			clearItemCargoGlobal _cache;
+			clearWeaponCargo _cache;
+			clearWeaponCargoGlobal _cache;
+			if (LMO_Debug == true) then {systemChat "LMO: Cache cargo emptied."};
+		};
+		
+		//Add explosives to cache
+		if (LMO_CacheItems == true) then {
+			{
+				_cache addItemCargoGlobal [(_x select 0), (_x select 1)];
+			} forEach LMO_CacheItemArray;
+			if (LMO_Debug == true) then {systemChat "LMO: Cache items added."};
+		};
+		_cache setVariable ["LMO_CacheSecure", false, true];
+		
+		//Debug marker for cache location
+		if (LMO_Debug == true) then {
+			LMO_MkrDebug = createMarker ["LMO_MkrDebug", position _cache];
+			LMO_MkrDebug setMarkerShape "ICON";
+			LMO_MkrDebug setMarkerSize [1,1];
+			LMO_MkrDebug setMarkerType "mil_dot";
+		};
+		
+		//Adds hold action to cache to secure
+		[
+			_cache,
+			"Secure Cache",
+			"\a3\ui_f\data\IGUI\Cfg\holdactions\holdAction_unloaddevice_ca.paa",
+			"\a3\ui_f\data\IGUI\Cfg\holdactions\holdAction_unloaddevice_ca.paa",
+			"(_this distance _target < 3) && (alive _target)",
+			"(_caller distance _target < 3) && (alive _target)",
+			{
+				_caller playMoveNow "Acts_carFixingWheel";
+				playSound3D ["a3\sounds_f\characters\stances\rifle_to_launcher.wss", _target];
+			},
+			{
+				if (_target getVariable ["LMO_CacheSecure",true]) then {
+					_caller switchMove "";
+					[_target,_actionId] call BIS_fnc_holdActionRemove;
+					if (LMO_Debug == true) then {systemChat "LMO: Cache secured, cancelling action and deleting holdAction."};
+				};
+			},
+			{
+				_caller switchMove "";
+				
+				_target setVariable ["LMO_CacheSecure", true, true];
+				_cacheStrobe = "PortableHelipadLight_01_red_F" createVehicle getPos _target;
+				_cacheStrobe attachTo [_target, [0,0.2,-0.7]];
+				[_target] spawn {
+					params ["_target"];
+					_target = _this select 0;
+					playSound3D ["a3\sounds_f\vehicles\soft\suv_01\suv_01_door.wss", _target];
+					sleep 0.5;
+					playSound3D ["a3\sounds_f\sfx\beep_target.wss", _target];
+				};
+				if (LMO_Debug == true) then {
+					systemChat "LMO: Cache secured.";
+					systemChat format ["LMO: CacheSecure: %1", _target getVariable "LMO_CacheSecure"];
+				};
+				
+			},
+			{_caller switchMove ""},
+			[],
+			5,
+			2000,
+			true,
+			false
+		] remoteExec ["BIS_fnc_holdActionAdd", 0, _cache];
+		
+		_cache addEventHandler ["Explosion", {
+			params ["_vehicle", "_damage"];
+			if (_damage > 1) then {
+				_cacheAttached = attachedObjects _vehicle select {typeOf _x == "PortableHelipadLight_01_red_F"};
+				if (count _cacheAttached > 0) then {{deleteVehicle _x} forEach _cacheAttached};
+				if (LMO_Debug == true) then {
+					systemChat "LMO: Cache destroyed.";
+					systemChat format ["LMO: CacheSecure variable: %1", _vehicle getVariable "LMO_CacheSecure"];
+				};
+				_vehicle setDamage 1;
+				
+			};
+			if (LMO_Debug == true) then {systemChat format ["LMO: Cache Damaged: %1", _damage]};
+		}];
+		
+		//_smoke = "test_EmptyObjectForSmoke" createVehicle (getPos _cache);
 		
 	};
 };
@@ -574,11 +696,102 @@ while {LMO_active == true} do {
 		};
 	};
 	
+	//Cache Win Conditions
+	if (_missionType == 3) then {
+		
+		//If Destroyed Cache
+		if (!alive _cache && LMO_mTimer > 0 && !(_cache getVariable ["LMO_CacheFly", true])) then {
+			_missionState = 1;
+			["LMOTaskOutcome", ["Cache has been destroyed", "\z\ace\addons\captives\ui\handcuff_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
+		};
+		
+		//If Secured Cache
+		if (alive _cache && LMO_mTimer > 0 && (_cache getVariable ["LMO_CacheSecure", true])) then {
+			_missionState = 1;
+			["LMOTaskOutcome", ["Cache has been located", "\z\ace\addons\captives\ui\handcuff_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
+			sleep 1;
+			[_cache] spawn {
+				params ["_cache"];
+				private _cache = _this select 0;
+				_cache setVariable ["LMO_CacheSecure", nil, true];
+				
+				if (LMO_Debug == true) then {systemChat format ["LMO: Delete loop started for Cache at %1.", getPos _cache]};
+				while {true} do {
+					if (!alive _cache && !(_cache getVariable ["LMO_CacheFly", true])) exitWith {
+						systemChat format ["LMO: Cache was destroyed before uplift."];
+						["LMOTaskOutcome", ["Cache was destroyed before uplift", "\z\ace\addons\captives\ui\handcuff_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
+					};
+					if (alive _cache) then {
+						_nearbyCache = (nearestObjects [_cache, ["Man", "LandVehicle"], 150]) select {isPlayer _x};
+						if (count _nearbyCache == 0) exitWith {
+							_cacheAttached = attachedObjects _cache;
+							if (count _cacheAttached > 0) then {{deleteVehicle _x} forEach _cacheAttached};
+							_cachePos = getPosATL _cache;
+							_cache setVariable ["LMO_CacheFly", true, true];
+							_cache hideObjectGlobal true;
+							
+							if (LMO_Debug == true) then {systemChat "LMO: No players in range, secured cache deleted. Exiting scope with fulton."};
+							
+							_cacheFly = "C_supplyCrate_F" createVehicle _cachePos;
+							_cacheBalloon = "Land_Balloon_01_air_F" createVehicle _cachePos;
+							_cacheBalloon allowDamage false;
+							_cacheBalloon attachTo [_cacheFly, [0,0,25]];
+							_cacheBalloon setObjectScale 10;
+							_cacheChute = "B_Parachute_02_F" createVehicle _cachePos;
+							_cacheChute attachTo [_cacheFly, [0,0,30]];
+							_cacheChute hideObjectGlobal true;
+							_cacheRope = ropeCreate [_cacheChute, [0,0,-5],28, nil, nil, nil, 10];
+							_cacheLight = "PortableHelipadLight_01_red_F" createVehicle getPos _cacheFly;
+							_cacheLight allowDamage false;
+							_cacheLight attachTo [_cacheFly, [0,0,0.6]];
+							_flyRate = 0.3;
+							_flyMax = 1000;
+							while {(getPosATL _cacheFly) select 2 < _flyMax} do {
+								_cacheHeight = (getPosATL _cacheFly) select 2;
+								if (_cacheHeight >= _flyMax*0.05 && _cacheHeight < _flyMax*0.1) then {_flyRate = 0.7};
+								if (_cacheHeight >= _flyMax*0.1 && _cacheHeight < _flyMax*0.2) then {_flyRate = 1.3};
+								if (_cacheHeight >= _flyMax*0.2 && _cacheHeight < _flyMax*0.5) then {_flyRate = 2};
+								if (_cacheHeight >= _flyMax*0.5) then {_flyRate = 3};
+								_cacheFly setPosATL [getPosATL _cacheFly select 0, getPosATL _cacheFly select 1, (getPosATL _cacheFly select 2)+_flyRate];
+								sleep 0.1;
+								if ((getPosATL _cacheFly) select 2 >= _flyMax) exitWith {
+									ropeDestroy _cacheRope;
+									deleteVehicle _cacheFly;
+									deleteVehicle _cacheBalloon;
+									deleteVehicle _cacheChute;
+									deleteVehicle _cacheLight;
+									["LMOTaskOutcome", ["Cache uplifted successfully", "\z\ace\addons\captives\ui\handcuff_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
+									if (LMO_Debug == true) then {systemChat "LMO: Cache successfully airlifted."};
+									deleteVehicle _cache;
+								};
+							};
+						};
+					};
+					sleep 5;
+				};
+			};
+		};
+	};
+	
+	//Cache Lose Conditions
+	if (_missionType == 3) then {
+		//If Timer expires
+		if (alive _cache && LMO_mTimer == 0 && !(_cache getVariable ["LMO_CacheSecure", true])) then {
+			_missionState = 2;
+			["LMOTaskOutcome", ["Cache has been lost", "\z\ace\addons\captives\ui\handcuff_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
+			_cacheAttached = attachedObjects _cache select {typeOf _x == "ACE_IR_Strobe_Item"};
+			if (count _cacheAttached > 0) then {{deleteVehicle _x} forEach _cacheAttached};
+			deleteVehicle _cache;
+			if (LMO_Debug == true) then {systemChat "LMO: Cache deleted."};
+		};
+	};
+	
 	if (_missionState == 2) exitWith {
 	
 		["_taskMO", "FAILED", false] call BIS_fnc_taskSetState;
 		deleteMarker LMO_Mkr;
 		deleteMarker LMO_MkrName;
+		if (LMO_Debug == true) then {deleteMarker LMO_MkrDebug};
 		sleep 5;
 		["_taskMO"] call BIS_fnc_deleteTask;
 		["_taskMisMO"] call BIS_fnc_deleteTask;
@@ -590,6 +803,7 @@ while {LMO_active == true} do {
 		["_taskMO", "SUCCEEDED", false] call BIS_fnc_taskSetState;
 		deleteMarker LMO_Mkr;
 		deleteMarker LMO_MkrName;
+		if (LMO_Debug == true) then {deleteMarker LMO_MkrDebug};
 		sleep 5;
 		["_taskMO"] call BIS_fnc_deleteTask;
 		["_taskMisMO"] call BIS_fnc_deleteTask;
