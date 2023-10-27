@@ -8,9 +8,9 @@ player createDiaryRecord [
     "LMO_INFO",
 	["Server Parameters",
 	format [
-	"<br/><font color='#FDFFAB' size=20>Server Parameters</font><br/><br/><font color='#AFAFAF'>Mission Check Rate:</font> %2 Minutes<br/><font color='#AFAFAF'>Mission Chance:</font> %3%1<br/><font color='#AFAFAF'>Time Sensitive Mission Chance:</font> %4%1<br/><font color='#AFAFAF'>Minimum Building Garrison Size:</font> %5<br/><font color='#AFAFAF'>Maximum Mission Start Distance:</font> %6<br/><font color='#AFAFAF'>Minimum Mission Start Distance:</font> %7<br/><font color='#AFAFAF'>HVT Escape Radius:</font> %8 Metres<br/><font color='#AFAFAF'>Include Custom Cache Items:</font> %9<br/><font color='#AFAFAF'>Empty Cache Contents:</font> %10<br/><font color='#AFAFAF'>Mission Failure Penalties:</font> %11<br/><font color='#AFAFAF'>Debug Mode:</font> %12<br/><font color='#AFAFAF'>HVT Debug Mode:</font> %13<br/><br/>
+	"<br/><font color='#FDFFAB' size=20>Server Parameters</font><br/><br/><font color='#AFAFAF'>Mission Check Rate:</font> %2 Minutes<br/><font color='#AFAFAF'>Mission Chance:</font> %3%1<br/><font color='#AFAFAF'>Time Sensitive Enabled:</font> %4<br/><font color='#AFAFAF'>Time Sensitive Chance:</font> %5%1<br/><font color='#AFAFAF'>Min Building Garrison Size:</font> %6<br/><font color='#AFAFAF'>Max Mission Start Distance:</font> %7<br/><font color='#AFAFAF'>Min Mission Start Distance:</font> %8<br/><font color='#AFAFAF'>HVT Escape Radius:</font> %9 Metres<br/><font color='#AFAFAF'>Include Custom Cache Items:</font> %10<br/><font color='#AFAFAF'>Empty Cache Contents:</font> %11<br/><font color='#AFAFAF'>Mission Failure Penalties:</font> %12<br/><font color='#AFAFAF'>Debug Mode:</font> %13<br/><font color='#AFAFAF'>HVT Debug Mode:</font> %14<br/><br/>
 	<font color='#AFAFAF'>Parameters can be modified in fn_LMOinit.sqf</font>
-	","%",LMO_mCheckRNG,LMO_mChanceSelect,moTimeSenChanceSelect,LMO_bSize,LMO_enyRng,LMO_bPlayerRng,HVTescapeRng,LMO_CacheItems,LMO_CacheEmpty,LMO_Penalties,LMO_Debug,LMO_HVTDebug]
+	","%",LMO_mCheckRNG,LMO_mChanceSelect,LMO_TimeSen,moTimeSenChanceSelect,LMO_bSize,LMO_enyRng,LMO_bPlayerRng,HVTescapeRng,LMO_CacheItems,LMO_CacheEmpty,LMO_Penalties,LMO_Debug,LMO_HVTDebug]
 	],
 	taskNull,
 	"",

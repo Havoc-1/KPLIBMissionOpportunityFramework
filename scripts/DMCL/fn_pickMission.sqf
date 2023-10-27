@@ -69,6 +69,8 @@ _enyUnitPlayers = [];
 _enyUnitHostages = [];
 _hostageRescueRad = LMO_objMkrRadRescue;
 _cache = objNull;
+_cacheSecured = false;
+
 
 [west, "_taskMO", ["A mission of opporunity has appeared on the map, complete the task before the timer expires.", "Mission of Opportunity", "LMO_Mkr"], objNull, 1, 3, false] call BIS_fnc_taskCreate;
 ["_taskMO","Box"] call BIS_fnc_taskSetType;
@@ -383,9 +385,9 @@ switch (_missionType) do {
 	//Locate Cache
 	case 3:{
 		
-		[west, ["_taskMisMO", "_taskMO"], [format ["Reconnaissance has identified enemy forces moving a supply cache around <marker name =%1>%2</marker>. The supply cache appears to be a stack of wooden boxes covered with a net. Secured supples will be air lifted to the nearest FOB while destroying the cache will reduce enemy readiness. Locate and destroy or secure the supply cache.", LMO_MkrName,LMO_MkrText], "LMO: Destroy or Secure Cache", "Box"], objNull, 1, 3, false] call BIS_fnc_taskCreate;
+		[west, ["_taskMisMO", "_taskMO"], [format ["Reconnaissance has identified enemy forces moving a supply cache around <marker name =%1>%2</marker>. The supply cache appears to be a stack of wooden boxes covered with a net. Secured supples will be air lifted to the nearest FOB while destroying the cache will reduce enemy readiness.<br/><br/>Locate and destroy or secure the supply cache.", LMO_MkrName,LMO_MkrText], "LMO: Destroy or Secure Cache", "Box"], objNull, 1, 3, false] call BIS_fnc_taskCreate;
 		["_taskMisMO","Destroy"] call BIS_fnc_taskSetType;
-		["LMOTask", ["Destroy or Secure Cache", "ca\weapons\data\map_ico\icomap_ammo_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
+		["LMOTask", ["Destroy or Secure Cache", "a3\missions_f_oldman\data\img\holdactions\holdaction_box_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 		
 		LMO_MkrName setMarkerColor "ColorGreen";
 		LMO_Mkr setMarkerColor "ColorGreen";
@@ -404,10 +406,9 @@ switch (_missionType) do {
 		
 		//Empty contents of Cache
 		if (LMO_CacheEmpty == true) then {
-			clearItemCargo _cache;
 			clearItemCargoGlobal _cache;
-			clearWeaponCargo _cache;
 			clearWeaponCargoGlobal _cache;
+			clearMagazineCargoGlobal _cache;
 			if (LMO_Debug == true) then {systemChat "LMO: Cache cargo emptied."};
 		};
 		
@@ -461,7 +462,6 @@ switch (_missionType) do {
 					playSound3D ["a3\sounds_f\sfx\beep_target.wss", _target];
 				};
 				if (LMO_Debug == true) then {
-					systemChat "LMO: Cache secured.";
 					systemChat format ["LMO: CacheSecure: %1", _target getVariable "LMO_CacheSecure"];
 				};
 				
@@ -524,12 +524,16 @@ while {LMO_active == true} do {
 		
 	} else {
 		
+		//Pause Timer for Cache Secure
 		if (_missionType == 3 && (_cache getVariable ["LMO_CacheSecure", true])) then {
 		
 			LMO_mTimer = LMO_mTimer - 0;
 			LMO_mTimerStr = [LMO_mTimer, "MM:SS"] call BIS_fnc_secondsToString;
 			LMO_MkrName setMarkerColor "ColorGrey";
 			LMO_Mkr setMarkerColor "ColorGrey";
+			LMO_Mkr setMarkerPos position _cache;
+			LMO_MkrName setMarkerPos position _cache;
+			LMO_Mkr setMarkerSize [LMO_FultonRng,LMO_FultonRng];
 			LMO_Mkr setMarkerBrush "Solid";
 		
 		} else {
@@ -537,8 +541,6 @@ while {LMO_active == true} do {
 			LMO_mTimerStr = [LMO_mTimer, "MM:SS"] call BIS_fnc_secondsToString;
 		};
 	};
-	
-	//hintSilent format ["Time Remaining: %1", LMO_mTimerStr];
 	
 	LMO_MkrName setMarkerText format [" %1 [%2]",LMO_MkrText, LMO_mTimerStr];
 	
@@ -706,90 +708,98 @@ while {LMO_active == true} do {
 	};
 	
 	//Cache Win Conditions
-	if (_missionType == 3) then {
+	if (_missionType == 3 && LMO_mTimer > 0) then {
 		
-		//If Destroyed Cache
-		if (!alive _cache && LMO_mTimer > 0) then {
+		//If cache destroyed and NOT secured
+		if (!alive _cache && _cacheSecured != true) then {
 			_missionState = 1;
-			["LMOTaskOutcome", ["Cache has been destroyed", "\z\ace\addons\captives\ui\handcuff_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
+			["LMOTaskOutcome", ["Cache has been destroyed", "a3\ui_f_oldman\data\igui\cfg\holdactions\destroy_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 		};
 		
 		//If Secured Cache
-		if (alive _cache && LMO_mTimer > 0 && (_cache getVariable ["LMO_CacheSecure", true]) && !(_cache getVariable ["LMO_CacheFly", false])) then {
-			["LMOTaskOutcome", ["Cache has been located", "\z\ace\addons\captives\ui\handcuff_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
-			_missionState = 1;
+		if (alive _cache && (_cache getVariable ["LMO_CacheSecure", true]) && _cacheSecured != true) then {
+			["LMOTaskOutcome", ["Cache has been located", "a3\ui_f\data\gui\rsccommon\rscbuttonsearch\search_start_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
+			
+			//Marks cache as tagged in missionNameSpace to prevent loop executions
+			_cacheSecured = missionNamespace getVariable "LMO_CacheTagged";
+			if (isNil "_cacheSecured") then {
+				_cacheSecured = true;
+				missionNamespace setVariable ["LMO_CacheTagged", _cacheSecured];
+				if (LMO_Debug == true) then {systemChat format ["LMO: missionnameSpace _cacheSecured: %1",missionNamespace getVariable "LMO_CacheTagged"]};
+			};
 			sleep 1;
-			[_cache] spawn {
-				params ["_cache"];
-				private _cache = _this select 0;
-				_nearbyCache = [];
-				_cache setVariable ["LMO_CacheFly", true, true];
-				if (LMO_Debug == true) then {systemChat format ["LMO: Delete loop started for Cache at %1.", getPos _cache]};
-				while {true} do {
-					if (!alive _cache) exitWith {
-							systemChat format ["LMO: Cache was destroyed before uplift."];
-							["LMOTaskOutcome", ["Cache was destroyed before uplift", "\z\ace\addons\captives\ui\handcuff_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
-					};
+			
+			//Checks if players are no longer nearby cache, then exitsWith fulton script
+			_nearbyCache = [];
+			if (LMO_Debug == true) then {systemChat format ["LMO: Delete loop started for Cache at %1.", getPos _cache]};
+			while {true} do {
+				if (!alive _cache) exitWith {
+						systemChat format ["LMO: Cache was destroyed before uplift."];
+						["LMOTaskOutcome", ["Cache was destroyed before uplift", "a3\ui_f_oldman\data\igui\cfg\holdactions\destroy_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
+						_missionState = 1;
+				};
+				
+				if (alive _cache) then {
+					_nearbyCache = (nearestObjects [_cache, ["Man", "LandVehicle"], LMO_FultonRng]) select {isPlayer _x};
+				};
+				if (count _nearbyCache == 0) exitWith {
+					_cacheAttached = attachedObjects _cache;
+					if (count _cacheAttached > 0) then {{deleteVehicle _x} forEach _cacheAttached};
+					_cachePos = getPosATL _cache;
+					_cache hideObjectGlobal true;
 					
-					if (alive _cache) then {
-						_nearbyCache = (nearestObjects [_cache, ["Man", "LandVehicle"], 150]) select {isPlayer _x};
-					};
-					if (count _nearbyCache == 0) exitWith {
-						_cacheAttached = attachedObjects _cache;
-						if (count _cacheAttached > 0) then {{deleteVehicle _x} forEach _cacheAttached};
-						_cachePos = getPosATL _cache;
-						_cache hideObjectGlobal true;
-						
-						if (LMO_Debug == true) then {systemChat "LMO: No players in range, secured cache deleted. Exiting scope with fulton."};
-						
-						_cacheFly = "C_supplyCrate_F" createVehicle _cachePos;
-						_cacheBalloon = "Land_Balloon_01_air_F" createVehicle _cachePos;
-						_cacheBalloon allowDamage false;
-						_cacheBalloon attachTo [_cacheFly, [0,0,25]];
-						_cacheBalloon setObjectScale 10;
-						//_cacheChute = "B_Parachute_02_F" createVehicle _cachePos;
-						//_cacheChute attachTo [_cacheFly, [0,0,30]];
-						//_cacheChute hideObjectGlobal true;
-						//_cacheRope = ropeCreate [_cacheChute, [0,0,-5],28, nil, nil, nil, 10];
-						_cacheLight = "PortableHelipadLight_01_red_F" createVehicle getPos _cacheFly;
-						_cacheLight allowDamage false;
-						_cacheLight attachTo [_cacheFly, [0,0,0.6]];
-						_flyRate = 1.2;
-						_flyMax = 1000;
-						
-						while {(getPosATL _cacheFly) select 2 < _flyMax} do {
-							_cacheHeight = (getPosATL _cacheFly) select 2;
-							if (_cacheHeight >= _flyMax*0.025 && _cacheHeight < _flyMax*0.03) then {_flyRate = 0.3};
-							if (_cacheHeight >= _flyMax*0.03 && _cacheHeight < _flyMax*0.035) then {_flyRate = 4};
-							if (_cacheHeight >= _flyMax*0.035 && _cacheHeight < _flyMax*0.95) then {_flyRate = 10};
-							if (_cacheHeight >= _flyMax*0.9) then {_flyRate = 2};
-							_cacheFly setPosATL [getPosATL _cacheFly select 0, getPosATL _cacheFly select 1, (getPosATL _cacheFly select 2)+_flyRate];
-							sleep 0.1;
-							if ((getPosATL _cacheFly) select 2 >= _flyMax) exitWith {
-								//ropeDestroy _cacheRope;
-								deleteVehicle _cacheFly;
-								deleteVehicle _cacheBalloon;
-								//deleteVehicle _cacheChute;
-								deleteVehicle _cacheLight;
-								["LMOTaskOutcome", ["Cache uplifted successfully", "\z\ace\addons\captives\ui\handcuff_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
-								if (LMO_Debug == true) then {systemChat "LMO: Cache successfully airlifted."};
-								deleteVehicle _cache;
-								
-							};
+					if (LMO_Debug == true) then {systemChat "LMO: No players in range, secured cache deleted. Exiting scope with fulton."};
+					
+					_cacheFly = "C_supplyCrate_F" createVehicle _cachePos;
+					_cacheBalloon = "Land_Balloon_01_air_F" createVehicle _cachePos;
+					_cacheBalloon allowDamage false;
+					_cacheBalloon attachTo [_cacheFly, [0,0,25]];
+					_cacheBalloon setObjectScale 10;
+					//_cacheChute = "B_Parachute_02_F" createVehicle _cachePos;
+					//_cacheChute attachTo [_cacheFly, [0,0,30]];
+					//_cacheChute hideObjectGlobal true;
+					//_cacheRope = ropeCreate [_cacheChute, [0,0,-5],28, nil, nil, nil, 10];
+					_cacheLight = "PortableHelipadLight_01_red_F" createVehicle getPos _cacheFly;
+					_cacheLight allowDamage false;
+					_cacheLight attachTo [_cacheFly, [0,0,0.6]];
+					_flyRate = 1.2;
+					_flyMax = 1000;
+					
+					while {(getPosATL _cacheFly) select 2 < _flyMax} do {
+						_cacheHeight = (getPosATL _cacheFly) select 2;
+						if (_cacheHeight >= _flyMax*0.025 && _cacheHeight < _flyMax*0.03) then {_flyRate = 0.3};
+						if (_cacheHeight >= _flyMax*0.03 && _cacheHeight < _flyMax*0.035) then {_flyRate = 4};
+						if (_cacheHeight >= _flyMax*0.035 && _cacheHeight < _flyMax*0.95) then {_flyRate = 10};
+						if (_cacheHeight >= _flyMax*0.9) then {_flyRate = 2};
+						_cacheFly setPosATL [getPosATL _cacheFly select 0, getPosATL _cacheFly select 1, (getPosATL _cacheFly select 2)+_flyRate];
+						sleep 0.1;
+						if ((getPosATL _cacheFly) select 2 >= _flyMax) exitWith {
+							//ropeDestroy _cacheRope;
+							deleteVehicle _cacheFly;
+							deleteVehicle _cacheBalloon;
+							//deleteVehicle _cacheChute;
+							deleteVehicle _cacheLight;
+							["LMOTaskOutcome", ["Cache uplifted successfully", "z\ace\addons\dragging\ui\icons\box_carry.paa"]] remoteExec ["BIS_fnc_showNotification"];
+							if (LMO_Debug == true) then {systemChat "LMO: Cache successfully airlifted."};
+							deleteVehicle _cache;
+							_missionState = 1;
+							missionNamespace setVariable ["LMO_CacheTagged", nil];
+							
 						};
 					};
-					sleep 5;
+					
 				};
+				sleep 5;
 			};
 		};
 	};
 	
 	//Cache Lose Conditions
-	if (_missionType == 3) then {
+	if (_missionType == 3 && LMO_mTimer == 0) then {
 		//If Timer expires
-		if (alive _cache && LMO_mTimer == 0 && !(_cache getVariable ["LMO_CacheSecure", true])) then {
+		if (alive _cache && !(_cache getVariable ["LMO_CacheSecure", true])) then {
 			_missionState = 2;
-			["LMOTaskOutcome", ["Cache has been lost", "\z\ace\addons\captives\ui\handcuff_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
+			["LMOTaskOutcome", ["Cache has been lost", "a3\ui_f_oldman\data\igui\cfg\holdactions\destroy_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 			_cacheAttached = attachedObjects _cache select {typeOf _x == "PortableHelipadLight_01_red_F"};
 			if (count _cacheAttached > 0) then {{deleteVehicle _x} forEach _cacheAttached};
 			deleteVehicle _cache;

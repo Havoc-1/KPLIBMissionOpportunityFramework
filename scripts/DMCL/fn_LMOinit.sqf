@@ -22,6 +22,7 @@ moTimeMin = 30;				//Minimum minutes for LMO Objective
 moTimeMax = 60;				//Maximum minutes for LMO Objective
 moTimeSenMin = 10;			//Minimum minutes for Time Sensitive LMO Objective
 moTimeSenMax = 15;			//Maximum minutes for Time Sensitive LMO Objective
+LMO_TimeSen = true;			//Enable or disable Time Sensitive Missions
 
 //Mission Chance
 LMO_mCheckRNG = 10;			//How often (in minutes) the server will check to start an LMO
@@ -49,12 +50,14 @@ HVTrunDist = 400;					//Distance HVT runs once spooked
 HVTescapeRng = LMO_bRadius * 0.6;	//HVT Escape radius from LMO_spawnBldg
 
 //Cache Params
-LMO_CacheItems = true;						//Include explosives in cache spawn
-LMO_CacheEmpty = true;						//Empty contents of cache on spawn
-LMO_CacheItemArray = [						//Items to include in cache ["Item", Quantity]
+LMO_FultonRng = 150;					//No players in radius to begin fulton uplift
+LMO_CacheItems = true;					//Include explosives in cache spawn
+LMO_CacheEmpty = true;					//Empty contents of cache on spawn
+LMO_CacheItemArray = [					//Items to include in cache ["Item", Quantity]
 	["DemoCharge_Remote_Mag", 2],
 	["HandGrenade", 1]
 ];
+
 
 //Enable or disable failed LMO penalties
 LMO_Penalties = true;
@@ -91,6 +94,8 @@ LMO_mChance = 0;
 LMO_mTimeSenChance = 0;
 LMO_VCOM_On = false;
 LMO_objBlacklist = [];
+LMO_TimeSenState = false;
+moTimeSenRNG = 0;
 
 //REWARDS SETTINGS 
 XEPKEY_LMO_HR_REWARD_CIVREP = 40;			//Hostage Rescue Civilian Reputation Win
@@ -134,7 +139,6 @@ while {true} do {
 		LMO_active = true;
 		call XEPKEY_fn_getBuildings;
 		if (LMO_active == false) exitWith {
-			LMO_active = false;
 			if (LMO_Debug == true) then {systemChat "LMO Debug: No suitable buildings found, exiting scope fn_getBuildings.sqf"};
 		};
 		call XEPKEY_fn_markerFunctions;
@@ -143,6 +147,6 @@ while {true} do {
 	
 	if (LMO_Debug == true) then {
 		sleep 10;
-		hintSilent format ["LMO Debug Hint\n\nMission Chance: %1\nActive Mission: %2\nSpawn Building: %3\nEnyCount: %4\nInsideBuilding Player: %5\nVCOM Enabled: %6", LMO_mChance, LMO_active, LMO_spawnBldg, count LMO_enyList, insideBuilding player, LMO_VCOM_On];	
+		hintSilent format ["LMO Debug Hint\n\nMission Chance: %1\nTime Sensitive Chance: %7\nActive Mission: %2\nSpawn Building: %3\nEnyCount: %4\nInsideBuilding Player: %5\nVCOM Enabled: %6", LMO_mChance, LMO_active, LMO_spawnBldg, count LMO_enyList, insideBuilding player, LMO_VCOM_On, moTimeSenRNG];	
 	} else {sleep (LMO_mCheckRNG*60)};
 };
