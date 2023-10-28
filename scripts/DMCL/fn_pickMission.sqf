@@ -8,8 +8,7 @@
 _missionState = 0;
 
 //Randomizes LMO Mission Type
-//_missionType = [1,3] call BIS_fnc_randomInt;
-_missionType = 3;
+_missionType = [1,3] call BIS_fnc_randomInt;
 
 //Hostage Pause Timer Range
 _hostagePauseRng = 10;
@@ -523,22 +522,49 @@ while {LMO_active == true} do {
 		};
 		
 	} else {
-		
-		//Pause Timer for Cache Secure
-		if (_missionType == 3 && (_cache getVariable ["LMO_CacheSecure", true])) then {
-		
-			LMO_mTimer = LMO_mTimer - 0;
-			LMO_mTimerStr = [LMO_mTimer, "MM:SS"] call BIS_fnc_secondsToString;
-			LMO_MkrName setMarkerColor "ColorGrey";
-			LMO_Mkr setMarkerColor "ColorGrey";
-			LMO_Mkr setMarkerPos position _cache;
-			LMO_MkrName setMarkerPos position _cache;
-			LMO_Mkr setMarkerSize [LMO_FultonRng,LMO_FultonRng];
-			LMO_Mkr setMarkerBrush "Solid";
-		
+		if (_missionType == 2) then {
+			
+			//Checks if Player is within range of HVT to halt timer
+			_playerUnitsHVT = (nearestObjects [_hvt, ["Man","LandVehicle"], _hostagePauseRng]) select {isPlayer _x};
+			
+			if ((count _playerUnitsHVT > 0) && (_hvt getVariable ["ace_captives_isSurrendering", false] || _hvt getVariable ["ace_captives_isHandcuffed", false])) then {
+					LMO_mTimer = LMO_mTimer - 0;
+					LMO_mTimerStr = [LMO_mTimer, "MM:SS"] call BIS_fnc_secondsToString;
+					LMO_MkrName setMarkerColor "ColorGrey";
+					LMO_Mkr setMarkerColor "ColorGrey";
+					LMO_Mkr setMarkerPos getPos _hvt;
+					LMO_MkrName setMarkerPos position _hvt;
+					LMO_Mkr setMarkerSize [_hostagePauseRng,_hostagePauseRng];
+					LMO_Mkr setMarkerBrush "Solid";
+			} else {
+					LMO_MkrName setMarkerColor "ColorOrange";
+					LMO_Mkr setMarkerColor "ColorOrange";
+					LMO_Mkr setMarkerPos LMO_MkrPos;
+					LMO_MkrName setMarkerPos LMO_MkrPos;
+					LMO_Mkr setMarkerSize [LMO_objMkrRad,LMO_objMkrRad];
+					LMO_Mkr setMarkerBrush "FDiagonal";
+					LMO_mTimer = LMO_mTimer - 1;
+					LMO_mTimerStr = [LMO_mTimer, "MM:SS"] call BIS_fnc_secondsToString;
+			};
+			
 		} else {
-			LMO_mTimer = LMO_mTimer - 1;
-			LMO_mTimerStr = [LMO_mTimer, "MM:SS"] call BIS_fnc_secondsToString;
+			
+			//Checks if cache is secured to halt timer
+			if (_missionType == 3 && (_cache getVariable ["LMO_CacheSecure", true])) then {
+			
+				LMO_mTimer = LMO_mTimer - 0;
+				LMO_mTimerStr = [LMO_mTimer, "MM:SS"] call BIS_fnc_secondsToString;
+				LMO_MkrName setMarkerColor "ColorGrey";
+				LMO_Mkr setMarkerColor "ColorGrey";
+				LMO_Mkr setMarkerPos position _cache;
+				LMO_MkrName setMarkerPos position _cache;
+				LMO_Mkr setMarkerSize [LMO_FultonRng,LMO_FultonRng];
+				LMO_Mkr setMarkerBrush "Solid";
+			
+			} else {
+				LMO_mTimer = LMO_mTimer - 1;
+				LMO_mTimerStr = [LMO_mTimer, "MM:SS"] call BIS_fnc_secondsToString;
+			};
 		};
 	};
 	
