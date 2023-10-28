@@ -11,7 +11,7 @@
  *	5: Marker Brush <STRING>
  *
  *	Example:
- *	[0,"ColorGrey",getPos player,false,300,"Solid"] call XEPKEY_fn_mTimerAdjust;
+ *	[0,"ColorGrey",getPos player,300,false,"Solid"] call XEPKEY_fn_mTimerAdjust;
  *
  */
 
