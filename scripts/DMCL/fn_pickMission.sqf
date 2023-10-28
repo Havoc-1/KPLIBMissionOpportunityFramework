@@ -9,7 +9,7 @@ _missionState = 0;
 
 //Randomizes LMO Mission Type
 _missionType = [1,3] call BIS_fnc_randomInt;
-
+//_missionType = 2;
 //Hostage Pause Timer Range
 _hostagePauseRng = 10;
 
@@ -66,7 +66,7 @@ _playerUnitHostages = [];
 _enyUnitsInside = [];
 _enyUnitPlayers = [];
 _enyUnitHostages = [];
-_hostageRescueRad = LMO_objMkrRadRescue;
+_HRrad = LMO_objMkrRadRescue;
 _cache = objNull;
 _cacheSecured = false;
 
@@ -99,7 +99,7 @@ switch (_missionType) do {
 		//Checks whether hostage is in city
 		_nearbyBuildings = nearestTerrainObjects [LMO_spawnBldg, LMO_bTypes, (LMO_objMkrRadRescue/2), false, true];
 		//Increase escape radius if not in city
-		if (count _nearbyBuildings < 10) then {_hostageRescueRad = LMO_objMkrRadRescue * 1.5};
+		if (count _nearbyBuildings < 10) then {_HRrad = LMO_objMkrRadRescue * 1.5};
 		
 		//Empties Variables
 		_enyUnitHostages = [];
@@ -364,12 +364,9 @@ switch (_missionType) do {
 					};
 					
 					group _hvt move _movePos;
-					
 
 					if (LMO_HVTDebug == true) then {
-						systemChat format ["LMO: HVT TargetsList Run: %1",_targetsList];
-						systemChat format ["LMO: Direction to Run: %1",_angularDegrees];
-						systemChat format ["LMO: MovePos: %1",_movePos];
+						systemChat format ["LMO: HVT TargetsList Run: %1. Run Dir: %2. Move Pos: %3.",_targetsList,_angularDegrees,_movePos];
 					};
 				
 					if (_hvt getVariable ["ace_captives_isSurrendering", false]) exitWith {
@@ -504,21 +501,11 @@ while {LMO_active == true} do {
 		}forEach units _hostageGrp;
 		
 		if ((count _playerUnitHostages > 0) && (count _enyUnitHostages == 0)) then {
-				LMO_mTimer = LMO_mTimer - 0;
-				LMO_mTimerStr = [LMO_mTimer, "MM:SS"] call BIS_fnc_secondsToString;
-				LMO_MkrName setMarkerColor "ColorGrey";
-				LMO_Mkr setMarkerColor "ColorGrey";
-				LMO_Mkr setMarkerPos getPos LMO_spawnBldg;
-				LMO_Mkr setMarkerSize [_hostageRescueRad,_hostageRescueRad];
-				LMO_Mkr setMarkerBrush "Solid";
+
+			[0,"ColorGrey",LMO_spawnBldg,_HRrad,false,"Solid"] call XEPKEY_fn_mTimerAdjust;
 		} else {
-				LMO_MkrName setMarkerColor "ColorBlue";
-				LMO_Mkr setMarkerColor "ColorBlue";
-				LMO_Mkr setMarkerPos LMO_MkrPos;
-				LMO_Mkr setMarkerSize [LMO_objMkrRad,LMO_objMkrRad];
-				LMO_Mkr setMarkerBrush "FDiagonal";
-				LMO_mTimer = LMO_mTimer - 1;
-				LMO_mTimerStr = [LMO_mTimer, "MM:SS"] call BIS_fnc_secondsToString;
+
+			[1,"ColorBlue",LMO_MkrPos,LMO_objMkrRad,false,"FDiagonal"] call XEPKEY_fn_mTimerAdjust;
 		};
 		
 	} else {
@@ -528,40 +515,21 @@ while {LMO_active == true} do {
 			_playerUnitsHVT = (nearestObjects [_hvt, ["Man","LandVehicle"], _hostagePauseRng]) select {isPlayer _x};
 			
 			if ((count _playerUnitsHVT > 0) && (_hvt getVariable ["ace_captives_isSurrendering", false] || _hvt getVariable ["ace_captives_isHandcuffed", false])) then {
-					LMO_mTimer = LMO_mTimer - 0;
-					LMO_mTimerStr = [LMO_mTimer, "MM:SS"] call BIS_fnc_secondsToString;
-					LMO_MkrName setMarkerColor "ColorGrey";
-					LMO_Mkr setMarkerColor "ColorGrey";
-					LMO_Mkr setMarkerPos getPos _hvt;
-					LMO_MkrName setMarkerPos position _hvt;
-					LMO_Mkr setMarkerSize [_hostagePauseRng,_hostagePauseRng];
-					LMO_Mkr setMarkerBrush "Solid";
+
+					[0,"ColorGrey",position _hvt,_hostagePauseRng,true,"Solid"] call XEPKEY_fn_mTimerAdjust;
 			} else {
-					LMO_MkrName setMarkerColor "ColorOrange";
-					LMO_Mkr setMarkerColor "ColorOrange";
-					LMO_Mkr setMarkerPos LMO_MkrPos;
-					LMO_MkrName setMarkerPos LMO_MkrPos;
-					LMO_Mkr setMarkerSize [LMO_objMkrRad,LMO_objMkrRad];
-					LMO_Mkr setMarkerBrush "FDiagonal";
-					LMO_mTimer = LMO_mTimer - 1;
-					LMO_mTimerStr = [LMO_mTimer, "MM:SS"] call BIS_fnc_secondsToString;
+
+					[1,"ColorOrange",LMO_MkrPos,LMO_objMkrRad,true,"FDiagonal"] call XEPKEY_fn_mTimerAdjust;
 			};
 			
 		} else {
 			
 			//Checks if cache is secured to halt timer
 			if (_missionType == 3 && (_cache getVariable ["LMO_CacheSecure", true])) then {
-			
-				LMO_mTimer = LMO_mTimer - 0;
-				LMO_mTimerStr = [LMO_mTimer, "MM:SS"] call BIS_fnc_secondsToString;
-				LMO_MkrName setMarkerColor "ColorGrey";
-				LMO_Mkr setMarkerColor "ColorGrey";
-				LMO_Mkr setMarkerPos position _cache;
-				LMO_MkrName setMarkerPos position _cache;
-				LMO_Mkr setMarkerSize [LMO_FultonRng,LMO_FultonRng];
-				LMO_Mkr setMarkerBrush "Solid";
-			
+
+				[0,"ColorGrey",position _cache,LMO_FultonRng,true,"Solid"] call XEPKEY_fn_mTimerAdjust;
 			} else {
+
 				LMO_mTimer = LMO_mTimer - 1;
 				LMO_mTimerStr = [LMO_mTimer, "MM:SS"] call BIS_fnc_secondsToString;
 			};
@@ -594,13 +562,10 @@ while {LMO_active == true} do {
 		if (alive _hostage) then {_hostage setdamage 1};
 		[_enyUnits, _hostageGrp] spawn {
 			params ["_enyUnits","_hostageGrp"];
-			_enyUnits = _this select 0;
-			_hostageGrp = _this select 1;
 			_enyUnitPlayers = [];
 			while {{alive _x} count units _enyUnits > 0} do {
-				
 				{
-					_enyUnitPlayers = (nearestObjects [_x, ["Man"], (LMO_bRadius * 0.8)]) select {isPlayer _x};
+					_enyUnitPlayers = (nearestObjects [_x, ["Man","LandVehicle"], (LMO_bRadius * 0.8)]) select {isPlayer _x};
 				}forEach units _enyUnits;
 				
 				if (count _enyUnitPlayers == 0) exitWith {
@@ -616,7 +581,7 @@ while {LMO_active == true} do {
 	};
 
 	//Hostage Rescue Win Conditions
-	if (_missionType == 1 && (_hostage distance2D position LMO_spawnBldg > _hostageRescueRad) && alive _hostage && LMO_mTimer > 0) then {
+	if (_missionType == 1 && (_hostage distance2D position LMO_spawnBldg > _HRrad) && alive _hostage && LMO_mTimer > 0) then {
 		
 		["LMOTaskOutcome", ["Hostage secured", "\A3\ui_f\data\igui\cfg\simpletasks\types\run_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 		
@@ -717,7 +682,7 @@ while {LMO_active == true} do {
 				_enyUnitPlayers = [];
 				while {{alive _x} count units _enyUnits > 0} do {
 					{
-						_enyUnitPlayers = (nearestObjects [_x, ["Man"], (LMO_bRadius * 0.8)]) select {isPlayer _x};
+						_enyUnitPlayers = (nearestObjects [_x, ["Man","LandVehicle"], (LMO_bRadius * 0.8)]) select {isPlayer _x};
 					}forEach units _enyUnits;
 					
 					//hint format ["%1", units _enyUnits];
@@ -777,43 +742,65 @@ while {LMO_active == true} do {
 					if (LMO_Debug == true) then {systemChat "LMO: No players in range, secured cache deleted. Exiting scope with fulton."};
 					
 					_cacheFly = "C_supplyCrate_F" createVehicle _cachePos;
-					_cacheBalloon = "Land_Balloon_01_air_F" createVehicle _cachePos;
-					_cacheBalloon allowDamage false;
-					_cacheBalloon attachTo [_cacheFly, [0,0,25]];
-					_cacheBalloon setObjectScale 10;
-					//_cacheChute = "B_Parachute_02_F" createVehicle _cachePos;
-					//_cacheChute attachTo [_cacheFly, [0,0,30]];
-					//_cacheChute hideObjectGlobal true;
-					//_cacheRope = ropeCreate [_cacheChute, [0,0,-5],28, nil, nil, nil, 10];
-					_cacheLight = "PortableHelipadLight_01_red_F" createVehicle getPos _cacheFly;
-					_cacheLight allowDamage false;
-					_cacheLight attachTo [_cacheFly, [0,0,0.6]];
-					_flyRate = 1.2;
-					_flyMax = 1000;
-					
-					while {(getPosATL _cacheFly) select 2 < _flyMax} do {
-						_cacheHeight = (getPosATL _cacheFly) select 2;
-						if (_cacheHeight >= _flyMax*0.025 && _cacheHeight < _flyMax*0.03) then {_flyRate = 0.3};
-						if (_cacheHeight >= _flyMax*0.03 && _cacheHeight < _flyMax*0.035) then {_flyRate = 4};
-						if (_cacheHeight >= _flyMax*0.035 && _cacheHeight < _flyMax*0.95) then {_flyRate = 10};
-						if (_cacheHeight >= _flyMax*0.9) then {_flyRate = 2};
-						_cacheFly setPosATL [getPosATL _cacheFly select 0, getPosATL _cacheFly select 1, (getPosATL _cacheFly select 2)+_flyRate];
-						sleep 0.1;
-						if ((getPosATL _cacheFly) select 2 >= _flyMax) exitWith {
-							//ropeDestroy _cacheRope;
+					_cacheBalloon = createSimpleObject ["a3\structures_f_mark\items\sport\balloon_01_air_f.p3d", _cachePos];
+					_cacheBalloon attachTo [_cacheFly, [0,0,5]];
+					detach _cacheBalloon;
+
+					_cacheChute = "B_Parachute_02_F" createVehicle _cachePos;
+					_cacheChute attachTo [_cacheFly, [0,0,7]];
+					detach _cacheChute;
+					_cacheChute hideObjectGlobal true;
+					_cacheChute disableCollisionWith _cacheFly;
+					_cacheChute disableCollisionWith _cacheBalloon;
+
+					//Inflate Fulton
+					[_cacheFly,_cacheBalloon,_cacheChute] spawn {
+						params ["_cacheFly","_cacheBalloon","_cacheChute"];
+						_cacheBalloon setObjectScale 1;
+						_inflate = 0.03;
+						while {getObjectScale _cacheBalloon <= 20 || (getPosATL _cacheBalloon) select 2 <= 20} do {
+							_bHeight = (getPosATL _cacheBalloon) select 2;
+							if (getObjectScale _cacheBalloon == 10) then {_inflate = 0};
+							if (getObjectScale _cacheBalloon >= 4 && getObjectScale _cacheBalloon < 7) then {_inflate = 0.03};
+							if (getObjectScale _cacheBalloon >= 7) then {_inflate = 0.01};
+							_cacheBalloon setObjectScale ((getObjectScale _cacheBalloon) + _inflate);
+							sleep .01;
+						};
+					};
+
+					[_cacheFly,_cacheBalloon,_cacheChute,_cache] spawn {
+						params ["_cacheFly","_cacheBalloon","_cacheChute","_cache"];
+						_bRise = 3;
+						_cacheRope = ropeCreate [_cacheChute, [0,0,-2],_cacheFly, [0,0,0.5], 30];
+						ropeUnwind [_cacheBalloon, 20, 100];
+						_cacheLight = "PortableHelipadLight_01_red_F" createVehicle getPos _cacheFly;
+						_cacheLight allowDamage false;
+						_cacheLight attachTo [_cacheFly, [0,0,0.6]];
+						_flyMax = 1000;
+						while {alive _cacheFly} do {
+							_bHeight = (getPosATL _cacheBalloon) select 2;
+							_cacheBalloon setPos getPos _cacheChute;
+							if (_bHeight >= _flyMax*0.025 && _bHeight < _flyMax*0.03) then {_bRise = 1};
+							if (_bHeight >= _flyMax*0.03 && _bHeight < _flyMax*0.035) then {_bRise = 12};
+							if (_bHeight >= _flyMax*0.035 && _bHeight < _flyMax*0.95) then {_bRise = 30};
+							_cacheChute setVelocity [0,0,_bRise];
+							[_cacheChute, 0, 0] call BIS_fnc_setPitchBank;
+
+							if (_bHeight >= _flyMax) exitWith {
+							ropeDestroy _cacheRope;
 							deleteVehicle _cacheFly;
 							deleteVehicle _cacheBalloon;
-							//deleteVehicle _cacheChute;
+							deleteVehicle _cacheChute;
 							deleteVehicle _cacheLight;
 							["LMOTaskOutcome", ["Cache uplifted successfully", "z\ace\addons\dragging\ui\icons\box_carry.paa"]] remoteExec ["BIS_fnc_showNotification"];
 							if (LMO_Debug == true) then {systemChat "LMO: Cache successfully airlifted."};
 							deleteVehicle _cache;
 							_missionState = 1;
 							missionNamespace setVariable ["LMO_CacheTagged", nil];
-							
+							};
+							sleep 0.01;
 						};
-					};
-					
+					};				
 				};
 				sleep 5;
 			};
