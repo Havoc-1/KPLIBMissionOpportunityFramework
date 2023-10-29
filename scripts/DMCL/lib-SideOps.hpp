@@ -8,6 +8,9 @@ class XEPKEY_functions { //Create category
 		class pickMission {};
 		class fogBehavior {};
 		class mTimerAdjust {};
+		class spawnHostage {};
+		class cacheFulton {};
+		class taskState {};
 		//class createLMOTask {};
 		//class missionOutcome {};
 		class diaryContent {postInit=1};

@@ -30,6 +30,9 @@ LMO_mCheckRNG = 10;			//How often (in minutes) the server will check to start an
 LMO_mChanceSelect = 20;		//Percentage chance of LMO per check rate
 LMO_TSTchance = 20;			//Percentage chance of Time Sensitive LMO per check rate once LMO has been determined
 
+//Enable or disable failed LMO penalties
+LMO_Penalties = true;
+
 //Building Params
 LMO_mkrRngLow = 50;				//Objective Marker Minimum Radius Range
 LMO_mkrRngHigh = 300;			//Objective Marker Maximum Radius Range
@@ -59,13 +62,67 @@ LMO_CacheItemArray = [					//Items to include in cache ["Item", Quantity]
 	["HandGrenade", 1]
 ];
 
-
-//Enable or disable failed LMO penalties
-LMO_Penalties = true;
+//REWARDS SETTINGS 
+XEPKEY_LMO_HR_REWARD_CIVREP = 40;			//Hostage Rescue Civilian Reputation Win
+XEPKEY_LMO_HR_REWARD_INTEL = 15;			//Hostage Rescue Intelligence Win
+XEPKEY_LMO_HVT_REWARD_ALERT_LOW = 1;
+XEPKEY_LMO_HVT_REWARD_ALERT_HIGH = 5;
+XEPKEY_LMO_HVT_REWARD_INTEL1 = 25;
+XEPKEY_LMO_HVT_REWARD_INTEL2 = 40;
 
 //Debug Mode (Adds Hints and systemChat)
 LMO_Debug = true;				//10s mission check rate for debugging
 LMO_HVTDebug = true;			//Debugging HVT missions
+
+//Squad composition of enemies that will spawn on the objective, reference liberation global variables
+XEPKEY_SideOpsORBAT = [
+	opfor_squad_leader,
+	opfor_medic,
+	opfor_machinegunner,
+	opfor_heavygunner,
+	opfor_medic, 
+	opfor_marksman, 
+	opfor_grenadier, 
+	opfor_rpg
+];
+
+//HVT Headgear and Goggles
+LMO_hvtHead = [
+	"H_Bandanna_khk",
+	"H_Bandanna_khk_hs",
+	"H_bandanna_gry",
+	"H_Bandanna_cbr",
+	"H_Bandanna_blu",
+	"H_Bandanna_mcamo",
+	"H_Bandanna_sgg",
+	"H_Bandanna_sand",
+	"H_Bandanna_camo",
+	"H_Watchcap_blk",
+	"H_Watchcap_cbr",
+	"H_Watchcap_camo",
+	"H_Watchcap_khk",
+	"H_Watchcap_sgg",
+	"H_Beret_blk"
+];
+LMO_hvtGog = [
+	"G_Balaclava_Skull1",
+	"G_Balaclava_Tropentarn",
+	"G_Balaclava_lowprofile",
+	"G_Bandanna_beast",
+	"G_Bandanna_aviator",
+	"G_Bandanna_blk",
+	"G_Bandanna_shades",
+	"G_Bandanna_Skull1",
+	"G_Bandanna_Skull2",
+	"G_Bandanna_Syndikat1",
+	"G_Bandanna_Syndikat2",
+	"G_Bandanna_sport",
+	"G_Aviator",
+	"G_AirPurifyingRespirator_02_black_F",
+	"G_AirPurifyingRespirator_02_olive_F",
+	"G_AirPurifyingRespirator_02_sand_F",
+	"None"
+];
 
 //Building exclusion array to make sure seaports are not included, list is not exhaustive
 XEPKEY_blacklistBuildings = [
@@ -86,6 +143,7 @@ XEPKEY_blacklistBuildings = [
 	"Land_SCF_01_clarifier_F"
 ];
 
+//-----------------------------------------//
 
 //GLOBAL SETTINGS
 LMO_active = false;
@@ -97,34 +155,13 @@ LMO_VCOM_On = false;
 LMO_objBlacklist = [];
 LMO_TSTState = false;
 
-//REWARDS SETTINGS 
-XEPKEY_LMO_HR_REWARD_CIVREP = 40;			//Hostage Rescue Civilian Reputation Win
-XEPKEY_LMO_HR_REWARD_INTEL = 15;			//Hostage Rescue Intelligence Win
-XEPKEY_LMO_HVT_REWARD_ALERT_LOW = 1;
-XEPKEY_LMO_HVT_REWARD_ALERT_HIGH = 5;
-XEPKEY_LMO_HVT_REWARD_INTEL1 = 25;
-XEPKEY_LMO_HVT_REWARD_INTEL2 = 40;
-
-
-//Squad composition of enemies that will spawn on the objective, reference liberation global variables
-XEPKEY_SideOpsORBAT = [
-	opfor_squad_leader,
-	opfor_medic,
-	opfor_machinegunner,
-	opfor_heavygunner,
-	opfor_medic, 
-	opfor_marksman, 
-	opfor_grenadier, 
-	opfor_rpg
-];
-
 //Compile all functions
 #include "compile.sqf";
 
 if !(isDedicated || (isServer && hasInterface)) exitWith {};
 
 //Checks if VCOM is loaded
-if (isClass (configfile >> "CfgPatches" >> "VCOM_AI") || "VCOM_AI" in (allMissionObjects "Mod")) then {
+if (Vcm_ActivateAI == true) then {
   LMO_VCOM_On = true;
 };
 

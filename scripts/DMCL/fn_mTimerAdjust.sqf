@@ -11,13 +11,13 @@
  *	5: Marker Brush <STRING>
  *
  *	Example:
- *	[0,"ColorGrey",getPos player,300,false,"Solid"] call XEPKEY_fn_mTimerAdjust;
+ *	[0,"ColorGrey",position _unit,300,false,"Solid"] call XEPKEY_fn_mTimerAdjust;
  *
  */
 
-params ["_tSub","_color","_mkrPos","_mkrSize","_mkrNamePos","_mkrBrush"];
+params ["_time","_color","_mkrPos","_mkrSize","_mkrNamePos","_mkrBrush"];
 
-LMO_mTimer = LMO_mTimer - _tSub;
+LMO_mTimer = LMO_mTimer - _time;
 LMO_mTimerStr = [LMO_mTimer, "MM:SS"] call BIS_fnc_secondsToString;
 LMO_MkrName setMarkerColor _color;
 LMO_Mkr setMarkerColor _color;

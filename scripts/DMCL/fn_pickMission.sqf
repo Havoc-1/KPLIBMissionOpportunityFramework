@@ -9,50 +9,13 @@ _missionState = 0;
 
 //Randomizes LMO Mission Type
 _missionType = [1,3] call BIS_fnc_randomInt;
-//_missionType = 2;
-//Hostage Pause Timer Range
+
+
+//Hostage Pause Timer Radius
 _hostagePauseRng = 10;
 
 //Model used for Cache OBJ
 _cacheModel = "Box_FIA_Wps_F";
-
-//HVT Headgear and Goggles
-_hvtHeadgear = [
-	"H_Bandanna_khk",
-	"H_Bandanna_khk_hs",
-	"H_bandanna_gry",
-	"H_Bandanna_cbr",
-	"H_Bandanna_blu",
-	"H_Bandanna_mcamo",
-	"H_Bandanna_sgg",
-	"H_Bandanna_sand",
-	"H_Bandanna_camo",
-	"H_Watchcap_blk",
-	"H_Watchcap_cbr",
-	"H_Watchcap_camo",
-	"H_Watchcap_khk",
-	"H_Watchcap_sgg",
-	"H_Beret_blk"
-];
-_hvtGoggles = [
-	"G_Balaclava_Skull1",
-	"G_Balaclava_Tropentarn",
-	"G_Balaclava_lowprofile",
-	"G_Bandanna_beast",
-	"G_Bandanna_aviator",
-	"G_Bandanna_blk",
-	"G_Bandanna_shades",
-	"G_Bandanna_Skull1",
-	"G_Bandanna_Skull2",
-	"G_Bandanna_Syndikat1",
-	"G_Bandanna_Syndikat2",
-	"G_Bandanna_sport",
-	"G_Aviator",
-	"G_AirPurifyingRespirator_02_black_F",
-	"G_AirPurifyingRespirator_02_olive_F",
-	"G_AirPurifyingRespirator_02_sand_F",
-	"None"
-];
 
 //Predefining Variables
 _hvtRunner = 0;
@@ -148,60 +111,13 @@ switch (_missionType) do {
 		}forEach units _enyUnits;
 
 		//VCOM will stop the AI squad from responding to calls for backup.
-		//if (LMO_VCOM_On == true) then {
+		if (LMO_VCOM_On == true) then {
 			_enyUnits setVariable ["VCM_NORESCUE",true];
 			_enyUnits setVariable ["VCM_DisableForm",true];
-		//};
+		};
 		
-
-		//Surrenders hostage and moves to elevated enemies if possible
-		_enyUnitsInside = ((units _enyUnits) select {insideBuilding _x == 1}) select {(getPosATL _x) select 2 > 3};
-		{
-		
-			//[_x, true] call ace_captives_fnc_setSurrendered;
-			[_x, true, objNull] call ACE_captives_fnc_setHandcuffed;
-			_hostagePosOffset = selectRandom [-0.5,0.5];
-
-			_hostageDisOffset = random 2;
-			
-			if (_hostageDisOffset < 0.5) then {
-				_hostageDisOffset = 0.5;
-			};
-
-			if (count _enyUnitsInside >= 1) then {
-				
-				_hostageTaker = selectRandom _enyUnitsInside;
-				_hostageTaker disableAI "PATH";
-				
-				_hostageRelDir = _hostageTaker getDir LMO_spawnBldg;
-				//_hostagePos = getPosASL _hostageTaker;
-				_hostagePos = [getPos _hostageTaker, _hostageDisOffset, _hostageRelDir] call BIS_fnc_relPos;
-				_x setPosASL [((_hostagePos select 0) + _hostagePosOffset), ((_hostagePos select 1) + _hostagePosOffset), (getPosASL _hostageTaker) select 2];
-			
-			} else {
-				_enyUnitsInside = ((units _enyUnits) select {insideBuilding _x == 1});
-				if (count _enyUnitsInside > 0) then {
-					
-					_hostageTaker = selectRandom _enyUnitsInside;
-					_hostageTaker disableAI "PATH";
-					_hostageRelDir = _hostageTaker getDir LMO_spawnBldg;
-					//_hostagePos = getPosASL _hostageTaker;
-					_hostagePos = [getPos _hostageTaker, _hostageDisOffset, _hostageRelDir] call BIS_fnc_relPos;
-					_x setPosASL [((_hostagePos select 0) + _hostagePosOffset), ((_hostagePos select 1) + _hostagePosOffset), (getPosASL _hostageTaker) select 2];
-				
-				} else {
-					
-					_hostageTaker = selectRandom units _enyUnits;
-					_hostageTaker disableAI "PATH";
-					_hostageRelDir = _hostageTaker getDir LMO_spawnBldg;
-					//_hostagePos = getPosASL _hostageTaker;
-					_hostagePos = [getPos _hostageTaker, _hostageDisOffset, _hostageRelDir] call BIS_fnc_relPos;
-					_x setPosASL [((_hostagePos select 0) + _hostagePosOffset), ((_hostagePos select 1) + _hostagePosOffset), (getPosASL _hostageTaker) select 2];
-					
-				};
-			};
-			_x setDir random 360;
-		}forEach (units _hostageGrp);
+		//Spawns Hostage
+		[_enyUnits,_hostageGrp] call XEPKEY_fn_spawnHostage;
 	};
 	
 	//Eliminate HVT
@@ -249,12 +165,12 @@ switch (_missionType) do {
 			};
 
 		}forEach units _enyUnits;
-
-		//if (LMO_VCOM_On == true) then {
-			//VCOM will stop the AI squad from responding to calls for backup.
+		
+		//VCOM will stop the AI squad from responding to calls for backup.
+		if (LMO_VCOM_On == true) then {
 			_enyUnits setVariable ["VCM_NORESCUE",true];
 			_enyUnits setVariable ["VCM_DisableForm",true];
-		//};
+		};
 
 		
 		
@@ -277,8 +193,8 @@ switch (_missionType) do {
 		//Eliminiate HVT Parameters
 		removeHeadgear _hvt;
 		removeGoggles _hvt;
-		_hvt addHeadGear selectRandom _hvtHeadgear;
-		_hvt addGoggles selectRandom _hvtGoggles;
+		_hvt addHeadGear selectRandom LMO_hvtHead;
+		_hvt addGoggles selectRandom LMO_hvtGog;
 		if ((daytime <= 20) || (daytime >= 6)) then {_hvt unassignItem hmd _hvt};
 		
 		//Runner HVT Chance
@@ -399,7 +315,7 @@ switch (_missionType) do {
 			_cache = createVehicle [getPos LMO_spawnBldg, _cacheModel, [], 0, "CAN_COLLIDE"];
 			if (LMO_Debug == true) then {systemChat format ["LMO: No suitable cache spot found. Creating cache in target building at %1", getPos _cache]};
 		};
-		
+
 		//Empty contents of Cache
 		if (LMO_CacheEmpty == true) then {
 			clearItemCargoGlobal _cache;
@@ -483,10 +399,7 @@ switch (_missionType) do {
 				
 			};
 			if (LMO_Debug == true) then {systemChat format ["LMO: Cache Damaged: %1", _damage]};
-		}];
-		
-		//_smoke = "test_EmptyObjectForSmoke" createVehicle (getPos _cache);
-		
+		}];		
 	};
 };
 
@@ -536,8 +449,10 @@ while {LMO_active == true} do {
 		};
 	};
 	
+	//Updates LMO Marker Time on map
 	LMO_MkrName setMarkerText format [" %1 [%2]",LMO_MkrText, LMO_mTimerStr];
 	
+	//Fail LMO if timer expires
 	if (LMO_mTimer == 0) then {
 		_missionState = 2;
 	};
@@ -678,14 +593,12 @@ while {LMO_active == true} do {
 			
 			[_enyUnits] spawn {
 				params ["_enyUnits"];
-				_enyUnits = _this select 0;
 				_enyUnitPlayers = [];
 				while {{alive _x} count units _enyUnits > 0} do {
 					{
 						_enyUnitPlayers = (nearestObjects [_x, ["Man","LandVehicle"], (LMO_bRadius * 0.8)]) select {isPlayer _x};
 					}forEach units _enyUnits;
 					
-					//hint format ["%1", units _enyUnits];
 					if (count _enyUnitPlayers == 0) exitWith {
 										{
 							deleteVehicle _x;
@@ -721,89 +634,7 @@ while {LMO_active == true} do {
 			sleep 1;
 			
 			//Checks if players are no longer nearby cache, then exitsWith fulton script
-			_nearbyCache = [];
-			if (LMO_Debug == true) then {systemChat format ["LMO: Delete loop started for Cache at %1.", getPos _cache]};
-			while {true} do {
-				if (!alive _cache) exitWith {
-						systemChat format ["LMO: Cache was destroyed before uplift."];
-						["LMOTaskOutcome", ["Cache was destroyed before uplift", "a3\ui_f_oldman\data\igui\cfg\holdactions\destroy_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
-						_missionState = 1;
-				};
-				
-				if (alive _cache) then {
-					_nearbyCache = (nearestObjects [_cache, ["Man", "LandVehicle"], LMO_FultonRng]) select {isPlayer _x};
-				};
-				if (count _nearbyCache == 0) exitWith {
-					_cacheAttached = attachedObjects _cache;
-					if (count _cacheAttached > 0) then {{deleteVehicle _x} forEach _cacheAttached};
-					_cachePos = getPosATL _cache;
-					_cache hideObjectGlobal true;
-					
-					if (LMO_Debug == true) then {systemChat "LMO: No players in range, secured cache deleted. Exiting scope with fulton."};
-					
-					_cacheFly = "C_supplyCrate_F" createVehicle _cachePos;
-					_cacheBalloon = createSimpleObject ["a3\structures_f_mark\items\sport\balloon_01_air_f.p3d", _cachePos];
-					_cacheBalloon attachTo [_cacheFly, [0,0,5]];
-					detach _cacheBalloon;
-
-					_cacheChute = "B_Parachute_02_F" createVehicle _cachePos;
-					_cacheChute attachTo [_cacheFly, [0,0,7]];
-					detach _cacheChute;
-					_cacheChute hideObjectGlobal true;
-					_cacheChute disableCollisionWith _cacheFly;
-					_cacheChute disableCollisionWith _cacheBalloon;
-
-					//Inflate Fulton
-					[_cacheFly,_cacheBalloon,_cacheChute] spawn {
-						params ["_cacheFly","_cacheBalloon","_cacheChute"];
-						_cacheBalloon setObjectScale 1;
-						_inflate = 0.03;
-						while {getObjectScale _cacheBalloon <= 20 || (getPosATL _cacheBalloon) select 2 <= 20} do {
-							_bHeight = (getPosATL _cacheBalloon) select 2;
-							if (getObjectScale _cacheBalloon == 10) then {_inflate = 0};
-							if (getObjectScale _cacheBalloon >= 4 && getObjectScale _cacheBalloon < 7) then {_inflate = 0.03};
-							if (getObjectScale _cacheBalloon >= 7) then {_inflate = 0.01};
-							_cacheBalloon setObjectScale ((getObjectScale _cacheBalloon) + _inflate);
-							sleep .01;
-						};
-					};
-
-					[_cacheFly,_cacheBalloon,_cacheChute,_cache] spawn {
-						params ["_cacheFly","_cacheBalloon","_cacheChute","_cache"];
-						_bRise = 3;
-						_cacheRope = ropeCreate [_cacheChute, [0,0,-2],_cacheFly, [0,0,0.5], 30];
-						ropeUnwind [_cacheBalloon, 20, 100];
-						_cacheLight = "PortableHelipadLight_01_red_F" createVehicle getPos _cacheFly;
-						_cacheLight allowDamage false;
-						_cacheLight attachTo [_cacheFly, [0,0,0.6]];
-						_flyMax = 1000;
-						while {alive _cacheFly} do {
-							_bHeight = (getPosATL _cacheBalloon) select 2;
-							_cacheBalloon setPos getPos _cacheChute;
-							if (_bHeight >= _flyMax*0.025 && _bHeight < _flyMax*0.03) then {_bRise = 1};
-							if (_bHeight >= _flyMax*0.03 && _bHeight < _flyMax*0.035) then {_bRise = 12};
-							if (_bHeight >= _flyMax*0.035 && _bHeight < _flyMax*0.95) then {_bRise = 30};
-							_cacheChute setVelocity [0,0,_bRise];
-							[_cacheChute, 0, 0] call BIS_fnc_setPitchBank;
-
-							if (_bHeight >= _flyMax) exitWith {
-							ropeDestroy _cacheRope;
-							deleteVehicle _cacheFly;
-							deleteVehicle _cacheBalloon;
-							deleteVehicle _cacheChute;
-							deleteVehicle _cacheLight;
-							["LMOTaskOutcome", ["Cache uplifted successfully", "z\ace\addons\dragging\ui\icons\box_carry.paa"]] remoteExec ["BIS_fnc_showNotification"];
-							if (LMO_Debug == true) then {systemChat "LMO: Cache successfully airlifted."};
-							deleteVehicle _cache;
-							_missionState = 1;
-							missionNamespace setVariable ["LMO_CacheTagged", nil];
-							};
-							sleep 0.01;
-						};
-					};				
-				};
-				sleep 5;
-			};
+			[_cache] call XEPKEY_fn_cacheFulton;
 		};
 	};
 	
@@ -820,28 +651,8 @@ while {LMO_active == true} do {
 		};
 	};
 	
-	if (_missionState == 2) exitWith {
-	
-		["_taskMO", "FAILED", false] call BIS_fnc_taskSetState;
-		deleteMarker LMO_Mkr;
-		deleteMarker LMO_MkrName;
-		if (LMO_Debug == true) then {deleteMarker LMO_MkrDebug};
-		sleep 5;
-		["_taskMO"] call BIS_fnc_deleteTask;
-		["_taskMisMO"] call BIS_fnc_deleteTask;
-		LMO_active = false;
-	};
-	
-	if (_missionState == 1) exitWith {
-	
-		["_taskMO", "SUCCEEDED", false] call BIS_fnc_taskSetState;
-		deleteMarker LMO_Mkr;
-		deleteMarker LMO_MkrName;
-		if (LMO_Debug == true) then {deleteMarker LMO_MkrDebug};
-		sleep 5;
-		["_taskMO"] call BIS_fnc_deleteTask;
-		["_taskMisMO"] call BIS_fnc_deleteTask;
-		LMO_active = false;
-	};
+	//Ends Mission
+	if (_missionState != 0) exitWith {[_missionState] call XEPKEY_fn_taskState};
+
 sleep 1;
 };
