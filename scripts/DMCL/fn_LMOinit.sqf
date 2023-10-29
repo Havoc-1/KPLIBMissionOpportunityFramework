@@ -94,7 +94,7 @@
 		*	5: NVG
 		*	6: Weapons
 		*/
-		LMO_hvtOutfit = [true, true, false, false, false, true, false];
+		LMO_hvtOutfit = [true, true, false, false, false, false, false];
 
 		/* LMO_hvtNone Array to enable chance for empty equipment slot for the HVT <BOOL>
 		*	0: Headgear
