@@ -14,6 +14,8 @@ _HRrad = LMO_objMkrRadRescue;
 _cache = objNull;
 _cacheSecured = false;
 _missionType = 0;
+_sqdOrbat = [];
+_sqdSize = 0;
 
 //Randomizes LMO Mission Type
 if (LMO_Debug == true && LMO_mType != 0) then {
@@ -79,6 +81,21 @@ switch (_missionType) do {
 		_hostage = selectRandom units _hostageGrp;
 		
 		//Spawns Enemies
+		_sqdOrbat append LMO_Orbat;
+		_sqdSize = LMO_sqdSize call BIS_fnc_randomInt;
+
+		if (_sqdSize != count _sqdOrbat) then {
+			
+			if (_sqdSize < count _sqdOrbat) then {
+				_sqdOrbat resize _sqdSize;
+			};
+
+			while {_sqdSize > count _sqdOrbat} do {
+					_sqdAdd = selectRandom LMO_Orbat;
+					_sqdOrbat append [_sqdAdd];
+			};
+		};
+		
 		{
 			_enyUnitsHolder = _enyUnits createUnit [
 				_x, //classname 
@@ -90,7 +107,7 @@ switch (_missionType) do {
 			
 			[_enyUnitsHolder] joinSilent _enyUnits;
 			
-		} forEach XEPKEY_SideOpsORBAT;
+		} forEach _sqdOrbat;
 		
 		//[(units _enyUnits), getPos LMO_spawnBldg, 30, 1, true] call zen_ai_fnc_garrison;
 		[getPos LMO_spawnBldg, LMO_bTypes, (units _enyUnits), 30, 1, true, true] call ace_ai_fnc_garrison;
@@ -135,6 +152,21 @@ switch (_missionType) do {
 		_enyUnits = createGroup east;
 		
 		//Spawns Enemies
+		_sqdOrbat append LMO_Orbat;
+		_sqdSize = LMO_sqdSize call BIS_fnc_randomInt;
+
+		if (_sqdSize != count _sqdOrbat) then {
+			
+			if (_sqdSize < count _sqdOrbat) then {
+				_sqdOrbat resize _sqdSize;
+			};
+
+			while {_sqdSize > count _sqdOrbat} do {
+					_sqdAdd = selectRandom LMO_Orbat;
+					_sqdOrbat append [_sqdAdd];
+			};
+		};
+		
 		{
 			_enyUnitsHolder = _enyUnits createUnit [
 				_x, //classname 
@@ -143,7 +175,7 @@ switch (_missionType) do {
 			];
 
 			[_enyUnitsHolder] joinSilent _enyUnits;
-		} forEach XEPKEY_SideOpsORBAT;
+		} forEach _sqdOrbat;
 		
 		//[(units _enyUnits), getPos LMO_spawnBldg, 30, 1, true] call zen_ai_fnc_garrison;
 		[getPos LMO_spawnBldg, LMO_bTypes, (units _enyUnits), 30, 1, true, true] call ace_ai_fnc_garrison;
@@ -210,6 +242,10 @@ switch (_missionType) do {
 					_hvtRunnerGrp = _this select 1;
 					[_hvt] joinSilent _hvtRunnerGrp;
 					
+					if (LMO_VCOM_On == true) then {
+						_hvtRunnerGrp setVariable ["VCM_NOFLANK",true];
+					};
+
 					_hvtDir = getDir _hvt;
 					_targetDir = 0;
 					_targetsList = [];
@@ -251,7 +287,8 @@ switch (_missionType) do {
 						_movePos = [];
 						_targetsInRange = ((_hvt nearEntities [["Man","LandVehicle"],LMO_HVTrunSearchRng]) select {side _x == west}) select {!(currentWeapon _x == "")};
 						_targetsList append _targetsInRange;
-						
+						_hvt setBehaviour "CARELESS";
+
 						{
 							_targetGetDir = _hvt getDir _x;
 							//systemChat format ["LMO: %1", _targetGetDir];
@@ -511,7 +548,7 @@ while {LMO_active == true} do {
 	if (_missionType == 2) then {
 		
 		//if HVT is alive, mission timer expired, or not handcuffed and exited escape zone
-		if (alive _hvt && (LMO_mTimer == 0 || (_hvt getVariable ["ace_captives_isHandcuffed", true] && (_hvt distance2D position LMO_spawnBldg > LMO_HVTescRng)))) then {
+		if (alive _hvt && (LMO_mTimer == 0 || (!(_hvt getVariable ["ace_captives_isHandcuffed", false]) && (_hvt distance2D position LMO_spawnBldg > LMO_HVTescRng)))) then {
 		
 			["LMOTaskOutcome", ["HVT has escaped", "\A3\ui_f\data\igui\cfg\simpletasks\types\run_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 			_missionState = 2;

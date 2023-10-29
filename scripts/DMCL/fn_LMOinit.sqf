@@ -18,10 +18,8 @@
 //--------LMO Adjustable Parameters--------//
 
 	//Mission Timer Range (minutes)
-	LMO_TimeMin = 30;			//Minimum minutes for LMO Objective
-	LMO_TimeMax = 60;			//Maximum minutes for LMO Objective
-	LMO_TSTmin = 10;			//Minimum minutes for Time Sensitive LMO Objective
-	LMO_TSTmax = 15;			//Maximum minutes for Time Sensitive LMO Objective
+	LMO_TimeRng = [30,60];		//[Min,Max] minutes for LMO Objective
+	LMO_TSTrng = [10,15];		//[Min,Max] minutes for Time Sensitive LMO Objective
 	LMO_TST = true;				//Enable or disable Time Sensitive Tasks
 
 	//Mission Chance
@@ -33,8 +31,7 @@
 	LMO_Penalties = true;
 
 	//Building Params
-	LMO_mkrRngLow = 50;				//Objective Marker Minimum Radius Range
-	LMO_mkrRngHigh = 300;			//Objective Marker Maximum Radius Range
+	LMO_mkrRng = [50,300];			//[Min,Max] Objective Marker Radius Range
 	LMO_bSize = 8;					//Minimum garrison spots in target building for LMO
 	LMO_bRadius = 500;				//Distance to search building array on enemy units (Default: 500)
 	LMO_objBlacklistRng = 500;		//Distance to blacklist buildings preventing objectives spawning in the same area
@@ -72,8 +69,8 @@
 	XEPKEY_LMO_HVT_REWARD_INTEL2 = 40;			//HVT Armed Capture Intelligence Win
 
 	//Debug Mode (Adds Hints and systemChat)
-	LMO_Debug = false;				//10s mission check rate for debugging
-	LMO_HVTDebug = false;			//Debugging HVT missions
+	LMO_Debug = true;				//10s mission check rate for debugging
+	LMO_HVTDebug = true;			//Debugging HVT missions
 	
 		/* LMO_mType forces a mission type when LMO_Debug is true
 		 *	0: All missions
@@ -165,7 +162,7 @@
 
 
 	//Squad composition of enemies that will spawn on the objective, reference liberation global variables
-	XEPKEY_SideOpsORBAT = [
+	LMO_Orbat = [
 		opfor_squad_leader,
 		opfor_medic,
 		opfor_machinegunner,
@@ -175,6 +172,8 @@
 		opfor_grenadier, 
 		opfor_rpg
 	];
+	//Squad Size [Min,Max]
+	LMO_sqdSize = [7,10];
 
 	//Building blacklist array to make sure seaports are not included, list is not exhaustive
 	LMO_bListBldg = [

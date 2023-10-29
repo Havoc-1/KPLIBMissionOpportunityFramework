@@ -87,7 +87,7 @@ while {true} do {
 				["LMOTaskOutcome", ["Cache uplifted successfully", "z\ace\addons\dragging\ui\icons\box_carry.paa"]] remoteExec ["BIS_fnc_showNotification"];
 				deleteVehicle _cache;
 				if (LMO_Debug == true) then {systemChat "LMO: Cache successfully airlifted. Cache deleted."};
-				_missionState = 1;
+				[1] call XEPKEY_fn_taskState;
 				missionNamespace setVariable ["LMO_CacheTagged", nil];
 				};
 				sleep 0.01;
