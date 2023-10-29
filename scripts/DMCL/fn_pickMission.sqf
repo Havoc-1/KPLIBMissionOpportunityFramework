@@ -1,25 +1,6 @@
 //Variable init
-
-/* - Mission States
-0 = Default/In Progress
-1 = Success
-2 = Failed
-3 = Cancelled */
 _missionState = 0;
-
-//Randomizes LMO Mission Type
-_missionType = [1,3] call BIS_fnc_randomInt;
-
-
-//Hostage Pause Timer Radius
-_hostagePauseRng = 10;
-
-//Model used for Cache OBJ
-_cacheModel = "Box_FIA_Wps_F";
-
-//Predefining Variables
 _hvtRunner = 0;
-_hvtNoRifle = 0;
 _enyUnits = createGroup east;
 _hvtRunnerGrp = createGroup east;
 _hostageGrp = createGroup civilian;
@@ -32,6 +13,20 @@ _enyUnitHostages = [];
 _HRrad = LMO_objMkrRadRescue;
 _cache = objNull;
 _cacheSecured = false;
+_missionType = 0;
+
+//Randomizes LMO Mission Type
+if (LMO_Debug == true && LMO_mType != 0) then {
+	_missionType = LMO_mType;
+} else {
+	_missionType = [1,3] call BIS_fnc_randomInt;
+};
+
+//Hostage Pause Timer Radius
+_hostagePauseRng = 10;
+
+//Model used for Cache OBJ
+_cacheModel = "Box_FIA_Wps_F";
 
 
 [west, "_taskMO", ["A mission of opporunity has appeared on the map, complete the task before the timer expires.", "Mission of Opportunity", "LMO_Mkr"], objNull, 1, 3, false] call BIS_fnc_taskCreate;
@@ -123,7 +118,7 @@ switch (_missionType) do {
 	//Eliminate HVT
 	case 2:{
 		
-		[west, ["_taskMisMO", "_taskMO"], [format ["A high value target was reported to be within the vicinity nearby <marker name =%1>%2</marker>. Locate and extract kill the high value target.", LMO_MkrName,LMO_MkrText], "LMO: Capture or Kill HVT", "Kill"], objNull, 1, 3, false] call BIS_fnc_taskCreate;
+		[west, ["_taskMisMO", "_taskMO"], [format ["A high value target was reported to be within the vicinity nearby <marker name =%1>%2</marker>.<br/><br/>Locate and extract kill the high value target.", LMO_MkrName,LMO_MkrText], "LMO: Capture or Kill HVT", "Kill"], objNull, 1, 3, false] call BIS_fnc_taskCreate;
 		["_taskMisMO","Kill"] call BIS_fnc_taskSetType;
 		["LMOTask", ["Kill or Capture HVT", "\A3\ui_f\data\igui\cfg\simpletasks\types\kill_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 		
@@ -144,13 +139,10 @@ switch (_missionType) do {
 			_enyUnitsHolder = _enyUnits createUnit [
 				_x, //classname 
 				getPos LMO_spawnBldg,
-				[],
-				0,
-				"NONE"
+				[],0,"NONE"
 			];
-			
+
 			[_enyUnitsHolder] joinSilent _enyUnits;
-			
 		} forEach XEPKEY_SideOpsORBAT;
 		
 		//[(units _enyUnits), getPos LMO_spawnBldg, 30, 1, true] call zen_ai_fnc_garrison;
@@ -172,8 +164,6 @@ switch (_missionType) do {
 			_enyUnits setVariable ["VCM_DisableForm",true];
 		};
 
-		
-		
 		_enyUnitsInside = ((units _enyUnits) select {insideBuilding _x == 1});
 		_enyUnitsInside = _enyUnitsInside select {(getPosATL _x) select 2 > 3};
 		
@@ -190,105 +180,102 @@ switch (_missionType) do {
 			};
 		};
 		
-		//Eliminiate HVT Parameters
-		removeHeadgear _hvt;
-		removeGoggles _hvt;
-		_hvt addHeadGear selectRandom LMO_hvtHead;
-		_hvt addGoggles selectRandom LMO_hvtGog;
+		//HVT Custom Outfit
+		call XEPKEY_fn_hvtOutfit;
+		
+		//Unequips NVGs if day
 		if ((daytime <= 20) || (daytime >= 6)) then {_hvt unassignItem hmd _hvt};
 		
 		//Runner HVT Chance
-		_hvtRunner = random 1;
-		_hvtNoRifle = random 1;
-		
-		if (_hvtNoRifle < 0.5) then {
-			removeAllPrimaryWeaponItems _hvt;
-		};
+		if (LMO_allowRunnerHVT == true || LMO_RunnerOnlyHVT == true) then {
 
-		if (_hvtRunner < 0.5) then {
-		
-			//HVT's group has a chance to start moving
-			{
-				_doMove = random 1;
-				if (_doMove <= 0.3) then {
-				_x enableAI "PATH";
-				};
-			}forEach units group _hvt;
+			_hvtRunner = random 1;
 
-			_hvtRunnerGrp = createGroup east;
+			if (_hvtRunner < 0.5 || LMO_RunnerOnlyHVT == true) then {
 			
-			//Schedued Environment
-			[_hvt, _hvtRunnerGrp] spawn {
-				params ["_hvt","_hvtRunnerGrp"];
-				_hvt = _this select 0;
-				_hvtRunnerGrp = _this select 1;
-				[_hvt] joinSilent _hvtRunnerGrp;
-				
-				_hvtDir = getDir _hvt;
-				_targetDir = 0;
-				_targetsList = [];
-				_targetGetDir = 0;
-				_targetsInRange = [];
-				_angularDegrees = 0;
-				
-				removeAllWeapons _hvt;
-				
-				_hvt setBehaviour "CARELESS";
-				
-				//HVT stays put until alerted
-				waitUntil {sleep 5; _hvt call BIS_fnc_enemyDetected};
-				_hvt enableAI "PATH";
-				
+				//HVT's group has a chance to start moving
+				{
+					_doMove = random 1;
+					if (_doMove <= 0.3) then {
+					_x enableAI "PATH";
+					};
+				}forEach units group _hvt;
 
+				_hvtRunnerGrp = createGroup east;
 				
-				//Checks whether armed west > east near HVT to surrender
-				[_hvt] spawn {
-					params ["_hvt"];
+				//Schedued Environment
+				[_hvt, _hvtRunnerGrp] spawn {
+					params ["_hvt","_hvtRunnerGrp"];
 					_hvt = _this select 0;
-					while {_hvt getVariable ["ace_captives_isSurrendering", true]} do {
-						
-						_surInRngWest = ((_hvt nearEntities [["Man","LandVehicle"],LMO_HVTrunSurRng]) select {side _x == west}) select {!(currentWeapon _x == "")};
-						_surInRngEast = ((_hvt nearEntities [["Man","LandVehicle"],LMO_HVTrunSurRng]) select {side _x == east}) select {!(currentWeapon _x == "")};
-						if (count _surInRngWest > count _surInRngEast && _hvt call BIS_fnc_enemyDetected) exitWith {
-							[_hvt, true] call ace_captives_fnc_setSurrendered;
-							if (LMO_HVTDebug == true) then {systemChat "LMO: HVT surrendered, exiting scope"};
-						};
-						//systemChat format ["LMO: SurrenderInRangeWest: %1",_surInRngWest];
-						//systemChat format ["LMO: SurrenderInRangeEast: %1",_surInRngEast];
-						sleep 1;
-					};
-				};
-				
-				//HVT escape from zone
-				while {true} do {
+					_hvtRunnerGrp = _this select 1;
+					[_hvt] joinSilent _hvtRunnerGrp;
+					
+					_hvtDir = getDir _hvt;
+					_targetDir = 0;
 					_targetsList = [];
-					_movePos = [];
-					_targetsInRange = ((_hvt nearEntities [["Man","LandVehicle"],LMO_HVTrunSearchRng]) select {side _x == west}) select {!(currentWeapon _x == "")};
-					_targetsList append _targetsInRange;
+					_targetGetDir = 0;
+					_targetsInRange = [];
+					_angularDegrees = 0;
 					
-					{
-						_targetGetDir = _hvt getDir _x;
-						//systemChat format ["LMO: %1", _targetGetDir];
-						_targetDir = _targetDir + _targetGetDir;
-					}forEach _targetsList;
+					removeAllWeapons _hvt;
+					
+					_hvt setBehaviour "CARELESS";
+					
+					//HVT stays put until alerted
+					waitUntil {sleep 5; _hvt call BIS_fnc_enemyDetected};
+					_hvt enableAI "PATH";
+					
 
-					if (count _targetsInRange == 0 || _targetDir == 0) then {
-						_movePos = [getPos _hvt, LMO_HVTrunDist, random 360] call BIS_fnc_relPos;
-					} else {	
-						_angularDegrees = ((_targetDir/count _targetsInRange) + 180) % 360;
-						_movePos = [getPos _hvt, LMO_HVTrunDist, _angularDegrees] call BIS_fnc_relPos;
+					
+					//Checks whether armed west > east near HVT to surrender
+					[_hvt] spawn {
+						params ["_hvt"];
+						_hvt = _this select 0;
+						while {_hvt getVariable ["ace_captives_isSurrendering", true]} do {
+							
+							_surInRngWest = ((_hvt nearEntities [["Man","LandVehicle"],LMO_HVTrunSurRng]) select {side _x == west}) select {!(currentWeapon _x == "")};
+							_surInRngEast = ((_hvt nearEntities [["Man","LandVehicle"],LMO_HVTrunSurRng]) select {side _x == east}) select {!(currentWeapon _x == "")};
+							if (count _surInRngWest > count _surInRngEast && _hvt call BIS_fnc_enemyDetected) exitWith {
+								[_hvt, true] call ace_captives_fnc_setSurrendered;
+								if (LMO_HVTDebug == true) then {systemChat "LMO: HVT surrendered, exiting scope"};
+							};
+							//systemChat format ["LMO: SurrenderInRangeWest: %1",_surInRngWest];
+							//systemChat format ["LMO: SurrenderInRangeEast: %1",_surInRngEast];
+							sleep 1;
+						};
 					};
 					
-					group _hvt move _movePos;
+					//HVT escape from zone
+					while {true} do {
+						_targetsList = [];
+						_movePos = [];
+						_targetsInRange = ((_hvt nearEntities [["Man","LandVehicle"],LMO_HVTrunSearchRng]) select {side _x == west}) select {!(currentWeapon _x == "")};
+						_targetsList append _targetsInRange;
+						
+						{
+							_targetGetDir = _hvt getDir _x;
+							//systemChat format ["LMO: %1", _targetGetDir];
+							_targetDir = _targetDir + _targetGetDir;
+						}forEach _targetsList;
 
-					if (LMO_HVTDebug == true) then {
-						systemChat format ["LMO: HVT TargetsList Run: %1. Run Dir: %2. Move Pos: %3.",_targetsList,_angularDegrees,_movePos];
+						if (count _targetsInRange == 0 || _targetDir == 0) then {
+							_movePos = [getPos _hvt, LMO_HVTrunDist, random 360] call BIS_fnc_relPos;
+						} else {	
+							_angularDegrees = ((_targetDir/count _targetsInRange) + 180) % 360;
+							_movePos = [getPos _hvt, LMO_HVTrunDist, _angularDegrees] call BIS_fnc_relPos;
+						};
+						
+						group _hvt move _movePos;
+
+						if (LMO_HVTDebug == true) then {
+							systemChat format ["LMO: HVT TargetsList Run: %1. Run Dir: %2. Move Pos: %3.",_targetsList,_angularDegrees,_movePos];
+						};
+					
+						if (_hvt getVariable ["ace_captives_isSurrendering", false]) exitWith {
+							if (LMO_HVTDebug == true) then {systemChat "LMO: Main Scope HVT surrender check complete, exiting script"};
+						};
+						sleep 40;
 					};
-				
-					if (_hvt getVariable ["ace_captives_isSurrendering", false]) exitWith {
-						if (LMO_HVTDebug == true) then {systemChat "LMO: Main Scope HVT surrender check complete, exiting script"};
-					};
-					sleep 40;
 				};
 			};
 		};
@@ -529,7 +516,7 @@ while {LMO_active == true} do {
 			["LMOTaskOutcome", ["HVT has escaped", "\A3\ui_f\data\igui\cfg\simpletasks\types\run_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 			_missionState = 2;
 			
-			if (_hvtRunner < 0.5) then {deleteGroup _hvtRunnerGrp};
+			if (_hvtRunner < 0.5 || LMO_RunnerOnlyHVT == true) then {deleteGroup _hvtRunnerGrp};
 			
 			deleteVehicle _hvt;
 					
@@ -561,7 +548,7 @@ while {LMO_active == true} do {
 		//if HVT is dead, mission timer not expired
 		if ((alive _hvt && LMO_mTimer > 0 && (_hvt distance2D position LMO_spawnBldg > LMO_bRadius * 0.8) && (_hvt getVariable ["ace_captives_isSurrendering", false] || _hvt getVariable ["ace_captives_isHandcuffed", false])) || (!alive _hvt && (LMO_mTimer > 0))) then {
 			
-			if (_hvtRunner < 0.5) then {
+			if (_hvtRunner < 0.5 || LMO_RunnerOnlyHVT == true) then {
 				deleteGroup _hvtRunnerGrp;
 			};
 
@@ -569,21 +556,17 @@ while {LMO_active == true} do {
 				case true: {
 					//noweapon, alive
 					if (primaryWeapon _hvt == "") then {
-						resources_intel = resources_intel + 25;
+						resources_intel = resources_intel + XEPKEY_LMO_HVT_REWARD_INTEL1;
 						combat_readiness = combat_readiness - XEPKEY_LMO_HVT_REWARD_ALERT_HIGH;
 					} else { //hasweapon, alive
-						resources_intel = resources_intel + 40;
+						resources_intel = resources_intel + XEPKEY_LMO_HVT_REWARD_INTEL2;
 						combat_readiness = combat_readiness - XEPKEY_LMO_HVT_REWARD_ALERT_HIGH;
 					};
 					["LMOTaskOutcome", ["HVT has been captured", "\z\ace\addons\captives\ui\handcuff_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 					deleteVehicle _hvt;
 				};
 				case false: {
-					if (!(primaryWeapon _hvt == "")) then {
-						combat_readiness = combat_readiness - XEPKEY_LMO_HVT_REWARD_ALERT_LOW;
-					} else {
-						combat_readiness = combat_readiness - XEPKEY_LMO_HVT_REWARD_ALERT_LOW;
-					};
+					if (!(primaryWeapon _hvt == "")) then {combat_readiness = combat_readiness - XEPKEY_LMO_HVT_REWARD_ALERT_LOW};
 					["LMOTaskOutcome", ["HVT has been neutralized", "\A3\ui_f\data\igui\cfg\holdactions\holdaction_forcerespawn_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 				};
 

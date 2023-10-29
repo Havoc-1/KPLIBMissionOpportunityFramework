@@ -3,11 +3,11 @@
  *	Function to surrender hostage and attempts to place near elevated enemies
  *
  *	Arguments:
- *	0: Enemy Units Group <GROUP>
- *	1: Hostage Units Group <GROUP>
+ *		0: Enemy Units Group <GROUP>
+ *		1: Hostage Units Group <GROUP>
  *
  *	Example:
- *	[_enyUnits,_hostageGrp] call XEPKEY_fn_spawnHostage;
+ *		[_enyUnits,_hostageGrp] call XEPKEY_fn_spawnHostage;
  *
  */
 

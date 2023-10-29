@@ -7,6 +7,8 @@
  *
  *	Examples:
  *	[_cache] call XEPKEY_fn_cacheFulton;
+ *	
+ *	Return Value: _missionState
  */
 
 params ["_cache"];

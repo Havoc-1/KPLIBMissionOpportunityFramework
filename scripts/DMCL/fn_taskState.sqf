@@ -3,16 +3,18 @@
  *	Function to change LMO Task State, remove markers, and end LMO active state
  *
  *	Task States:
- *	1 = Success
- *	2 = Failed
- *	3 = Cancelled
+ *		1 = Success
+ *		2 = Failed
+ *		3 = Cancelled
  *
  *	Arguments:
- *	0: Task State <NUMBER>
+ *		0: Task State <NUMBER>
  *
  *	Examples:
- *	[1] call XEPKEY_fn_taskState;
- *	[_missionState] call XEPKEY_fn_taskState;
+ *		[1] call XEPKEY_fn_taskState;
+ *		[_missionState] call XEPKEY_fn_taskState;
+ *
+ *	Return Value: LMO_active
  */
 
 params ["_s"];

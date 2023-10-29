@@ -8,5 +8,6 @@ XEPKEY_fn_mTimerAdjust = compile preprocessFileLineNumbers "scripts\DMCL\fn_mTim
 XEPKEY_fn_spawnHostage = compile preprocessFileLineNumbers "scripts\DMCL\fn_spawnHostage.sqf";
 XEPKEY_fn_taskState = compile preprocessFileLineNumbers "scripts\DMCL\fn_taskState.sqf";
 XEPKEY_fn_cacheFulton = compile preprocessFileLineNumbers "scripts\DMCL\fn_cacheFulton.sqf";
+XEPKEY_fn_hvtOutfit = compile preprocessFileLineNumbers "scripts\DMCL\fn_hvtOutfit.sqf";
 //XEPKEY_fn_createLMOTask = compile preprocessFileLineNumbers "scripts\DMCL\fn_createLMOTask.sqf";
 //XEPKEY_fn_missionOutcome = compile preprocessFileLineNumbers "scripts\DMCL\fn_missionOutcome.sqf";
