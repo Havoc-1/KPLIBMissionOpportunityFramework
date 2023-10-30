@@ -1,0 +1,11 @@
+XEPKEY_fn_getEnemyList = compile preprocessFileLineNumbers "scripts\DMCL\fn_getEnemyList.sqf";
+XEPKEY_fn_spawnMission = compile preprocessFileLineNumbers "scripts\DMCL\fn_spawnMission.sqf";
+XEPKEY_fn_getBuildings = compile preprocessFileLineNumbers "scripts\DMCL\fn_getBuildings.sqf";
+XEPKEY_fn_markerFunctions = compile preprocessFileLineNumbers "scripts\DMCL\fn_markerFunctions.sqf";
+XEPKEY_fn_pickMission = compile preprocessFileLineNumbers "scripts\DMCL\fn_pickMission.sqf";
+XEPKEY_fn_fogBehavior = compile preprocessFileLineNumbers "scripts\DMCL\fn_fogBehavior.sqf";
+XEPKEY_fn_mTimerAdjust = compile preprocessFileLineNumbers "scripts\DMCL\fn_mTimerAdjust.sqf";
+XEPKEY_fn_spawnHostage = compile preprocessFileLineNumbers "scripts\DMCL\fn_spawnHostage.sqf";
+XEPKEY_fn_taskState = compile preprocessFileLineNumbers "scripts\DMCL\fn_taskState.sqf";
+XEPKEY_fn_cacheFulton = compile preprocessFileLineNumbers "scripts\DMCL\fn_cacheFulton.sqf";
+XEPKEY_fn_hvtOutfit = compile preprocessFileLineNumbers "scripts\DMCL\fn_hvtOutfit.sqf";

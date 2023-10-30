@@ -12,8 +12,6 @@ class XEPKEY_functions { //Create category
 		class cacheFulton {};
 		class taskState {};
 		class hvtOutfit {};
-		//class createLMOTask {};
-		//class missionOutcome {};
 		class diaryContent {postInit=1};
 	};
 };

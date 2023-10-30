@@ -206,6 +206,9 @@ LMO_VCOM_On = false;
 LMO_objBlacklist = [];
 LMO_TSTState = false;
 
+//Compile all functions
+#include "compile.sqf";
+
 if !(isDedicated || (isServer && hasInterface)) exitWith {};
 
 //Checks if VCOM is loaded
