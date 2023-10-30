@@ -13,7 +13,7 @@
 
 params ["_cache"];
 
-_nearbyCache = [];
+_cNear = [];
 if (LMO_Debug == true) then {systemChat format ["LMO: Delete loop started for Cache at %1.", getPos _cache]};
 while {true} do {
 	if (!alive _cache) exitWith {
@@ -23,67 +23,67 @@ while {true} do {
 	};
 	
 	if (alive _cache) then {
-		_nearbyCache = (nearestObjects [_cache, ["Man", "LandVehicle"], LMO_FultonRng]) select {isPlayer _x};
+		_cNear = (nearestObjects [_cache, ["Man", "LandVehicle"], LMO_FultonRng]) select {isPlayer _x};
 	};
-	if (count _nearbyCache == 0) exitWith {
-		_cacheAttached = attachedObjects _cache;
-		if (count _cacheAttached > 0) then {{deleteVehicle _x} forEach _cacheAttached};
-		_cachePos = getPosATL _cache;
+	if (count _cNear == 0) exitWith {
+		_cAttached = attachedObjects _cache;
+		if (count _cAttached > 0) then {{deleteVehicle _x} forEach _cAttached};
+		_cPos = getPosATL _cache;
 		_cache hideObjectGlobal true;
 		
 		if (LMO_Debug == true) then {systemChat "LMO: No players in range, secured cache hidden. Exiting scope with fulton."};
 		
-		_cacheFly = "C_supplyCrate_F" createVehicle _cachePos;
-		_cacheBalloon = createSimpleObject ["a3\structures_f_mark\items\sport\balloon_01_air_f.p3d", _cachePos];
-		_cacheBalloon attachTo [_cacheFly, [0,0,5]];
-		detach _cacheBalloon;
+		_cFly = "C_supplyCrate_F" createVehicle _cPos;
+		_cBalloon = createSimpleObject ["a3\structures_f_mark\items\sport\balloon_01_air_f.p3d", _cPos];
+		_cBalloon attachTo [_cFly, [0,0,5]];
+		detach _cBalloon;
 
-		_cacheChute = "B_Parachute_02_F" createVehicle _cachePos;
-		_cacheChute attachTo [_cacheFly, [0,0,7]];
-		detach _cacheChute;
-		_cacheChute hideObjectGlobal true;
-		_cacheChute disableCollisionWith _cacheFly;
-		_cacheChute disableCollisionWith _cacheBalloon;
+		_cPara = "B_Parachute_02_F" createVehicle _cPos;
+		_cPara attachTo [_cFly, [0,0,7]];
+		detach _cPara;
+		_cPara hideObjectGlobal true;
+		_cPara disableCollisionWith _cFly;
+		_cPara disableCollisionWith _cBalloon;
 
 		//Inflate Fulton
-		[_cacheFly,_cacheBalloon,_cacheChute] spawn {
-			params ["_cacheFly","_cacheBalloon","_cacheChute"];
-			_cacheBalloon setObjectScale 1;
+		[_cFly,_cBalloon,_cPara] spawn {
+			params ["_cFly","_cBalloon","_cPara"];
+			_cBalloon setObjectScale 1;
 			_inflate = 0.03;
-			while {getObjectScale _cacheBalloon <= 20 || (getPosATL _cacheBalloon) select 2 <= 20} do {
-				_bHeight = (getPosATL _cacheBalloon) select 2;
-				if (getObjectScale _cacheBalloon == 10) then {_inflate = 0};
-				if (getObjectScale _cacheBalloon >= 4 && getObjectScale _cacheBalloon < 7) then {_inflate = 0.03};
-				if (getObjectScale _cacheBalloon >= 7) then {_inflate = 0.01};
-				_cacheBalloon setObjectScale ((getObjectScale _cacheBalloon) + _inflate);
+			while {getObjectScale _cBalloon <= 20 || (getPosATL _cBalloon) select 2 <= 20} do {
+				_bHeight = (getPosATL _cBalloon) select 2;
+				if (getObjectScale _cBalloon == 10) then {_inflate = 0};
+				if (getObjectScale _cBalloon >= 4 && getObjectScale _cBalloon < 7) then {_inflate = 0.03};
+				if (getObjectScale _cBalloon >= 7) then {_inflate = 0.01};
+				_cBalloon setObjectScale ((getObjectScale _cBalloon) + _inflate);
 				sleep .01;
 			};
 		};
 
-		[_cacheFly,_cacheBalloon,_cacheChute,_cache] spawn {
-			params ["_cacheFly","_cacheBalloon","_cacheChute","_cache"];
+		[_cFly,_cBalloon,_cPara,_cache] spawn {
+			params ["_cFly","_cBalloon","_cPara","_cache"];
 			_bRise = 3;
-			_cacheRope = ropeCreate [_cacheChute, [0,0,-2],_cacheFly, [0,0,0.5], 30];
-			ropeUnwind [_cacheBalloon, 20, 100];
-			_cacheLight = "PortableHelipadLight_01_red_F" createVehicle getPos _cacheFly;
-			_cacheLight allowDamage false;
-			_cacheLight attachTo [_cacheFly, [0,0,0.6]];
+			_cacheRope = ropeCreate [_cPara, [0,0,-2],_cFly, [0,0,0.5], 30];
+			ropeUnwind [_cBalloon, 20, 100];
+			_cLight = "PortableHelipadLight_01_red_F" createVehicle getPos _cFly;
+			_cLight allowDamage false;
+			_cLight attachTo [_cFly, [0,0,0.6]];
 			_flyMax = 1000;
-			while {alive _cacheFly} do {
-				_bHeight = (getPosATL _cacheBalloon) select 2;
-				_cacheBalloon setPos getPos _cacheChute;
+			while {alive _cFly} do {
+				_bHeight = (getPosATL _cBalloon) select 2;
+				_cBalloon setPos getPos _cPara;
 				if (_bHeight >= _flyMax*0.025 && _bHeight < _flyMax*0.03) then {_bRise = 1};
 				if (_bHeight >= _flyMax*0.03 && _bHeight < _flyMax*0.035) then {_bRise = 12};
 				if (_bHeight >= _flyMax*0.035 && _bHeight < _flyMax*0.95) then {_bRise = 30};
-				_cacheChute setVelocity [0,0,_bRise];
-				[_cacheChute, 0, 0] call BIS_fnc_setPitchBank;
+				_cPara setVelocity [0,0,_bRise];
+				[_cPara, 0, 0] call BIS_fnc_setPitchBank;
 
 				if (_bHeight >= _flyMax) exitWith {
 				ropeDestroy _cacheRope;
-				deleteVehicle _cacheFly;
-				deleteVehicle _cacheBalloon;
-				deleteVehicle _cacheChute;
-				deleteVehicle _cacheLight;
+				deleteVehicle _cFly;
+				deleteVehicle _cBalloon;
+				deleteVehicle _cPara;
+				deleteVehicle _cLight;
 				["LMOTaskOutcome", ["Cache uplifted successfully", "z\ace\addons\dragging\ui\icons\box_carry.paa"]] remoteExec ["BIS_fnc_showNotification"];
 				deleteVehicle _cache;
 				if (LMO_Debug == true) then {systemChat "LMO: Cache successfully airlifted. Cache deleted."};

@@ -12,7 +12,7 @@ _enyUnitPlayers = [];
 _enyUnitHostages = [];
 _HRrad = LMO_objMkrRadRescue;
 _cache = objNull;
-_cacheSecured = false;
+_cSecured = false;
 _missionType = 0;
 _sqdOrbat = [];
 _sqdSize = 0;
@@ -25,10 +25,10 @@ if (LMO_Debug == true && LMO_mType != 0) then {
 };
 
 //Hostage Pause Timer Radius
-_hostagePauseRng = 10;
+_hPauseRng = 10;
 
 //Model used for Cache OBJ
-_cacheModel = "Box_FIA_Wps_F";
+_cModel = "Box_FIA_Wps_F";
 
 
 [west, "_taskMO", ["A mission of opporunity has appeared on the map, complete the task before the timer expires.", "Mission of Opportunity", "LMO_Mkr"], objNull, 1, 3, false] call BIS_fnc_taskCreate;
@@ -67,7 +67,7 @@ switch (_missionType) do {
 		_enyUnits = createGroup east;
 		_hostageGrp = createGroup civilian;
 		_hostage = objNull;
-		_hostageTaker = objNull;
+		_hTaker = objNull;
 										
 		//Spawn Hostages
 		_hostageGrp createUnit [
@@ -251,11 +251,15 @@ switch (_missionType) do {
 					_targetsList = [];
 					_targetGetDir = 0;
 					_targetsInRange = [];
-					_angularDegrees = 0;
+					_angDeg = 0;
 					
 					removeAllWeapons _hvt;
 					
-					_hvt setBehaviour "CARELESS";
+					[_hvt] spawn {
+						params ["_hvt"];
+						_hvt setBehaviour "CARELESS";
+						sleep 2;
+					};
 					
 					//HVT stays put until alerted
 					waitUntil {sleep 5; _hvt call BIS_fnc_enemyDetected};
@@ -275,14 +279,12 @@ switch (_missionType) do {
 								[_hvt, true] call ace_captives_fnc_setSurrendered;
 								if (LMO_HVTDebug == true) then {systemChat "LMO: HVT surrendered, exiting scope"};
 							};
-							//systemChat format ["LMO: SurrenderInRangeWest: %1",_surInRngWest];
-							//systemChat format ["LMO: SurrenderInRangeEast: %1",_surInRngEast];
 							sleep 1;
 						};
 					};
 					
 					//HVT escape from zone
-					while {true} do {
+					while {alive _hvt} do {
 						_targetsList = [];
 						_movePos = [];
 						_targetsInRange = ((_hvt nearEntities [["Man","LandVehicle"],LMO_HVTrunSearchRng]) select {side _x == west}) select {!(currentWeapon _x == "")};
@@ -291,21 +293,22 @@ switch (_missionType) do {
 
 						{
 							_targetGetDir = _hvt getDir _x;
-							//systemChat format ["LMO: %1", _targetGetDir];
 							_targetDir = _targetDir + _targetGetDir;
 						}forEach _targetsList;
 
 						if (count _targetsInRange == 0 || _targetDir == 0) then {
+							if (_angDeg == nil) then {
 							_movePos = [getPos _hvt, LMO_HVTrunDist, random 360] call BIS_fnc_relPos;
+							};
 						} else {	
-							_angularDegrees = ((_targetDir/count _targetsInRange) + 180) % 360;
-							_movePos = [getPos _hvt, LMO_HVTrunDist, _angularDegrees] call BIS_fnc_relPos;
+							_angDeg = ((_targetDir/count _targetsInRange) + 180) % 360;
+							_movePos = [getPos _hvt, LMO_HVTrunDist, _angDeg] call BIS_fnc_relPos;
 						};
 						
 						group _hvt move _movePos;
 
 						if (LMO_HVTDebug == true) then {
-							systemChat format ["LMO: HVT TargetsList Run: %1. Run Dir: %2. Move Pos: %3.",_targetsList,_angularDegrees,_movePos];
+							systemChat format ["LMO: HVT Running from %1 enemies. Run Dir: %2. Move Pos: %3.",count _targetsList,_angDeg,_movePos];
 						};
 					
 						if (_hvt getVariable ["ace_captives_isSurrendering", false]) exitWith {
@@ -328,15 +331,15 @@ switch (_missionType) do {
 		LMO_MkrName setMarkerColor "ColorGreen";
 		LMO_Mkr setMarkerColor "ColorGreen";
 
-		_cacheSpawnPos = getPosATL LMO_spawnBldg findEmptyPosition [0, 40, _cacheModel];
+		_cSpawnPos = getPosATL LMO_spawnBldg findEmptyPosition [0, 40, _cModel];
 		_cache = objNull;
 		
 		//Spawn Cache
-		if (count _cacheSpawnPos > 0) then {
-			_cache = createVehicle [_cacheModel, _cacheSpawnPos, [], 0, "CAN_COLLIDE"];
+		if (count _cSpawnPos > 0) then {
+			_cache = createVehicle [_cModel, _cSpawnPos, [], 0, "CAN_COLLIDE"];
 			if (LMO_Debug == true) then {systemChat format ["LMO: Cache created at %1", getPos _cache]};
 		} else {
-			_cache = createVehicle [getPos LMO_spawnBldg, _cacheModel, [], 0, "CAN_COLLIDE"];
+			_cache = createVehicle [getPos LMO_spawnBldg, _cModel, [], 0, "CAN_COLLIDE"];
 			if (LMO_Debug == true) then {systemChat format ["LMO: No suitable cache spot found. Creating cache in target building at %1", getPos _cache]};
 		};
 
@@ -388,8 +391,8 @@ switch (_missionType) do {
 				_caller switchMove "";
 				
 				_target setVariable ["LMO_CacheSecure", true, true];
-				_cacheStrobe = "PortableHelipadLight_01_red_F" createVehicle getPos _target;
-				_cacheStrobe attachTo [_target, [0,0.2,-0.7]];
+				_cStrobe = "PortableHelipadLight_01_red_F" createVehicle getPos _target;
+				_cStrobe attachTo [_target, [0,0.2,-0.7]];
 				[_target] spawn {
 					params ["_target"];
 					_target = _this select 0;
@@ -413,8 +416,8 @@ switch (_missionType) do {
 		_cache addEventHandler ["Explosion", {
 			params ["_vehicle", "_damage"];
 			if (_damage > 1) then {
-				_cacheAttached = attachedObjects _vehicle select {typeOf _x == "PortableHelipadLight_01_red_F"};
-				if (count _cacheAttached > 0) then {{deleteVehicle _x} forEach _cacheAttached};
+				_cAttached = attachedObjects _vehicle select {typeOf _x == "PortableHelipadLight_01_red_F"};
+				if (count _cAttached > 0) then {{deleteVehicle _x} forEach _cAttached};
 				if (LMO_Debug == true) then {
 					systemChat "LMO: Cache destroyed.";
 					systemChat format ["LMO: CacheSecure variable: %1", _vehicle getVariable "LMO_CacheSecure"];
@@ -433,8 +436,8 @@ while {LMO_active == true} do {
 	if (_missionType == 1) then {
 		//Checks if Player is within range of hostage to halt timer
 		{
-			_playerUnitHostages = (nearestObjects [_x, ["Man","LandVehicle"], _hostagePauseRng]) select {isPlayer _x};
-			_enyUnitHostages = (nearestObjects [_x, ["Man","LandVehicle"], _hostagePauseRng]) select {!isPlayer _x} select {side _x == east};
+			_playerUnitHostages = (nearestObjects [_x, ["Man","LandVehicle"], _hPauseRng]) select {isPlayer _x};
+			_enyUnitHostages = (nearestObjects [_x, ["Man","LandVehicle"], _hPauseRng]) select {!isPlayer _x} select {side _x == east};
 		}forEach units _hostageGrp;
 		
 		if ((count _playerUnitHostages > 0) && (count _enyUnitHostages == 0)) then {
@@ -449,11 +452,11 @@ while {LMO_active == true} do {
 		if (_missionType == 2) then {
 			
 			//Checks if Player is within range of HVT to halt timer
-			_playerUnitsHVT = (nearestObjects [_hvt, ["Man","LandVehicle"], _hostagePauseRng]) select {isPlayer _x};
+			_playerUnitsHVT = (nearestObjects [_hvt, ["Man","LandVehicle"], _hPauseRng]) select {isPlayer _x};
 			
 			if ((count _playerUnitsHVT > 0) && (_hvt getVariable ["ace_captives_isSurrendering", false] || _hvt getVariable ["ace_captives_isHandcuffed", false])) then {
 
-					[0,"ColorGrey",position _hvt,_hostagePauseRng,true,"Solid"] call XEPKEY_fn_mTimerAdjust;
+					[0,"ColorGrey",position _hvt,_hPauseRng,true,"Solid"] call XEPKEY_fn_mTimerAdjust;
 			} else {
 
 					[1,"ColorOrange",LMO_MkrPos,LMO_objMkrRad,true,"FDiagonal"] call XEPKEY_fn_mTimerAdjust;
@@ -635,21 +638,21 @@ while {LMO_active == true} do {
 	if (_missionType == 3 && LMO_mTimer > 0) then {
 		
 		//If cache destroyed and NOT secured
-		if (!alive _cache && _cacheSecured != true) then {
+		if (!alive _cache && _cSecured != true) then {
 			_missionState = 1;
 			["LMOTaskOutcome", ["Cache has been destroyed", "a3\ui_f_oldman\data\igui\cfg\holdactions\destroy_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 		};
 		
 		//If Secured Cache
-		if (alive _cache && (_cache getVariable ["LMO_CacheSecure", true]) && _cacheSecured != true) then {
+		if (alive _cache && (_cache getVariable ["LMO_CacheSecure", true]) && _cSecured != true) then {
 			["LMOTaskOutcome", ["Cache has been located", "a3\ui_f\data\gui\rsccommon\rscbuttonsearch\search_start_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 			
 			//Marks cache as tagged in missionNameSpace to prevent loop executions
-			_cacheSecured = missionNamespace getVariable "LMO_CacheTagged";
-			if (isNil "_cacheSecured") then {
-				_cacheSecured = true;
-				missionNamespace setVariable ["LMO_CacheTagged", _cacheSecured];
-				if (LMO_Debug == true) then {systemChat format ["LMO: missionnameSpace _cacheSecured: %1",missionNamespace getVariable "LMO_CacheTagged"]};
+			_cSecured = missionNamespace getVariable "LMO_CacheTagged";
+			if (isNil "_cSecured") then {
+				_cSecured = true;
+				missionNamespace setVariable ["LMO_CacheTagged", _cSecured];
+				if (LMO_Debug == true) then {systemChat format ["LMO: missionnameSpace _cSecured: %1",missionNamespace getVariable "LMO_CacheTagged"]};
 			};
 			sleep 1;
 			
@@ -664,8 +667,8 @@ while {LMO_active == true} do {
 		if (alive _cache && !(_cache getVariable ["LMO_CacheSecure", true])) then {
 			_missionState = 2;
 			["LMOTaskOutcome", ["Cache has been lost", "a3\ui_f_oldman\data\igui\cfg\holdactions\destroy_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
-			_cacheAttached = attachedObjects _cache select {typeOf _x == "PortableHelipadLight_01_red_F"};
-			if (count _cacheAttached > 0) then {{deleteVehicle _x} forEach _cacheAttached};
+			_cAttached = attachedObjects _cache select {typeOf _x == "PortableHelipadLight_01_red_F"};
+			if (count _cAttached > 0) then {{deleteVehicle _x} forEach _cAttached};
 			deleteVehicle _cache;
 			if (LMO_Debug == true) then {systemChat "LMO: Cache deleted."};
 		};

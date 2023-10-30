@@ -17,42 +17,42 @@ _enyUnitsInside = ((units _enyUnits) select {insideBuilding _x == 1}) select {(g
 {
 	//[_x, true] call ace_captives_fnc_setSurrendered;
 	[_x, true, objNull] call ACE_captives_fnc_setHandcuffed;
-	_hostagePosOffset = selectRandom [-0.5,0.5];
+	_hPosOffset = selectRandom [-0.5,0.5];
 
-	_hostageDisOffset = random 2;
+	_hDisOffset = random 2;
 	
-	if (_hostageDisOffset < 0.5) then {
-		_hostageDisOffset = 0.5;
+	if (_hDisOffset < 0.5) then {
+		_hDisOffset = 0.5;
 	};
 
 	if (count _enyUnitsInside >= 1) then {
 		
-		_hostageTaker = selectRandom _enyUnitsInside;
-		_hostageTaker disableAI "PATH";
+		_hTaker = selectRandom _enyUnitsInside;
+		_hTaker disableAI "PATH";
 		
-		_hostageRelDir = _hostageTaker getDir LMO_spawnBldg;
-		_hostagePos = [getPos _hostageTaker, _hostageDisOffset, _hostageRelDir] call BIS_fnc_relPos;
-		_x setPosASL [((_hostagePos select 0) + _hostagePosOffset), ((_hostagePos select 1) + _hostagePosOffset), (getPosASL _hostageTaker) select 2];
+		_hRelDir = _hTaker getDir LMO_spawnBldg;
+		_hPos = [getPos _hTaker, _hDisOffset, _hRelDir] call BIS_fnc_relPos;
+		_x setPosASL [((_hPos select 0) + _hPosOffset), ((_hPos select 1) + _hPosOffset), (getPosASL _hTaker) select 2];
 	
 	} else {
 		_enyUnitsInside = ((units _enyUnits) select {insideBuilding _x == 1});
 		if (count _enyUnitsInside > 0) then {
 			
-			_hostageTaker = selectRandom _enyUnitsInside;
-			_hostageTaker disableAI "PATH";
-			_hostageRelDir = _hostageTaker getDir LMO_spawnBldg;
-			//_hostagePos = getPosASL _hostageTaker;
-			_hostagePos = [getPos _hostageTaker, _hostageDisOffset, _hostageRelDir] call BIS_fnc_relPos;
-			_x setPosASL [((_hostagePos select 0) + _hostagePosOffset), ((_hostagePos select 1) + _hostagePosOffset), (getPosASL _hostageTaker) select 2];
+			_hTaker = selectRandom _enyUnitsInside;
+			_hTaker disableAI "PATH";
+			_hRelDir = _hTaker getDir LMO_spawnBldg;
+			//_hPos = getPosASL _hTaker;
+			_hPos = [getPos _hTaker, _hDisOffset, _hRelDir] call BIS_fnc_relPos;
+			_x setPosASL [((_hPos select 0) + _hPosOffset), ((_hPos select 1) + _hPosOffset), (getPosASL _hTaker) select 2];
 		
 		} else {
 			
-			_hostageTaker = selectRandom units _enyUnits;
-			_hostageTaker disableAI "PATH";
-			_hostageRelDir = _hostageTaker getDir LMO_spawnBldg;
-			//_hostagePos = getPosASL _hostageTaker;
-			_hostagePos = [getPos _hostageTaker, _hostageDisOffset, _hostageRelDir] call BIS_fnc_relPos;
-			_x setPosASL [((_hostagePos select 0) + _hostagePosOffset), ((_hostagePos select 1) + _hostagePosOffset), (getPosASL _hostageTaker) select 2];
+			_hTaker = selectRandom units _enyUnits;
+			_hTaker disableAI "PATH";
+			_hRelDir = _hTaker getDir LMO_spawnBldg;
+			//_hPos = getPosASL _hTaker;
+			_hPos = [getPos _hTaker, _hDisOffset, _hRelDir] call BIS_fnc_relPos;
+			_x setPosASL [((_hPos select 0) + _hPosOffset), ((_hPos select 1) + _hPosOffset), (getPosASL _hTaker) select 2];
 			
 		};
 	};

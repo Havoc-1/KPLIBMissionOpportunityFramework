@@ -26,7 +26,7 @@ if (LMO_TST == true && LMO_TimeSenRNG <= LMO_TSTchance) then {
 
 //Create Ellipse Marker on Obj
 LMO_MkrText = format ["OBJ %1", selectRandom _objNamesArray];
-LMO_objMkrRad = [LMO_mkrRngLow,LMO_mkrRngHigh] call BIS_fnc_randomInt;
+LMO_objMkrRad = LMO_mkrRng call BIS_fnc_randomInt;
 LMO_MkrPos = [[[position LMO_spawnBldg, (LMO_objMkrRad/1.5)]], []] call BIS_fnc_randomPos;
 LMO_Mkr = createMarker ["LMO_Mkr", LMO_MkrPos];
 LMO_Mkr setMarkerShape "ELLIPSE";
@@ -36,11 +36,11 @@ LMO_Mkr setMarkerBrush "FDiagonal";
 //Set OBJ Marker Name & Timer
 
 if (LMO_TSTState == true) then {
-	_TimeMin = LMO_TSTmin;
-	_TimeMax = LMO_TSTmax;
+	_TimeMin = (LMO_TSTrng select 0);
+	_TimeMax = (LMO_TSTrng select 1);
 } else {
-	_TimeMin = LMO_TimeMin;
-	_TimeMax = LMO_TimeMax;
+	_TimeMin = (LMO_TimeRng select 0);
+	_TimeMax = (LMO_TimeRng select 1);
 };
 LMO_mTimer = [((_TimeMin)*60),((_TimeMax)*60)] call BIS_fnc_randomInt;
 LMO_mTimerStr = [LMO_mTimer, "MM:SS"] call BIS_fnc_secondsToString;

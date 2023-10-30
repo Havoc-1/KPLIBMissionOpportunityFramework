@@ -49,7 +49,7 @@ _allBuildings = _allBuildings - _allBuildingsFilter;
         if (typeOf _bCheck == _x) then {
             _bCheckExclude append [_bCheck];
         };
-    }forEach XEPKEY_blacklistBuildings;
+    }forEach LMO_bListBldg;
 }forEach _allBuildings;
 
 if (LMO_Debug == true) then {systemChat format ["LMO: All Buildings: %1, Excluded Buildings: %2, Blacklisted Buildings: %3", count _allBuildings, count _bCheckExclude, count LMO_objBlacklist]};
