@@ -106,12 +106,24 @@ switch (_missionType) do {
 			];
 			
 			[_enyUnitsHolder] joinSilent _enyUnits;
-			
+
 		} forEach _sqdOrbat;
 		
 		//[(units _enyUnits), getPos LMO_spawnBldg, 30, 1, true] call zen_ai_fnc_garrison;
 		[getPos LMO_spawnBldg, LMO_bTypes, (units _enyUnits), 30, 1, true, true] call ace_ai_fnc_garrison;
-		
+
+		call XEPKEY_fn_removeThrowables;
+
+		{
+			if (((getPosATL _x) select 2) > 10) then {
+				_safePosUnit = (units _enyUnits) select {(getPosATL _x) select 2 < 5};
+				if (count _safePosUnit > 0) then {
+					_x setVelocity [0,0,0];
+					_x setPosATL getPosATL (selectRandom _safePosUnit);
+				};
+			};
+		}forEach units _enyUnits;
+
 		{
 			_noMove = random 1;
 
@@ -179,6 +191,18 @@ switch (_missionType) do {
 		
 		//[(units _enyUnits), getPos LMO_spawnBldg, 30, 1, true] call zen_ai_fnc_garrison;
 		[getPos LMO_spawnBldg, LMO_bTypes, (units _enyUnits), 30, 1, true, true] call ace_ai_fnc_garrison;
+
+		call XEPKEY_fn_removeThrowables;
+
+		{
+			if (((getPosATL _x) select 2) > 10) then {
+				_safePosUnit = (units _enyUnits) select {(getPosATL _x) select 2 < 5};
+				if (count _safePosUnit > 0) then {
+					_x setPosATL getPosATL (selectRandom _safePosUnit);
+				};
+			};
+		}forEach units _enyUnits;
+
 		{
 			_noMove = random 1;
 			
@@ -251,7 +275,7 @@ switch (_missionType) do {
 					_targetsList = [];
 					_targetGetDir = 0;
 					_targetsInRange = [];
-					_angDeg = 0;
+					//_angDeg = 0;
 					
 					removeAllWeapons _hvt;
 					
@@ -262,7 +286,7 @@ switch (_missionType) do {
 					};
 					
 					//HVT stays put until alerted
-					waitUntil {sleep 5; _hvt call BIS_fnc_enemyDetected};
+					waitUntil {sleep 1; _hvt call BIS_fnc_enemyDetected};
 					_hvt enableAI "PATH";
 					
 
@@ -297,8 +321,9 @@ switch (_missionType) do {
 						}forEach _targetsList;
 
 						if (count _targetsInRange == 0 || _targetDir == 0) then {
-							if (_angDeg == nil) then {
-							_movePos = [getPos _hvt, LMO_HVTrunDist, random 360] call BIS_fnc_relPos;
+							if (isNil "_angDeg") then {
+							_angDeg = random 360;
+							_movePos = [getPos _hvt, LMO_HVTrunDist, _angDeg] call BIS_fnc_relPos;
 							};
 						} else {	
 							_angDeg = ((_targetDir/count _targetsInRange) + 180) % 360;
@@ -308,7 +333,7 @@ switch (_missionType) do {
 						group _hvt move _movePos;
 
 						if (LMO_HVTDebug == true) then {
-							systemChat format ["LMO: HVT Running from %1 enemies. Run Dir: %2. Move Pos: %3.",count _targetsList,_angDeg,_movePos];
+							systemChat format ["LMO: HVT Running from %1 enemies. Run Dir: %2. Move Pos: %3.",count _targetsList,round (_hvt getDir _movePos),_movePos];
 						};
 					
 						if (_hvt getVariable ["ace_captives_isSurrendering", false]) exitWith {
@@ -550,8 +575,10 @@ while {LMO_active == true} do {
 	//Eliminate HVT Lose Conditions	
 	if (_missionType == 2) then {
 		
+		_hvtEscChase = (_hvt nearEntities [["Man","LandVehicle"],150]) select {side _x == west};
+		
 		//if HVT is alive, mission timer expired, or not handcuffed and exited escape zone
-		if (alive _hvt && (LMO_mTimer == 0 || (!(_hvt getVariable ["ace_captives_isHandcuffed", false]) && (_hvt distance2D position LMO_spawnBldg > LMO_HVTescRng)))) then {
+		if (alive _hvt && (LMO_mTimer == 0 || (!(_hvt getVariable ["ace_captives_isHandcuffed", false]) && ((_hvt distance2D position LMO_spawnBldg > LMO_HVTescRng) && (count _hvtEscChase == 0))))) then {
 		
 			["LMOTaskOutcome", ["HVT has escaped", "\A3\ui_f\data\igui\cfg\simpletasks\types\run_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 			_missionState = 2;
@@ -586,7 +613,7 @@ while {LMO_active == true} do {
 		//if HVT is alive, Mission Timer not expired, HVT has exited escape zone, is surrendered or handcuffed
 		//OR
 		//if HVT is dead, mission timer not expired
-		if ((alive _hvt && LMO_mTimer > 0 && (_hvt distance2D position LMO_spawnBldg > LMO_bRadius * 0.8) && (_hvt getVariable ["ace_captives_isSurrendering", false] || _hvt getVariable ["ace_captives_isHandcuffed", false])) || (!alive _hvt && (LMO_mTimer > 0))) then {
+		if ((alive _hvt && LMO_mTimer > 0 && (_hvt distance2D position LMO_spawnBldg > LMO_bRadius * 0.8) && (_hvt getVariable ["ace_captives_isHandcuffed", false])) || (!alive _hvt && (LMO_mTimer > 0))) then {
 			
 			if (_hvtRunner < 0.5 || LMO_RunnerOnlyHVT == true) then {
 				deleteGroup _hvtRunnerGrp;

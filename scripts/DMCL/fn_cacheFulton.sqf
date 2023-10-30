@@ -73,8 +73,8 @@ while {true} do {
 				_bHeight = (getPosATL _cBalloon) select 2;
 				_cBalloon setPos getPos _cPara;
 				if (_bHeight >= _flyMax*0.025 && _bHeight < _flyMax*0.03) then {_bRise = 1};
-				if (_bHeight >= _flyMax*0.03 && _bHeight < _flyMax*0.035) then {_bRise = 12};
-				if (_bHeight >= _flyMax*0.035 && _bHeight < _flyMax*0.95) then {_bRise = 30};
+				if (_bHeight >= _flyMax*0.03 && _bHeight < _flyMax*0.035) then {_bRise = 8};
+				if (_bHeight >= _flyMax*0.035 && _bHeight < _flyMax*0.95) then {_bRise = 26};
 				_cPara setVelocity [0,0,_bRise];
 				[_cPara, 0, 0] call BIS_fnc_setPitchBank;
 

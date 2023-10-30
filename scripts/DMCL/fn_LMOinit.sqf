@@ -25,7 +25,7 @@
 	//Mission Chance
 	LMO_mCheckRNG = 10;			//How often (in minutes) the server will check to start an LMO
 	LMO_mChanceSelect = 20;		//Percentage chance of LMO per check rate
-	LMO_TSTchance = 20;			//Percentage chance of Time Sensitive LMO per check rate once LMO has been determined
+	LMO_TSTchance = 20;			//Percentage chance of Time Sensitive LMO after spawning objective
 
 	//Enable or disable failed LMO penalties
 	LMO_Penalties = true;
@@ -72,7 +72,7 @@
 	LMO_Debug = true;				//10s mission check rate for debugging
 	LMO_HVTDebug = true;			//Debugging HVT missions
 	
-		/* LMO_mType forces a mission type when LMO_Debug is true
+		/* LMO_mType forces a mission type when LMO_Debug is true <NUMBER>
 		 *	0: All missions
 		 *	1: Hostage Rescue
 		 *	2: Capture or Kill HVT
