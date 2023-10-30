@@ -288,7 +288,7 @@ switch (_missionType) do {
 					//HVT stays put until alerted
 					waitUntil {sleep 1; _hvt call BIS_fnc_enemyDetected};
 					_hvt enableAI "PATH";
-					
+					_hvt setVariable ["LMO_AngDeg",nil];
 
 					
 					//Checks whether armed west > east near HVT to surrender
@@ -314,26 +314,49 @@ switch (_missionType) do {
 						_targetsInRange = ((_hvt nearEntities [["Man","LandVehicle"],LMO_HVTrunSearchRng]) select {side _x == west}) select {!(currentWeapon _x == "")};
 						_targetsList append _targetsInRange;
 						_hvt setBehaviour "CARELESS";
+						_angDeg = nil;
+						_targetDir = 0;
+						_targetGetDir = 0;
 
 						{
 							_targetGetDir = _hvt getDir _x;
 							_targetDir = _targetDir + _targetGetDir;
 						}forEach _targetsList;
 
+						//HVT Run Direction
+						_angDeg = _hvt getVariable "LMO_AngDeg";
 						if (count _targetsInRange == 0 || _targetDir == 0) then {
 							if (isNil "_angDeg") then {
-							_angDeg = random 360;
-							_movePos = [getPos _hvt, LMO_HVTrunDist, _angDeg] call BIS_fnc_relPos;
+								_angDeg = random 360;
+
+								_hvt setVariable ["LMO_AngDeg",_angDeg];
+								_movePos = [getPos _hvt, LMO_HVTrunDist, _angDeg] call BIS_fnc_relPos;
+								group _hvt move _movePos;
+								if (LMO_HVTDebug == true) then {
+									systemChat format ["LMO: No AngDeg Found. Random AngDeg: %1.",_angDeg];
+								};
+							} else {
+								_angDeg = _hvt getVariable "LMO_AngDeg";
+
+								_movePos = [getPos _hvt, LMO_HVTrunDist, _angDeg] call BIS_fnc_relPos;
+								group _hvt move _movePos;
+								if (LMO_HVTDebug == true) then {
+									systemChat format ["LMO: AngDeg Found: %1.",_angDeg];
+								};
 							};
 						} else {	
 							_angDeg = ((_targetDir/count _targetsInRange) + 180) % 360;
+							//_movePos = [getPos _hvt, LMO_HVTrunDist, _angDeg] call BIS_fnc_relPos;
+							_hvt setVariable ["LMO_AngDeg",_angDeg];
+							if (LMO_HVTDebug == true) then {
+								systemChat format ["LMO: Armed enemy units in range, AngDeg made: %1",_angDeg];
+							};
 							_movePos = [getPos _hvt, LMO_HVTrunDist, _angDeg] call BIS_fnc_relPos;
+							group _hvt move _movePos;
 						};
-						
-						group _hvt move _movePos;
 
 						if (LMO_HVTDebug == true) then {
-							systemChat format ["LMO: HVT Running from %1 enemies. Run Dir: %2. Move Pos: %3.",count _targetsList,round (_hvt getDir _movePos),_movePos];
+							systemChat format ["LMO: HVT Running from %1 armed enemies. Run Dir: %2. Move Pos: %3.",count _targetsList,round (_hvt getVariable "LMO_AngDeg"),_movePos];
 						};
 					
 						if (_hvt getVariable ["ace_captives_isSurrendering", false]) exitWith {
@@ -583,7 +606,10 @@ while {LMO_active == true} do {
 			["LMOTaskOutcome", ["HVT has escaped", "\A3\ui_f\data\igui\cfg\simpletasks\types\run_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 			_missionState = 2;
 			
-			if (_hvtRunner < 0.5 || LMO_RunnerOnlyHVT == true) then {deleteGroup _hvtRunnerGrp};
+			if (_hvtRunner < 0.5 || LMO_RunnerOnlyHVT == true) then {
+				deleteGroup _hvtRunnerGrp;
+				_hvt setVariable ["LMO_AngDeg",nil];
+			};
 			
 			deleteVehicle _hvt;
 					
@@ -617,6 +643,7 @@ while {LMO_active == true} do {
 			
 			if (_hvtRunner < 0.5 || LMO_RunnerOnlyHVT == true) then {
 				deleteGroup _hvtRunnerGrp;
+				_hvt setVariable ["LMO_AngDeg",nil];
 			};
 
 			switch (alive _hvt) do {
