@@ -279,12 +279,6 @@ switch (_missionType) do {
 					
 					removeAllWeapons _hvt;
 					
-					[_hvt] spawn {
-						params ["_hvt"];
-						_hvt setBehaviour "CARELESS";
-						sleep 2;
-					};
-					
 					//HVT stays put until alerted
 					waitUntil {sleep 1; _hvt call BIS_fnc_enemyDetected};
 					_hvt enableAI "PATH";
@@ -295,7 +289,7 @@ switch (_missionType) do {
 					[_hvt] spawn {
 						params ["_hvt"];
 						while {_hvt getVariable ["ace_captives_isSurrendering", true]} do {
-							
+							_hvt setBehaviour "CARELESS";
 							_surInRngWest = ((_hvt nearEntities [["Man","LandVehicle"],LMO_HVTrunSurRng]) select {side _x == GRLIB_side_friendly}) select {!(currentWeapon _x == "")};
 							_surInRngEast = ((_hvt nearEntities [["Man","LandVehicle"],LMO_HVTrunSurRng]) select {side _x == GRLIB_side_enemy}) select {!(currentWeapon _x == "")};
 							if (count _surInRngWest > count _surInRngEast && (_hvt call BIS_fnc_enemyDetected)) exitWith {
