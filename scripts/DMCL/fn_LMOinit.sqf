@@ -35,6 +35,7 @@
 	LMO_bSize = 8;					//Minimum garrison spots in target building for LMO
 	LMO_bRadius = 500;				//Distance to search building array on enemy units (Default: 500)
 	LMO_objBlacklistRng = 500;		//Distance to blacklist buildings preventing objectives spawning in the same area
+	LMO_bTypes = ["BUILDING", "HOUSE"];		//Types of buildings to consider for LMO target
 
 	//LMO Range Params
 	LMO_enyRng = 2500;				//Minimum distance of enemy to players to start LMO
@@ -48,6 +49,7 @@
 	LMO_HVTrunSurRng = 5;					//Distance to determine whether HVT will consider surrender
 	LMO_HVTrunDist = 400;					//Distance HVT runs once spooked
 	LMO_HVTescRng = LMO_bRadius * 0.6;		//HVT Escape radius from target building (LMO_spawnBldg)
+	LMO_hvtChaseRng = 150;					//Distance from players to HVT to prevent escape once HVT leaves escape radius (LMO_HVTescRng)
 	LMO_allowRunnerHVT = true;				//Enable or disable HVT Runner chance
 	LMO_RunnerOnlyHVT = false;				//HVTs will all be runners (unarmed)
 
@@ -61,12 +63,14 @@
 	];
 
 	//LMO Reward Settings
-	XEPKEY_LMO_HR_REWARD_CIVREP = 40;			//Hostage Rescue Civilian Reputation Win
-	XEPKEY_LMO_HR_REWARD_INTEL = 15;			//Hostage Rescue Intelligence Win
-	XEPKEY_LMO_HVT_REWARD_ALERT_LOW = 1;		//HVT Killed Alert Level Win
-	XEPKEY_LMO_HVT_REWARD_ALERT_HIGH = 5;		//HVT Capture Alert Level Win
-	XEPKEY_LMO_HVT_REWARD_INTEL1 = 25;			//HVT Unarmed Capture Intelligence Win
-	XEPKEY_LMO_HVT_REWARD_INTEL2 = 40;			//HVT Armed Capture Intelligence Win
+	LMO_HR_Win_CivRep = 40;									//Hostage Rescue Civilian Reputation Win
+	LMO_HR_Win_Intel = 15;									//Hostage Rescue Intelligence Win
+	LMO_HVT_Win_KillAlert = 1;								//HVT Killed Alert Level Win
+	LMO_HVT_Win_CapAlert = 5;								//HVT Capture Alert Level Win
+	LMO_HVT_Win_intelUnarmed = 25;							//HVT Unarmed Capture Intelligence Win
+	LMO_HVT_Win_intelArmed = 40;							//HVT Armed Capture Intelligence Win
+	
+	LMO_HR_Lose_CivRep = KP_liberation_cr_kill_penalty;		//Hostage Rescue Civilian Reputation Lose
 
 	//Debug Mode (Adds Hints and systemChat)
 	LMO_Debug = true;				//10s mission check rate for debugging
@@ -196,9 +200,8 @@
 
 //-----------------------------------------//
 
-//GLOBAL SETTINGS
+//Predefining Global Variables DO NOT TOUCH
 LMO_active = false;
-LMO_bTypes = ["BUILDING", "HOUSE"];		//Types of buildings to consider for LMO target
 LMO_spawnBldg = [];
 LMO_mChance = 0;
 LMO_TimeSenRNG = 0;
@@ -212,13 +215,9 @@ LMO_TSTState = false;
 if !(isDedicated || (isServer && hasInterface)) exitWith {};
 
 //Checks if VCOM is loaded
-if (Vcm_ActivateAI == false || Vcm_ActivateAI == nil) then {
-	LMO_VCOM_On = false;
-} else {
-	LMO_VCOM_On = true;
-};
+if (Vcm_ActivateAI == false || isNil "Vcm_ActivateAI") then {LMO_VCOM_On = false} else {LMO_VCOM_On = true};
 
-while {true} do {
+while {count (allUnits select {side _x == GRLIB_side_enemy}) > 0} do {
 
 	//calling populate enemy list function
 	if (LMO_active == false) then {

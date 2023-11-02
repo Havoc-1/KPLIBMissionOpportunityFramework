@@ -16,7 +16,7 @@ _bCheckExclude = [];
 
 //Grabs array of all buildings nearby enemy units and selects 1 by random
 {
-	if (!isPlayer _x && side _x == east) then {
+	if (!isPlayer _x && side _x == GRLIB_side_enemy) then {
 		
 		_buildingArray = nearestTerrainObjects [_x, LMO_bTypes, LMO_bRadius, false, true];
 		_allBuildings append _buildingArray;

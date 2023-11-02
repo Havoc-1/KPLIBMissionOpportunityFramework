@@ -31,7 +31,7 @@ _hPauseRng = 10;
 _cModel = "Box_FIA_Wps_F";
 
 
-[west, "_taskMO", ["A mission of opporunity has appeared on the map, complete the task before the timer expires.", "Mission of Opportunity", "LMO_Mkr"], objNull, 1, 3, false] call BIS_fnc_taskCreate;
+[GRLIB_side_friendly, "_taskMO", ["A mission of opporunity has appeared on the map, complete the task before the timer expires.", "Mission of Opportunity", "LMO_Mkr"], objNull, 1, 3, false] call BIS_fnc_taskCreate;
 ["_taskMO","Box"] call BIS_fnc_taskSetType;
 
 
@@ -42,7 +42,7 @@ switch (_missionType) do {
 	case 1:{
 		
 		//Creates Task
-		[west, ["_taskMisMO", "_taskMO"], [format ["Our intel indicates a small group of combatants holding a hostage at <marker name =%1>%2</marker>. Locate and extract the hostage.", LMO_MkrName,LMO_MkrText], "LMO: Hostage Rescue", "Meet"], objNull, 1, 3, false] call BIS_fnc_taskCreate;																						
+		[GRLIB_side_friendly, ["_taskMisMO", "_taskMO"], [format ["Our intel indicates a small group of combatants holding a hostage at <marker name =%1>%2</marker>. Rescuing the hostage will greatly increase civilian reputation while failing the rescue will decrease civilian reputation.<br/><br/>Locate and extract the hostage.", LMO_MkrName,LMO_MkrText], "LMO: Hostage Rescue", "Meet"], objNull, 1, 3, false] call BIS_fnc_taskCreate;																						
 		["_taskMisMO","meet"] call BIS_fnc_taskSetType;
 		["LMOTask", ["Hostage Rescue", "\A3\ui_f\data\igui\cfg\simpletasks\types\meet_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 
@@ -114,6 +114,7 @@ switch (_missionType) do {
 
 		call XEPKEY_fn_removeThrowables;
 
+		//Prevents random glitch that shoots AI into the air
 		{
 			if (((getPosATL _x) select 2) > 10) then {
 				_safePosUnit = (units _enyUnits) select {(getPosATL _x) select 2 < 5};
@@ -147,7 +148,7 @@ switch (_missionType) do {
 	//Eliminate HVT
 	case 2:{
 		
-		[west, ["_taskMisMO", "_taskMO"], [format ["A high value target was reported to be within the vicinity nearby <marker name =%1>%2</marker>.<br/><br/>Locate and extract kill the high value target.", LMO_MkrName,LMO_MkrText], "LMO: Capture or Kill HVT", "Kill"], objNull, 1, 3, false] call BIS_fnc_taskCreate;
+		[GRLIB_side_friendly, ["_taskMisMO", "_taskMO"], [format ["A high value target was reported to be within the vicinity nearby <marker name =%1>%2</marker>. Capturing HVT will provide intelligence and slightly reduce enemy readiness while killing the HVT will provide no intelligence while greatly reducing enemy readiness.<br/><br/>Locate and extract kill the high value target.", LMO_MkrName,LMO_MkrText], "LMO: Capture or Kill HVT", "Kill"], objNull, 1, 3, false] call BIS_fnc_taskCreate;
 		["_taskMisMO","Kill"] call BIS_fnc_taskSetType;
 		["LMOTask", ["Kill or Capture HVT", "\A3\ui_f\data\igui\cfg\simpletasks\types\kill_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 		
@@ -189,15 +190,16 @@ switch (_missionType) do {
 			[_enyUnitsHolder] joinSilent _enyUnits;
 		} forEach _sqdOrbat;
 		
-		//[(units _enyUnits), getPos LMO_spawnBldg, 30, 1, true] call zen_ai_fnc_garrison;
 		[getPos LMO_spawnBldg, LMO_bTypes, (units _enyUnits), 30, 1, true, true] call ace_ai_fnc_garrison;
 
 		call XEPKEY_fn_removeThrowables;
 
+		//Prevents random glitch that shoots AI into the air
 		{
 			if (((getPosATL _x) select 2) > 10) then {
 				_safePosUnit = (units _enyUnits) select {(getPosATL _x) select 2 < 5};
 				if (count _safePosUnit > 0) then {
+					_x setVelocity [0,0,0];
 					_x setPosATL getPosATL (selectRandom _safePosUnit);
 				};
 			};
@@ -262,8 +264,6 @@ switch (_missionType) do {
 				//Schedued Environment
 				[_hvt, _hvtRunnerGrp] spawn {
 					params ["_hvt","_hvtRunnerGrp"];
-					_hvt = _this select 0;
-					_hvtRunnerGrp = _this select 1;
 					[_hvt] joinSilent _hvtRunnerGrp;
 					
 					if (LMO_VCOM_On == true) then {
@@ -294,12 +294,11 @@ switch (_missionType) do {
 					//Checks whether armed west > east near HVT to surrender
 					[_hvt] spawn {
 						params ["_hvt"];
-						_hvt = _this select 0;
 						while {_hvt getVariable ["ace_captives_isSurrendering", true]} do {
 							
-							_surInRngWest = ((_hvt nearEntities [["Man","LandVehicle"],LMO_HVTrunSurRng]) select {side _x == west}) select {!(currentWeapon _x == "")};
-							_surInRngEast = ((_hvt nearEntities [["Man","LandVehicle"],LMO_HVTrunSurRng]) select {side _x == east}) select {!(currentWeapon _x == "")};
-							if (count _surInRngWest > count _surInRngEast && _hvt call BIS_fnc_enemyDetected) exitWith {
+							_surInRngWest = ((_hvt nearEntities [["Man","LandVehicle"],LMO_HVTrunSurRng]) select {side _x == GRLIB_side_friendly}) select {!(currentWeapon _x == "")};
+							_surInRngEast = ((_hvt nearEntities [["Man","LandVehicle"],LMO_HVTrunSurRng]) select {side _x == GRLIB_side_enemy}) select {!(currentWeapon _x == "")};
+							if (count _surInRngWest > count _surInRngEast && (_hvt call BIS_fnc_enemyDetected)) exitWith {
 								[_hvt, true] call ace_captives_fnc_setSurrendered;
 								if (LMO_HVTDebug == true) then {systemChat "LMO: HVT surrendered, exiting scope"};
 							};
@@ -311,7 +310,7 @@ switch (_missionType) do {
 					while {alive _hvt} do {
 						_targetsList = [];
 						_movePos = [];
-						_targetsInRange = ((_hvt nearEntities [["Man","LandVehicle"],LMO_HVTrunSearchRng]) select {side _x == west}) select {!(currentWeapon _x == "")};
+						_targetsInRange = ((_hvt nearEntities [["Man","LandVehicle"],LMO_HVTrunSearchRng]) select {side _x == GRLIB_side_friendly}) select {!(currentWeapon _x == "")};
 						_targetsList append _targetsInRange;
 						_hvt setBehaviour "CARELESS";
 						_angDeg = nil;
@@ -346,7 +345,6 @@ switch (_missionType) do {
 							};
 						} else {	
 							_angDeg = ((_targetDir/count _targetsInRange) + 180) % 360;
-							//_movePos = [getPos _hvt, LMO_HVTrunDist, _angDeg] call BIS_fnc_relPos;
 							_hvt setVariable ["LMO_AngDeg",_angDeg];
 							if (LMO_HVTDebug == true) then {
 								systemChat format ["LMO: Armed enemy units in range, AngDeg made: %1",_angDeg];
@@ -360,7 +358,7 @@ switch (_missionType) do {
 						};
 					
 						if (_hvt getVariable ["ace_captives_isSurrendering", false]) exitWith {
-							if (LMO_HVTDebug == true) then {systemChat "LMO: Main Scope HVT surrender check complete, exiting script"};
+							if (LMO_HVTDebug == true) then {systemChat "LMO: HVT surrendered, exiting scope."};
 						};
 						sleep 40;
 					};
@@ -372,7 +370,7 @@ switch (_missionType) do {
 	//Locate Cache
 	case 3:{
 		
-		[west, ["_taskMisMO", "_taskMO"], [format ["Reconnaissance has identified enemy forces moving a supply cache around <marker name =%1>%2</marker>. The supply cache appears to be a stack of wooden boxes covered with a net. Secured supples will be air lifted to the nearest FOB while destroying the cache will reduce enemy readiness.<br/><br/>Locate and destroy or secure the supply cache.", LMO_MkrName,LMO_MkrText], "LMO: Destroy or Secure Cache", "Box"], objNull, 1, 3, false] call BIS_fnc_taskCreate;
+		[GRLIB_side_friendly, ["_taskMisMO", "_taskMO"], [format ["Reconnaissance has identified enemy forces moving a supply cache around <marker name =%1>%2</marker>. The supply cache appears to be a stack of wooden boxes covered with a net. Secured supples will be air lifted to the nearest FOB while destroying the cache will reduce enemy readiness.<br/><br/>Locate and destroy or secure the supply cache.", LMO_MkrName,LMO_MkrText], "LMO: Destroy or Secure Cache", "Box"], objNull, 1, 3, false] call BIS_fnc_taskCreate;
 		["_taskMisMO","Destroy"] call BIS_fnc_taskSetType;
 		["LMOTask", ["Destroy or Secure Cache", "a3\missions_f_oldman\data\img\holdactions\holdaction_box_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 		
@@ -443,7 +441,6 @@ switch (_missionType) do {
 				_cStrobe attachTo [_target, [0,0.2,-0.7]];
 				[_target] spawn {
 					params ["_target"];
-					_target = _this select 0;
 					playSound3D ["a3\sounds_f\vehicles\soft\suv_01\suv_01_door.wss", _target];
 					sleep 0.5;
 					playSound3D ["a3\sounds_f\sfx\beep_target.wss", _target];
@@ -467,8 +464,7 @@ switch (_missionType) do {
 				_cAttached = attachedObjects _vehicle select {typeOf _x == "PortableHelipadLight_01_red_F"};
 				if (count _cAttached > 0) then {{deleteVehicle _x} forEach _cAttached};
 				if (LMO_Debug == true) then {
-					systemChat "LMO: Cache destroyed.";
-					systemChat format ["LMO: CacheSecure variable: %1", _vehicle getVariable "LMO_CacheSecure"];
+					systemChat format ["LMO: Cache destroyed, CacheSecure variable: %1", _vehicle getVariable "LMO_CacheSecure"];
 				};
 				_vehicle setDamage 1;
 				
@@ -485,7 +481,7 @@ while {LMO_active == true} do {
 		//Checks if Player is within range of hostage to halt timer
 		{
 			_playerUnitHostages = (nearestObjects [_x, ["Man","LandVehicle"], _hPauseRng]) select {isPlayer _x};
-			_enyUnitHostages = (nearestObjects [_x, ["Man","LandVehicle"], _hPauseRng]) select {!isPlayer _x} select {side _x == east};
+			_enyUnitHostages = (nearestObjects [_x, ["Man","LandVehicle"], _hPauseRng]) select {!isPlayer _x} select {side _x == GRLIB_side_enemy};
 		}forEach units _hostageGrp;
 		
 		if ((count _playerUnitHostages > 0) && (count _enyUnitHostages == 0)) then {
@@ -578,8 +574,8 @@ while {LMO_active == true} do {
 		_missionState = 1;
 
 		//Increase Civilian reputation and intelligence 
-		KP_liberation_civ_rep = KP_liberation_civ_rep + XEPKEY_LMO_HR_REWARD_CIVREP;
-		resources_intel = resources_intel + XEPKEY_LMO_HR_REWARD_INTEL;
+		KP_liberation_civ_rep = KP_liberation_civ_rep + LMO_HR_Win_CivRep;
+		resources_intel = resources_intel + LMO_HR_Win_Intel;
 
 		{
 			deleteVehicle _x;
@@ -598,7 +594,7 @@ while {LMO_active == true} do {
 	//Eliminate HVT Lose Conditions	
 	if (_missionType == 2) then {
 		
-		_hvtEscChase = (_hvt nearEntities [["Man","LandVehicle"],150]) select {side _x == west};
+		_hvtEscChase = (_hvt nearEntities [["Man","LandVehicle"],LMO_hvtChaseRng]) select {side _x == GRLIB_side_friendly};
 		
 		//if HVT is alive, mission timer expired, or not handcuffed and exited escape zone
 		if (alive _hvt && (LMO_mTimer == 0 || (!(_hvt getVariable ["ace_captives_isHandcuffed", false]) && ((_hvt distance2D position LMO_spawnBldg > LMO_HVTescRng) && (count _hvtEscChase == 0))))) then {
@@ -615,7 +611,6 @@ while {LMO_active == true} do {
 					
 			[_enyUnits] spawn {
 				params ["_enyUnits"];
-				_enyUnits = _this select 0;
 				_enyUnitPlayers = [];
 				while {{alive _x} count units _enyUnits > 0} do {
 					
@@ -650,17 +645,17 @@ while {LMO_active == true} do {
 				case true: {
 					//noweapon, alive
 					if (primaryWeapon _hvt == "") then {
-						resources_intel = resources_intel + XEPKEY_LMO_HVT_REWARD_INTEL1;
-						combat_readiness = combat_readiness - XEPKEY_LMO_HVT_REWARD_ALERT_HIGH;
+						resources_intel = resources_intel + LMO_HVT_Win_intelUnarmed;
+						combat_readiness = combat_readiness - LMO_HVT_Win_CapAlert;
 					} else { //hasweapon, alive
-						resources_intel = resources_intel + XEPKEY_LMO_HVT_REWARD_INTEL2;
-						combat_readiness = combat_readiness - XEPKEY_LMO_HVT_REWARD_ALERT_HIGH;
+						resources_intel = resources_intel + LMO_HVT_Win_intelArmed;
+						combat_readiness = combat_readiness - LMO_HVT_Win_CapAlert;
 					};
 					["LMOTaskOutcome", ["HVT has been captured", "\z\ace\addons\captives\ui\handcuff_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 					deleteVehicle _hvt;
 				};
 				case false: {
-					if (!(primaryWeapon _hvt == "")) then {combat_readiness = combat_readiness - XEPKEY_LMO_HVT_REWARD_ALERT_LOW};
+					if (!(primaryWeapon _hvt == "")) then {combat_readiness = combat_readiness - LMO_HVT_Win_KillAlert};
 					["LMOTaskOutcome", ["HVT has been neutralized", "\A3\ui_f\data\igui\cfg\holdactions\holdaction_forcerespawn_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 				};
 
@@ -677,10 +672,8 @@ while {LMO_active == true} do {
 					}forEach units _enyUnits;
 					
 					if (count _enyUnitPlayers == 0) exitWith {
-										{
-							deleteVehicle _x;
-						}forEach units _enyUnits;
-					deleteGroup _enyUnits;
+						{deleteVehicle _x}forEach units _enyUnits;
+						deleteGroup _enyUnits;
 					};
 					sleep 5;
 				};

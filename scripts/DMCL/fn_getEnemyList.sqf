@@ -18,7 +18,7 @@ LMO_enyList = [];
 
 //populate enemy list near players 
 {
-	_enyListSelect = (_x nearEntities [["Man","LandVehicle"], LMO_enyRng]) select {side _x == east};
+	_enyListSelect = (_x nearEntities [["Man","LandVehicle"], LMO_enyRng]) select {side _x == GRLIB_side_enemy};
 	LMO_enyList append _enyListSelect;
 }forEach allPlayers;
 

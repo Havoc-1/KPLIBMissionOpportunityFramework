@@ -24,7 +24,7 @@ player createDiaryRecord [
     "<br/><font color='#FDFFAB' size=20>Rewards System</font><br/><br/>Reference table for mission rewards and possible outcomes.<br/><br/><font color='#4C62FF' size=16>Hostage Rescue</font>
     <br/>    <font color='#AFAFAF'>Hostage Extracted:</font><br/>    <font color='#4DD74E'>+%2%1 Civilian Reputation     +%3% Intelligence<br/></font>    <font color='#AFAFAF'>Timer Expired/Hostage Killed:</font><br/>    <font color='#ff0000'>-%4%1 Civilian Reputation</font>
     <br/><br/><font color='#F49434' size=16>HVT Capture or Kill</font><br/>    <font color='#AFAFAF'>    Captured Armed:</font> <font color='#4DD74E'>+%5 Intelligence    -%6%1 Alert Level [ ! ]</font><br/>    <font color='#AFAFAF'>Captured Unarmed:</font> <font color='#4DD74E'>+%7 Intelligence    -%6%1 Alert Level [ ! ]</font><br/>    <font color='#AFAFAF'>Killed:</font> <font color='#4DD74E'>-%8%1 Alert Level [ ! ]</font><br/><br/><font color='#36FD9B' size=16>Destroy or Secure Cache</font><br/>    <font color='#AFAFAF'>Secured:</font> <font color='#4DD74E'>TBD<br/></font>    <font color='#AFAFAF'>Destroyed:</font> <font color='#4DD74E'>TBD<br/></font>    <font color='#AFAFAF'>Lost:</font> <font color='#ff0000'>TBD<br/></font>
-    ","%",XEPKEY_LMO_HR_REWARD_CIVREP, XEPKEY_LMO_HR_REWARD_INTEL, KP_liberation_cr_kill_penalty, XEPKEY_LMO_HVT_REWARD_INTEL1, XEPKEY_LMO_HVT_REWARD_ALERT_HIGH, XEPKEY_LMO_HVT_REWARD_INTEL2, XEPKEY_LMO_HVT_REWARD_ALERT_LOW]
+    ","%",LMO_HR_Win_CivRep, LMO_HR_Win_Intel, LMO_HR_Lose_CivRep, LMO_HVT_Win_intelUnarmed, LMO_HVT_Win_CapAlert, LMO_HVT_Win_intelArmed, LMO_HVT_Win_KillAlert]
     ],
     taskNull,
     "",
