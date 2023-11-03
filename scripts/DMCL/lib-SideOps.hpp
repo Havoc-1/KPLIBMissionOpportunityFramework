@@ -13,6 +13,7 @@ class XEPKEY_functions { //Create category
 		class taskState {};
 		class hvtOutfit {};
 		class removeThrowables {};
-		class diaryContent {postInit=1};
+		class qrfCache {};
+		class diaryContent {postInit=1;};
 	};
 };

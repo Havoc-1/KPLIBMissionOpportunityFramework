@@ -9,3 +9,4 @@ XEPKEY_fn_taskState = compile preprocessFileLineNumbers "scripts\DMCL\fn_taskSta
 XEPKEY_fn_cacheFulton = compile preprocessFileLineNumbers "scripts\DMCL\fn_cacheFulton.sqf";
 XEPKEY_fn_hvtOutfit = compile preprocessFileLineNumbers "scripts\DMCL\fn_hvtOutfit.sqf";
 XEPKEY_fn_removeThrowables = compile preprocessFileLineNumbers "scripts\DMCL\fn_removeThrowables.sqf";
+XEPKEY_fn_qrfCache = compile preprocessFileLineNumbers "scripts\DMCL\fn_qrfCache.sqf";

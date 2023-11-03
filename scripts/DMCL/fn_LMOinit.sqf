@@ -27,34 +27,38 @@
 	LMO_mChanceSelect = 20;		//Percentage chance of LMO per check rate
 	LMO_TSTchance = 20;			//Percentage chance of Time Sensitive LMO after spawning objective
 
-	//Enable or disable failed LMO penalties
-	LMO_Penalties = true;
-
 	//Building Params
-	LMO_mkrRng = [50,300];			//[Min,Max] Objective Marker Radius Range
-	LMO_bSize = 8;					//Minimum garrison spots in target building for LMO
-	LMO_bRadius = 500;				//Distance to search building array on enemy units (Default: 500)
-	LMO_objBlacklistRng = 500;		//Distance to blacklist buildings preventing objectives spawning in the same area
+	LMO_mkrRng = [50,300];					//[Min,Max] Objective Marker Radius Range
+	LMO_bSize = 8;							//Minimum garrison spots in target building for LMO
+	LMO_bRadius = 500;						//Distance to search building array on enemy units (Default: 500)
+	LMO_objBlacklistRng = 500;				//Distance to blacklist buildings preventing objectives spawning in the same area
 	LMO_bTypes = ["BUILDING", "HOUSE"];		//Types of buildings to consider for LMO target
 
 	//LMO Range Params
 	LMO_enyRng = 2500;				//Minimum distance of enemy to players to start LMO
-	LMO_bPlayerRng = 1000;			//Minimum range of MO target to spawn on MO start
+	LMO_bPlayerRng = 1000;			//Minimum range of LMO target building to select on LMO start
 
 	//Hostage Rescue win radius
 	LMO_objMkrRadRescue = 300;
 
 	//HVT Runner Params
-	LMO_HVTrunSearchRng = 200;				//Runs away from BLUFOR units within this range
+	LMO_HVTrunSearchRng = 200;				//Runs away from player faction units within this range
 	LMO_HVTrunSurRng = 5;					//Distance to determine whether HVT will consider surrender
 	LMO_HVTrunDist = 400;					//Distance HVT runs once spooked
 	LMO_HVTescRng = LMO_bRadius * 0.6;		//HVT Escape radius from target building (LMO_spawnBldg)
-	LMO_hvtChaseRng = 150;					//Distance from players to HVT to prevent escape once HVT leaves escape radius (LMO_HVTescRng)
-	LMO_allowRunnerHVT = true;				//Enable or disable HVT Runner chance
-	LMO_RunnerOnlyHVT = false;				//HVTs will all be runners (unarmed)
+	LMO_HVTchaseRng = 150;					//Distance from players to HVT to prevent escape once HVT leaves escape radius (LMO_HVTescRng)
+	LMO_HVTallowRunner = true;				//Enable or disable HVT Runner chance
+	LMO_HVTrunnerOnly = false;				//HVTs will all be runners (unarmed)
 
 	//Cache Params
-	LMO_FultonRng = 150;					//No players in radius to begin fulton uplift
+	LMO_CacheSqdMultiplier = true;			//Enable or disable QRF multiplier for cache obj
+	LMO_CachePlayerRng = LMO_bRadius;		//Distance to count nearby players to cache for LMO_CacheSqdMultiply
+	LMO_CacheSqdMultiply = 1.5;				//QRF multiplier based on amount of players near cache (Distance: LMO_CachePlayerRng)
+	LMO_CacheSqdSpawnDist = 300;			//QRF Spawn distance when cache is secured
+	LMO_CacheSqdMinDist = 200;				//QRF will not spawn within this distance to any player on cache secure
+	
+	LMO_CacheTimer = 5;						//Minutes to defend cache before fulton deploys
+	LMO_CacheDefDist = 25;					//Distance to defend cache when secured
 	LMO_CacheItems = true;					//Include LMO_CacheItemArray in cache contents
 	LMO_CacheEmpty = true;					//Empty default contents of cache on spawn
 	LMO_CacheItemArray = [					//Items to include in cache ["Item", Quantity]
@@ -69,7 +73,8 @@
 	LMO_HVT_Win_CapAlert = 5;								//HVT Capture Alert Level Win
 	LMO_HVT_Win_intelUnarmed = 25;							//HVT Unarmed Capture Intelligence Win
 	LMO_HVT_Win_intelArmed = 40;							//HVT Armed Capture Intelligence Win
-	
+
+	LMO_Penalties = true;									//Enable or disable failed LMO penalties
 	LMO_HR_Lose_CivRep = KP_liberation_cr_kill_penalty;		//Hostage Rescue Civilian Reputation Lose
 
 	//Debug Mode (Adds Hints and systemChat)
@@ -82,7 +87,7 @@
 		 *	2: Capture or Kill HVT
 		 *	3: Destroy or Secure Cache
 		 */
-	LMO_mType = 0;
+	LMO_mType = 3;
 
 	//HVT Outfit Params
 
@@ -212,6 +217,7 @@ LMO_TSTState = false;
 //Compile all functions
 #include "compile.sqf";
 
+//Only runs for Server and HC Environments
 if !(isDedicated || (isServer && hasInterface)) exitWith {};
 
 //Checks if VCOM is loaded

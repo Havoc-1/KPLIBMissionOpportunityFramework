@@ -16,6 +16,7 @@ _cSecured = false;
 _missionType = 0;
 _sqdOrbat = [];
 _sqdSize = 0;
+LMO_cTimer = (LMO_CacheTimer)*60;
 
 //Randomizes LMO Mission Type
 if (LMO_Debug == true && LMO_mType != 0) then {
@@ -245,11 +246,11 @@ switch (_missionType) do {
 		if ((daytime <= 20) || (daytime >= 6)) then {_hvt unassignItem hmd _hvt};
 		
 		//Runner HVT Chance
-		if (LMO_allowRunnerHVT == true || LMO_RunnerOnlyHVT == true) then {
+		if (LMO_HVTallowRunner == true || LMO_HVTrunnerOnly == true) then {
 
 			_hvtRunner = random 1;
 
-			if (_hvtRunner < 0.5 || LMO_RunnerOnlyHVT == true) then {
+			if (_hvtRunner < 0.5 || LMO_HVTrunnerOnly == true) then {
 			
 				//HVT's group has a chance to start moving
 				{
@@ -275,7 +276,6 @@ switch (_missionType) do {
 					_targetsList = [];
 					_targetGetDir = 0;
 					_targetsInRange = [];
-					//_angDeg = 0;
 					
 					removeAllWeapons _hvt;
 					
@@ -505,7 +505,19 @@ while {LMO_active == true} do {
 			//Checks if cache is secured to halt timer
 			if (_missionType == 3 && (_cache getVariable ["LMO_CacheSecure", true])) then {
 
-				[0,"ColorGrey",position _cache,LMO_FultonRng,true,"Solid"] call XEPKEY_fn_mTimerAdjust;
+				//[0,"ColorGrey",position _cache,LMO_FultonRng,true,"Solid"] call XEPKEY_fn_mTimerAdjust;
+				LMO_MkrName setMarkerColor "ColorGrey";
+				LMO_Mkr setMarkerColor "ColorGrey";
+				LMO_Mkr setMarkerPos position _cache;
+				LMO_MkrName setMarkerPos position _cache;
+				LMO_Mkr setMarkerSize [LMO_CacheDefDist,LMO_CacheDefDist];
+				LMO_Mkr setMarkerBrush "Solid";
+				if (LMO_cTimer > 0) then {
+					LMO_cTimer = LMO_cTimer - 1;
+					LMO_mTimerStr = [LMO_cTimer, "MM:SS"] call BIS_fnc_secondsToString;
+				};
+				//LMO_MkrName setMarkerText format [" %1 [%2]",LMO_MkrText, LMO_mTimerStr];
+
 			} else {
 
 				LMO_mTimer = LMO_mTimer - 1;
@@ -588,7 +600,7 @@ while {LMO_active == true} do {
 	//Eliminate HVT Lose Conditions	
 	if (_missionType == 2) then {
 		
-		_hvtEscChase = (_hvt nearEntities [["Man","LandVehicle"],LMO_hvtChaseRng]) select {side _x == GRLIB_side_friendly};
+		_hvtEscChase = (_hvt nearEntities [["Man","LandVehicle"],LMO_HVTchaseRng]) select {side _x == GRLIB_side_friendly};
 		
 		//if HVT is alive, mission timer expired, or not handcuffed and exited escape zone
 		if (alive _hvt && (LMO_mTimer == 0 || (!(_hvt getVariable ["ace_captives_isHandcuffed", false]) && ((_hvt distance2D position LMO_spawnBldg > LMO_HVTescRng) && (count _hvtEscChase == 0))))) then {
@@ -596,7 +608,7 @@ while {LMO_active == true} do {
 			["LMOTaskOutcome", ["HVT has escaped", "\A3\ui_f\data\igui\cfg\simpletasks\types\run_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 			_missionState = 2;
 			
-			if (_hvtRunner < 0.5 || LMO_RunnerOnlyHVT == true) then {
+			if (_hvtRunner < 0.5 || LMO_HVTrunnerOnly == true) then {
 				deleteGroup _hvtRunnerGrp;
 				_hvt setVariable ["LMO_AngDeg",nil];
 			};
@@ -630,7 +642,7 @@ while {LMO_active == true} do {
 		//if HVT is dead, mission timer not expired
 		if ((alive _hvt && LMO_mTimer > 0 && (_hvt distance2D position LMO_spawnBldg > LMO_bRadius * 0.8) && (_hvt getVariable ["ace_captives_isHandcuffed", false])) || (!alive _hvt && (LMO_mTimer > 0))) then {
 			
-			if (_hvtRunner < 0.5 || LMO_RunnerOnlyHVT == true) then {
+			if (_hvtRunner < 0.5 || LMO_HVTrunnerOnly == true) then {
 				deleteGroup _hvtRunnerGrp;
 				_hvt setVariable ["LMO_AngDeg",nil];
 			};
@@ -697,7 +709,12 @@ while {LMO_active == true} do {
 			};
 			sleep 1;
 			
-			//Checks if players are no longer nearby cache, then exitsWith fulton script
+			//Defend cache
+			[] spawn {
+				sleep 10;
+				["LMOTaskOutcome", ["Enemy forces attempting to retake cache", "\a3\ui_f\data\igui\cfg\simpletasks\types\Radio_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
+			};
+			[_cache] call XEPKEY_fn_qrfCache;
 			[_cache] call XEPKEY_fn_cacheFulton;
 		};
 	};
