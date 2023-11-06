@@ -18,68 +18,81 @@
 //--------LMO Adjustable Parameters--------//
 
 	//Mission Timer Range (minutes)
-	LMO_TimeRng = [30,60];		//[Min,Max] minutes for LMO Objective
-	LMO_TSTrng = [10,15];		//[Min,Max] minutes for Time Sensitive LMO Objective
-	LMO_TST = true;				//Enable or disable Time Sensitive Tasks
+	LMO_TimeRng = [30,60];									//[Min,Max] minutes for LMO Objective
+	LMO_TSTrng = [10,15];									//[Min,Max] minutes for Time Sensitive LMO Objective
+	LMO_TST = true;											//Enable or disable Time Sensitive Tasks
 
 	//Mission Chance
-	LMO_mCheckRNG = 10;			//How often (in minutes) the server will check to start an LMO
-	LMO_mChanceSelect = 20;		//Percentage chance of LMO per check rate
-	LMO_TSTchance = 20;			//Percentage chance of Time Sensitive LMO after spawning objective
+	LMO_mCheckRNG = 10;										//How often (in minutes) the server will check to start an LMO
+	LMO_mChanceSelect = 20;									//Percentage chance of LMO per check rate
+	LMO_TSTchance = 20;										//Percentage chance of Time Sensitive LMO after spawning objective
 
 	//Building Params
-	LMO_mkrRng = [50,300];					//[Min,Max] Objective Marker Radius Range
-	LMO_bSize = 8;							//Minimum garrison spots in target building for LMO
-	LMO_bRadius = 500;						//Distance to search building array on enemy units (Default: 500)
-	LMO_objBlacklistRng = 500;				//Distance to blacklist buildings preventing objectives spawning in the same area
-	LMO_bTypes = ["BUILDING", "HOUSE"];		//Types of buildings to consider for LMO target
+	LMO_mkrRng = [50,300];									//[Min,Max] Objective Marker Radius Range
+	LMO_bSize = 8;											//Minimum garrison spots in target building for LMO
+	LMO_bRadius = 500;										//Distance to search building array on enemy units (Default: 500)
+	LMO_objBlacklistRng = 500;								//Distance to blacklist buildings preventing objectives spawning in the same area
+	LMO_bTypes = ["BUILDING", "HOUSE"];						//Types of buildings to consider for LMO target
 
 	//LMO Range Params
-	LMO_enyRng = 2500;				//Minimum distance of enemy to players to start LMO
-	LMO_bPlayerRng = 1000;			//Minimum range of LMO target building to select on LMO start
+	LMO_enyRng = 2500;										//Minimum distance of enemy to players to start LMO
+	LMO_bPlayerRng = 1000;									//Minimum range of LMO target building to select on LMO start
 
 	//Hostage Rescue win radius
 	LMO_objMkrRadRescue = 300;
 
 	//HVT Runner Params
-	LMO_HVTrunSearchRng = 200;				//Runs away from player faction units within this range
-	LMO_HVTrunSurRng = 5;					//Distance to determine whether HVT will consider surrender
-	LMO_HVTrunDist = 400;					//Distance HVT runs once spooked
-	LMO_HVTescRng = LMO_bRadius * 0.6;		//HVT Escape radius from target building (LMO_spawnBldg)
-	LMO_HVTchaseRng = 150;					//Distance from players to HVT to prevent escape once HVT leaves escape radius (LMO_HVTescRng)
-	LMO_HVTallowRunner = true;				//Enable or disable HVT Runner chance
-	LMO_HVTrunnerOnly = false;				//HVTs will all be runners (unarmed)
+	LMO_HVTrunSearchRng = 200;								//Runs away from player faction units within this range
+	LMO_HVTrunSurRng = 5;									//Distance to determine whether HVT will consider surrender
+	LMO_HVTescRng = LMO_bRadius * 0.6;						//HVT Escape radius from target building (LMO_spawnBldg)
+	LMO_HVTrunDist = LMO_HVTescRng + 50;					//Distance HVT runs once spooked
+	LMO_HVTchaseRng = 150;									//Distance from players to HVT to prevent escape once HVT leaves escape radius (LMO_HVTescRng)
+	LMO_HVTallowRunner = true;								//Enable or disable HVT Runner chance
+	LMO_HVTrunnerOnly = false;								//HVTs will all be runners (unarmed)
 
 	//Cache Params
-	LMO_CacheSqdMultiplier = true;			//Enable or disable QRF multiplier for cache obj
-	LMO_CachePlayerRng = LMO_bRadius;		//Distance to count nearby players to cache for LMO_CacheSqdMultiply
-	LMO_CacheSqdMultiply = 1.5;				//QRF multiplier based on amount of players near cache (Distance: LMO_CachePlayerRng)
-	LMO_CacheSqdSpawnDist = 300;			//QRF Spawn distance when cache is secured
-	LMO_CacheSqdMinDist = 200;				//QRF will not spawn within this distance to any player on cache secure
+	LMO_CacheSqdMultiplier = true;							//Enable or disable QRF multiplier for cache obj
+	LMO_CachePlayerRng = LMO_bRadius;						//Distance to count nearby players to cache for LMO_CacheSqdMultiply
+	LMO_CacheSqdMultiply = 1.5;								//QRF multiplier based on amount of players near cache (Distance: LMO_CachePlayerRng)
+	LMO_CacheSqdSpawnDist = 300;							//QRF Spawn distance when cache is secured
+	LMO_CacheSqdMinDist = 200;								//QRF will not spawn within this distance to any player on cache secure
 	
-	LMO_CacheTimer = 5;						//Minutes to defend cache before fulton deploys
-	LMO_CacheDefDist = 25;					//Distance to defend cache when secured
-	LMO_CacheItems = true;					//Include LMO_CacheItemArray in cache contents
-	LMO_CacheEmpty = true;					//Empty default contents of cache on spawn
-	LMO_CacheItemArray = [					//Items to include in cache ["Item", Quantity]
+	LMO_CacheTimer = 5;										//Minutes to defend cache before fulton deploys
+	LMO_CacheDefDist = 25;									//Distance to defend cache when secured
+	LMO_CacheItems = true;									//Include LMO_CacheItemArray in cache contents
+	LMO_CacheEmpty = true;									//Empty default contents of cache on spawn
+	LMO_CacheItemArray = [									//Items to include in cache ["Item", Quantity]
 		["DemoCharge_Remote_Mag", 2],
 		["HandGrenade", 1]
 	];
 
 	//LMO Reward Settings
+	LMO_TST_Reward = 1.5;									//Reward multipler for completing time sensitive missions
 	LMO_HR_Win_CivRep = 40;									//Hostage Rescue Civilian Reputation Win
 	LMO_HR_Win_Intel = 15;									//Hostage Rescue Intelligence Win
 	LMO_HVT_Win_KillAlert = 1;								//HVT Killed Alert Level Win
 	LMO_HVT_Win_CapAlert = 5;								//HVT Capture Alert Level Win
 	LMO_HVT_Win_intelUnarmed = 25;							//HVT Unarmed Capture Intelligence Win
 	LMO_HVT_Win_intelArmed = 40;							//HVT Armed Capture Intelligence Win
-
-	LMO_Penalties = true;									//Enable or disable failed LMO penalties
-	LMO_HR_Lose_CivRep = KP_liberation_cr_kill_penalty;		//Hostage Rescue Civilian Reputation Lose
+	LMO_Cache_Win_Rdy = 20;									//Cache Destroyed Enemy Readiness Win
+	LMO_Cache_supplyBoxes = [2,4];							//[Min,Max] Cache Secured Supply Boxes Win
+	LMO_Cache_ammoBoxes = [2,4];							//[Min,Max] Cache Secured Ammo Boxes Win
+	LMO_Cache_fuelBoxes = [2,4];							//[Min,Max] Cache Secured Fuel Boxes Win
+	
+		/* LMO_Penalties array enables (true) or disables (false) resource penalties for failed LMOs <BOOL>
+		 *	0: Enabled/Disabled
+		 *	1: Hostage Rescue
+		 *	2: Capture or Kill HVT
+		 *	3: Destroy or Secure Cache
+		 */
+	LMO_Penalties = [true,true,true,true];
+	LMO_HR_Lose_CivRep = KP_liberation_cr_kill_penalty;		//Hostage Rescue Killed Civilian Reputation Lose
+	LMO_HVT_Lose_Intel = 20;								//HVT Escaped Intelligence Lose
+	LMO_Cache_Lose_Rdy = 20;								//Cache Lost Enemy Readiness Lose
 
 	//Debug Mode (Adds Hints and systemChat)
-	LMO_Debug = true;				//10s mission check rate for debugging
-	LMO_HVTDebug = true;			//Debugging HVT missions
+	LMO_Debug = true;										//10s mission check rate for debugging
+	LMO_HVTDebug = true;									//Debugging HVT missions
 	
 		/* LMO_mType forces a mission type when LMO_Debug is true <NUMBER>
 		 *	0: All missions
@@ -92,21 +105,21 @@
 	//HVT Outfit Params
 
 		/* LMO_hvtOutfit Array to enable custom equipment for the HVT <BOOL>
-		*	0: Headgear
-		*	1: Goggles
-		*	2: Vest
-		*	3: Uniform
-		*	4: Backpack
-		*	5: NVG
-		*	6: Weapons
-		*/
+		 *	0: Headgear
+		 *	1: Goggles
+		 *	2: Vest
+		 *	3: Uniform
+		 *	4: Backpack
+		 *	5: NVG
+		 *	6: Weapons
+		 */
 		LMO_hvtOutfit = [true, true, false, false, false, false, false];
 
 		/* LMO_hvtNone Array to enable chance for empty equipment slot for the HVT <BOOL>
-		*	0: Headgear
-		*	1: Backpack
-		*	2: NVG
-		*/
+		 *	0: Headgear
+		 *	1: Backpack
+		 *	2: NVG
+		 */
 		LMO_hvtNone = [true, true, true];
 
 		LMO_hvtHead = [

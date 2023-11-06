@@ -22,26 +22,32 @@ params ["_cache"];
 
 		//Checks whether concious players and enemies are nearby cache
 		_cNear = (nearestObjects [_cache, ["Man", "LandVehicle"], LMO_CacheDefDist]) select {side _x == GRLIB_side_enemy};
-		_cNearPlayer = ((nearestObjects [_cache, ["Man", "LandVehicle"], LMO_CacheDefDist]) select {isPlayer _x}) select {!(_x getVariable ["ACE_isUnconscious", false])};
+		_cNearPlayer = ((nearestObjects [_cache, ["Man", "LandVehicle"], LMO_CacheDefDist]) select {side _x == GRLIB_side_friendly}) select {!(_x getVariable ["ACE_isUnconscious", false])};
 		if ((count _cNear > 0) && (count _cNearPlayer == 0)) exitWith {
+			sleep 5;
 			_cAttached = attachedObjects _cache select {typeOf _x == "PortableHelipadLight_01_red_F"};
 			if (count _cAttached > 0) then {{deleteVehicle _x} forEach _cAttached};
 			deleteVehicle _cache;
 			systemChat format ["LMO: Cache was secured by the enemy."];
-			["LMOTaskOutcome", ["Cache was secured by the enemy", "z\ace\addons\dragging\ui\icons\box_carry.paa"]] remoteExec ["BIS_fnc_showNotification"];
+			["LMOTaskOutcome", ["Cache was retaken by the enemy", "z\ace\addons\dragging\ui\icons\box_carry.paa"]] remoteExec ["BIS_fnc_showNotification"];
 			[2] call XEPKEY_fn_taskState;
 		};
 
 		//Fail if cache is destroyed before uplift
 		if (!alive _cache) exitWith {
-				systemChat format ["LMO: Cache was destroyed before uplift."];
-				["LMOTaskOutcome", ["Cache was destroyed before uplift", "a3\ui_f_oldman\data\igui\cfg\holdactions\destroy_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
-				[1] call XEPKEY_fn_taskState;
+			systemChat format ["LMO: Cache was destroyed before uplift."];
+			["LMOTaskOutcome", ["Cache was destroyed before uplift", "a3\ui_f_oldman\data\igui\cfg\holdactions\destroy_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
+			[1] call XEPKEY_fn_taskState;
+			if (LMO_TST == true && LMO_TimeSenRNG <= LMO_TSTchance) then {
+				combat_readiness = combat_readiness - (LMO_Cache_Win_Rdy * LMO_TST_Reward);
+			} else {
+				combat_readiness = combat_readiness - LMO_Cache_Win_Rdy;
+			};
 		};
 
 		//Win if cache is defended
 		if (LMO_cTimer == 0 && alive _cache) exitWith {
-			["LMOTaskOutcome", ["Cache preparing for uplift", "a3\ui_f_oldman\data\igui\cfg\holdactions\destroy_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
+			["LMOTaskOutcome", ["Cache preparing for uplift", "z\ace\addons\dragging\ui\icons\box_carry.paa"]] remoteExec ["BIS_fnc_showNotification"];
 			_cAttached = attachedObjects _cache;
 			if (count _cAttached > 0) then {{deleteVehicle _x} forEach _cAttached};
 			_cPos = getPosATL _cache;
@@ -97,16 +103,103 @@ params ["_cache"];
 					[_cPara, 0, 0] call BIS_fnc_setPitchBank;
 
 					if (_bHeight >= _flyMax) exitWith {
-					ropeDestroy _cacheRope;
-					deleteVehicle _cFly;
-					deleteVehicle _cBalloon;
-					deleteVehicle _cPara;
-					deleteVehicle _cLight;
-					["LMOTaskOutcome", ["Cache uplifted successfully", "z\ace\addons\dragging\ui\icons\box_carry.paa"]] remoteExec ["BIS_fnc_showNotification"];
-					deleteVehicle _cache;
-					if (LMO_Debug == true) then {systemChat "LMO: Cache successfully airlifted. Cache deleted."};
-					[1] call XEPKEY_fn_taskState;
-					missionNamespace setVariable ["LMO_CacheTagged", nil];
+						ropeDestroy _cacheRope;
+						deleteVehicle _cFly;
+						deleteVehicle _cBalloon;
+						deleteVehicle _cPara;
+						deleteVehicle _cLight;
+						deleteVehicle _cache;
+						if (LMO_Debug == true) then {systemChat "LMO: Cache successfully airlifted. Cache deleted."};
+						[1] call XEPKEY_fn_taskState;
+						if (LMO_TST == true && LMO_TimeSenRNG <= LMO_TSTchance) then {
+							combat_readiness = combat_readiness - (LMO_Cache_Win_Rdy * LMO_TST_Reward);
+						} else {
+							combat_readiness = combat_readiness - LMO_Cache_Win_Rdy;
+						};
+						missionNamespace setVariable ["LMO_CacheTagged", nil];
+
+						//get the nearestFOB
+						if (GRLIB_all_fobs isEqualTo []) exitWith {["LMOTaskOutcome", ["Cache lost in transit FOB not found", "\a3\ui_f\data\igui\cfg\simpletasks\types\Plane_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];};
+						
+						_cacheBox_Supply = 0;
+						_cacheBox_Ammo = 0;
+						_cacheBox_Fuel = 0;
+						_foundStorage = objNull;
+
+						if (LMO_TST == true && LMO_TimeSenRNG <= LMO_TSTchance) then {
+							_cacheBox_Supply = round ((LMO_Cache_supplyBoxes call BIS_fnc_randomInt) * LMO_TST_Reward);
+							_cacheBox_Ammo = round ((LMO_Cache_ammoBoxes call BIS_fnc_randomInt) * LMO_TST_Reward);
+							_cacheBox_Fuel = round ((LMO_Cache_fuelBoxes call BIS_fnc_randomInt) * LMO_TST_Reward);
+						} else {
+							_cacheBox_Supply = LMO_Cache_supplyBoxes call BIS_fnc_randomInt;
+							_cacheBox_Ammo = LMO_Cache_ammoBoxes call BIS_fnc_randomInt;
+							_cacheBox_Fuel = LMO_Cache_fuelBoxes call BIS_fnc_randomInt;
+						};
+
+						_closeSupplyDump = [getPos _cache] call KPLIB_fnc_getNearestFob; 
+						_foundStorage = nearestObject [_closeSupplyDump, KP_liberation_large_storage_building];
+						
+						if (LMO_Debug == true) then {
+							systemChat format ["LMO: Closest FOB: %1, foundStorage: %2",_closeSupplyDump,_foundStorage];
+						};
+
+						if (!isNull _foundStorage) then {
+							[(100*_cacheBox_Supply),(100*_cacheBox_Ammo),(100*_cacheBox_Fuel), _foundStorage] call KPLIB_fnc_fillStorage;
+							["LMOTaskOutcome", ["Cache supplies uplifted to base", "z\ace\addons\dragging\ui\icons\box_carry.paa"]] remoteExec ["BIS_fnc_showNotification"];
+						};
+						
+						if (isNull _foundStorage) then {
+							
+							XEPKEY_cacheReward = [];
+							private _LMOcrate = objNull;
+							
+							["LMOTaskOutcome", ["Cache supplies uplifted to base", "z\ace\addons\dragging\ui\icons\box_carry.paa"]] remoteExec ["BIS_fnc_showNotification"];
+			
+							//Supply
+							for "_i" from 1 to _cacheBox_Supply do { //Amount of box
+								_LMOcrate = createVehicle [
+									(KPLIB_crates select 0), //Type of box
+									_closeSupplyDump,
+									[],
+									5,
+									"NONE"
+								];
+								[_LMOcrate, true] call KPLIB_fnc_clearCargo;
+								_LMOcrate setVariable ["KP_liberation_crate_value", 100, true];
+								if (KP_liberation_ace) then {[_LMOcrate, true, [0, 1.5, 0], 0] remoteExec ["ace_dragging_fnc_setCarryable"];};
+								XEPKEY_cacheReward pushBack _LMOcrate;
+							};
+
+							//Ammo
+							for "_i" from 1 to _cacheBox_Ammo do { //Amount of box
+								_LMOcrate = createVehicle [
+									(KPLIB_crates select 1), //Type of box
+									_closeSupplyDump,
+									[],
+									5,
+									"NONE"
+								];
+								[_LMOcrate, true] call KPLIB_fnc_clearCargo;
+								_LMOcrate setVariable ["KP_liberation_crate_value", 100, true];
+								if (KP_liberation_ace) then {[_LMOcrate, true, [0, 1.5, 0], 0] remoteExec ["ace_dragging_fnc_setCarryable"];};
+								XEPKEY_cacheReward pushBack _LMOcrate;
+							};
+
+							//Fuel
+							for "_i" from 1 to _cacheBox_Fuel do { //Amount of box
+								_LMOcrate = createVehicle [
+									(KPLIB_crates select 2), //Type of box
+									_closeSupplyDump,
+									[],
+									5,
+									"NONE"
+								];
+								[_LMOcrate, true] call KPLIB_fnc_clearCargo;
+								_LMOcrate setVariable ["KP_liberation_crate_value", 100, true];
+								if (KP_liberation_ace) then {[_LMOcrate, true, [0, 1.5, 0], 0] remoteExec ["ace_dragging_fnc_setCarryable"];};
+								XEPKEY_cacheReward pushBack _LMOcrate;
+							};
+						};
 					};
 					sleep 0.01;
 				};

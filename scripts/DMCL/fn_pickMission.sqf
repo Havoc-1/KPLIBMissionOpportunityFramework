@@ -512,11 +512,11 @@ while {LMO_active == true} do {
 				LMO_MkrName setMarkerPos position _cache;
 				LMO_Mkr setMarkerSize [LMO_CacheDefDist,LMO_CacheDefDist];
 				LMO_Mkr setMarkerBrush "Solid";
-				if (LMO_cTimer > 0) then {
+				_cNearTimer = ((nearestObjects [_cache, ["Man", "LandVehicle"], LMO_CacheDefDist]) select {side _x == GRLIB_side_enemy}) select {!(_x getVariable ["ACE_isUnconscious", false])};
+				if (LMO_cTimer > 0 && (count _cNearTimer == 0)) then {
 					LMO_cTimer = LMO_cTimer - 1;
 					LMO_mTimerStr = [LMO_cTimer, "MM:SS"] call BIS_fnc_secondsToString;
 				};
-				//LMO_MkrName setMarkerText format [" %1 [%2]",LMO_MkrText, LMO_mTimerStr];
 
 			} else {
 
@@ -545,9 +545,15 @@ while {LMO_active == true} do {
 		{_x setdamage 1} forEach units _hostageGrp;
 		{_x enableAI "PATH"} forEach units _enyUnits;
 		
-		if (LMO_Penalties == true) then {
+		if (((LMO_Penalties select 0) == true) && ((LMO_Penalties select 1) == true)) then {
 		//Deduct Civilian reputation as defined in kp_liberation_config.sqf
-		KP_liberation_civ_rep = KP_liberation_civ_rep - KP_liberation_cr_kill_penalty;
+		KP_liberation_civ_rep = KP_liberation_civ_rep - LMO_HR_Lose_CivRep;
+		if (KP_liberation_civ_rep > 100.00) then {
+			KP_liberation_civ_rep = 100.00;
+		} else if (KP_liberation_civ_rep < -100.00) then {
+			KP_liberation_civ_rep = -100.00;
+		};
+		
 		};
 
 		_enyUnitPlayers = [];
@@ -579,9 +585,22 @@ while {LMO_active == true} do {
 		
 		_missionState = 1;
 
-		//Increase Civilian reputation and intelligence 
-		KP_liberation_civ_rep = KP_liberation_civ_rep + LMO_HR_Win_CivRep;
-		resources_intel = resources_intel + LMO_HR_Win_Intel;
+		//Increase Civilian reputation and intelligence
+		if (LMO_TST == true && LMO_TimeSenRNG <= LMO_TSTchance) then {
+			
+			KP_liberation_civ_rep = KP_liberation_civ_rep + (round (LMO_HR_Win_CivRep * LMO_TST_Reward));
+			resources_intel = resources_intel + (round (LMO_HR_Win_Intel * LMO_TST_Reward));
+		} else {
+
+			KP_liberation_civ_rep = KP_liberation_civ_rep + LMO_HR_Win_CivRep;
+			resources_intel = resources_intel + LMO_HR_Win_Intel;
+		};
+		
+		if (KP_liberation_civ_rep > 100.00) then {
+			KP_liberation_civ_rep = 100.00;
+		} else if (KP_liberation_civ_rep < -100.00) then {
+			KP_liberation_civ_rep = -100.00;
+		};
 
 		{
 			deleteVehicle _x;
@@ -608,6 +627,8 @@ while {LMO_active == true} do {
 			["LMOTaskOutcome", ["HVT has escaped", "\A3\ui_f\data\igui\cfg\simpletasks\types\run_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 			_missionState = 2;
 			
+			resources_intel = resources_intel - LMO_HVT_Lose_Intel;
+
 			if (_hvtRunner < 0.5 || LMO_HVTrunnerOnly == true) then {
 				deleteGroup _hvtRunnerGrp;
 				_hvt setVariable ["LMO_AngDeg",nil];
@@ -651,17 +672,33 @@ while {LMO_active == true} do {
 				case true: {
 					//noweapon, alive
 					if (primaryWeapon _hvt == "") then {
-						resources_intel = resources_intel + LMO_HVT_Win_intelUnarmed;
-						combat_readiness = combat_readiness - LMO_HVT_Win_CapAlert;
+						if (LMO_TST == true && LMO_TimeSenRNG <= LMO_TSTchance) then {
+							resources_intel = resources_intel + (round (LMO_HVT_Win_intelUnarmed * LMO_TST_Reward));
+							combat_readiness = combat_readiness - (round (LMO_HVT_Win_CapAlert * LMO_TST_Reward));
+						} else {
+							resources_intel = resources_intel + LMO_HVT_Win_intelUnarmed;
+							combat_readiness = combat_readiness - LMO_HVT_Win_CapAlert;
+						};
 					} else { //hasweapon, alive
-						resources_intel = resources_intel + LMO_HVT_Win_intelArmed;
-						combat_readiness = combat_readiness - LMO_HVT_Win_CapAlert;
+						if (LMO_TST == true && LMO_TimeSenRNG <= LMO_TSTchance) then {
+							resources_intel = resources_intel + (round (LMO_HVT_Win_intelArmed * LMO_TST_Reward));
+							combat_readiness = combat_readiness - (round (LMO_HVT_Win_CapAlert * LMO_TST_Reward));
+						} else {
+							resources_intel = resources_intel + LMO_HVT_Win_intelArmed;
+							combat_readiness = combat_readiness - LMO_HVT_Win_CapAlert;
+						};
 					};
 					["LMOTaskOutcome", ["HVT has been captured", "\z\ace\addons\captives\ui\handcuff_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 					deleteVehicle _hvt;
 				};
 				case false: {
-					if (!(primaryWeapon _hvt == "")) then {combat_readiness = combat_readiness - LMO_HVT_Win_KillAlert};
+					if (!(primaryWeapon _hvt == "")) then {
+						if (LMO_TST == true && LMO_TimeSenRNG <= LMO_TSTchance) then {
+							combat_readiness = combat_readiness - (round (LMO_HVT_Win_KillAlert * LMO_TST_Reward));
+						} else {
+							combat_readiness = combat_readiness - LMO_HVT_Win_KillAlert;
+						};
+						};
 					["LMOTaskOutcome", ["HVT has been neutralized", "\A3\ui_f\data\igui\cfg\holdactions\holdaction_forcerespawn_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 				};
 
@@ -694,6 +731,11 @@ while {LMO_active == true} do {
 		if (!alive _cache && _cSecured != true) then {
 			_missionState = 1;
 			["LMOTaskOutcome", ["Cache has been destroyed", "a3\ui_f_oldman\data\igui\cfg\holdactions\destroy_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
+			if (LMO_TST == true && LMO_TimeSenRNG <= LMO_TSTchance) then {
+				combat_readiness = combat_readiness - (LMO_Cache_Win_Rdy * LMO_TST_Reward);
+			} else {
+				combat_readiness = combat_readiness - LMO_Cache_Win_Rdy;
+			};
 		};
 		
 		//If Secured Cache
@@ -712,7 +754,7 @@ while {LMO_active == true} do {
 			//Defend cache
 			[] spawn {
 				sleep 10;
-				["LMOTaskOutcome", ["Enemy forces attempting to retake cache", "\a3\ui_f\data\igui\cfg\simpletasks\types\Radio_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
+				["LMOTaskOutcome", ["Enemy forces are attempting to retake cache", "\a3\ui_f\data\igui\cfg\simpletasks\types\Radio_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 			};
 			[_cache] call XEPKEY_fn_qrfCache;
 			[_cache] call XEPKEY_fn_cacheFulton;
@@ -724,6 +766,7 @@ while {LMO_active == true} do {
 		//If Timer expires
 		if (alive _cache && !(_cache getVariable ["LMO_CacheSecure", true])) then {
 			_missionState = 2;
+			combat_readiness = combat_readiness + LMO_Cache_Lose_Rdy;
 			["LMOTaskOutcome", ["Cache has been lost", "a3\ui_f_oldman\data\igui\cfg\holdactions\destroy_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 			_cAttached = attachedObjects _cache select {typeOf _x == "PortableHelipadLight_01_red_F"};
 			if (count _cAttached > 0) then {{deleteVehicle _x} forEach _cAttached};
