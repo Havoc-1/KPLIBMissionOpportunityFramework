@@ -553,7 +553,7 @@ while {LMO_active == true} do {
 		} else if (KP_liberation_civ_rep < -100.00) then {
 			KP_liberation_civ_rep = -100.00;
 		};
-		
+
 		};
 
 		_enyUnitPlayers = [];
@@ -688,6 +688,7 @@ while {LMO_active == true} do {
 							combat_readiness = combat_readiness - LMO_HVT_Win_CapAlert;
 						};
 					};
+
 					["LMOTaskOutcome", ["HVT has been captured", "\z\ace\addons\captives\ui\handcuff_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 					deleteVehicle _hvt;
 				};
@@ -698,12 +699,15 @@ while {LMO_active == true} do {
 						} else {
 							combat_readiness = combat_readiness - LMO_HVT_Win_KillAlert;
 						};
-						};
+
+						
+					};
 					["LMOTaskOutcome", ["HVT has been neutralized", "\A3\ui_f\data\igui\cfg\holdactions\holdaction_forcerespawn_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 				};
-
 			};
 			
+			if (combat_readiness > 100.0) then {combat_readiness = 100.0};
+
 			_missionState = 1;
 			
 			[_enyUnits] spawn {
@@ -736,6 +740,8 @@ while {LMO_active == true} do {
 			} else {
 				combat_readiness = combat_readiness - LMO_Cache_Win_Rdy;
 			};
+
+			if (combat_readiness > 100.0) then {combat_readiness = 100.0};
 		};
 		
 		//If Secured Cache
@@ -767,6 +773,7 @@ while {LMO_active == true} do {
 		if (alive _cache && !(_cache getVariable ["LMO_CacheSecure", true])) then {
 			_missionState = 2;
 			combat_readiness = combat_readiness + LMO_Cache_Lose_Rdy;
+			if (combat_readiness > 100.0) then {combat_readiness = 100.0};
 			["LMOTaskOutcome", ["Cache has been lost", "a3\ui_f_oldman\data\igui\cfg\holdactions\destroy_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 			_cAttached = attachedObjects _cache select {typeOf _x == "PortableHelipadLight_01_red_F"};
 			if (count _cAttached > 0) then {{deleteVehicle _x} forEach _cAttached};
