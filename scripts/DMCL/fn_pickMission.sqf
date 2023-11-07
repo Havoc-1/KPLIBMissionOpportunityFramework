@@ -280,8 +280,8 @@ switch (_missionType) do {
 					removeAllWeapons _hvt;
 					
 					//HVT stays put until alerted
-					waitUntil {sleep 1; _hvt call BIS_fnc_enemyDetected};
-					_hvt enableAI "PATH";
+					[waitUntil {sleep 1; _hvt call BIS_fnc_enemyDetected},{
+						_hvt enableAI "PATH";
 					_hvt setVariable ["LMO_AngDeg",nil];
 
 					
@@ -355,7 +355,7 @@ switch (_missionType) do {
 							if (LMO_HVTDebug == true) then {systemChat "LMO: HVT surrendered, exiting scope."};
 						};
 						sleep 40;
-					};
+					}}] call CBA_fnc_waitUntilandExecute;
 				};
 			};
 		};
@@ -548,7 +548,7 @@ while {LMO_active == true} do {
 		if (((LMO_Penalties select 0) == true) && ((LMO_Penalties select 1) == true)) then {
 		//Deduct Civilian reputation as defined in kp_liberation_config.sqf
 		KP_liberation_civ_rep = KP_liberation_civ_rep - LMO_HR_Lose_CivRep;
-		
+		};
 		switch (true) do {
 			case (KP_liberation_civ_rep > 100):{KP_liberation_civ_rep = 100.00};
 			case (KP_liberation_civ_rep < -100):{KP_liberation_civ_rep = -100.00};
