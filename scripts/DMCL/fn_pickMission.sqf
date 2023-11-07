@@ -548,6 +548,7 @@ while {LMO_active == true} do {
 		if (((LMO_Penalties select 0) == true) && ((LMO_Penalties select 1) == true)) then {
 		//Deduct Civilian reputation as defined in kp_liberation_config.sqf
 		KP_liberation_civ_rep = KP_liberation_civ_rep - LMO_HR_Lose_CivRep;
+		};
 		
 		switch (true) do {
 			case (KP_liberation_civ_rep > 100):{KP_liberation_civ_rep = 100.00};
