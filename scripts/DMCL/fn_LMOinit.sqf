@@ -74,7 +74,7 @@
 	LMO_HVT_Win_CapAlert = 5;								//HVT Capture Alert Level Win
 	LMO_HVT_Win_intelUnarmed = 25;							//HVT Unarmed Capture Intelligence Win
 	LMO_HVT_Win_intelArmed = 40;							//HVT Armed Capture Intelligence Win
-	LMO_Cache_Win_Rdy = 20;									//Cache Destroyed Enemy Readiness Win
+	LMO_Cache_Win_Alert = 20;									//Cache Destroyed Enemy Readiness Win
 	LMO_Cache_supplyBoxes = [2,4];							//[Min,Max] Cache Secured Supply Boxes Win
 	LMO_Cache_ammoBoxes = [2,4];							//[Min,Max] Cache Secured Ammo Boxes Win
 	LMO_Cache_fuelBoxes = [2,4];							//[Min,Max] Cache Secured Fuel Boxes Win
@@ -88,7 +88,7 @@
 	LMO_Penalties = [true,true,true,true];
 	LMO_HR_Lose_CivRep = KP_liberation_cr_kill_penalty;		//Hostage Rescue Killed Civilian Reputation Lose
 	LMO_HVT_Lose_Intel = 20;								//HVT Escaped Intelligence Lose
-	LMO_Cache_Lose_Rdy = 20;								//Cache Lost Enemy Readiness Lose
+	LMO_Cache_Lose_Alert = 20;								//Cache Lost Enemy Readiness Lose
 
 	//Debug Mode (Adds Hints and systemChat)
 	LMO_Debug = true;										//10s mission check rate for debugging
@@ -100,7 +100,7 @@
 		 *	2: Capture or Kill HVT
 		 *	3: Destroy or Secure Cache
 		 */
-	LMO_mType = 3;
+	LMO_mType = 0;
 
 	//HVT Outfit Params
 
@@ -245,7 +245,7 @@ while {count (allUnits select {side _x == GRLIB_side_enemy}) > 0} do {
 	
 	if (LMO_active == false && count LMO_enyList > 0 && ((LMO_mChance <= LMO_mChanceSelect) || LMO_Debug == true)) then {
 		LMO_active = true;
-		call XEPKEY_fn_getBuildings;
+		[] call XEPKEY_fn_getBuildings;
 		if (LMO_active == false) exitWith {
 			if (LMO_Debug == true) then {systemChat "LMO Debug: No suitable buildings found, exiting scope fn_getBuildings.sqf"};
 		};

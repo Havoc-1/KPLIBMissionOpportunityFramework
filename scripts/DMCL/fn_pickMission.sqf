@@ -640,10 +640,10 @@ while {LMO_active == true} do {
 			_missionState = 2;
 			
 			//Lose Intel if HVT escapes
-		if (((LMO_Penalties select 0) == true) && ((LMO_Penalties select 2) == true)) then {
-			resources_intel = resources_intel - LMO_HVT_Lose_Intel;
-			if (resources_intel < 0) then {resources_intel = 0};
-		};
+			if (((LMO_Penalties select 0) == true) && ((LMO_Penalties select 2) == true)) then {
+				resources_intel = resources_intel - LMO_HVT_Lose_Intel;
+				if (resources_intel < 0) then {resources_intel = 0};
+			};
 
 			if (_hvtRunner < 0.5 || LMO_HVTrunnerOnly == true) then {
 				deleteGroup _hvtRunnerGrp;
@@ -788,10 +788,12 @@ while {LMO_active == true} do {
 		//If Timer expires
 		if (alive _cache && !(_cache getVariable ["LMO_CacheSecure", true])) then {
 			_missionState = 2;
+
 			if (((LMO_Penalties select 0) == true) && ((LMO_Penalties select 1) == true)) then {
 				combat_readiness = combat_readiness + LMO_Cache_Lose_Alert;
 				if (combat_readiness > 100.0) then {combat_readiness = 100.0};
 			};
+
 			["LMOTaskOutcome", ["Cache has been lost", "a3\ui_f_oldman\data\igui\cfg\holdactions\destroy_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 			_cAttached = attachedObjects _cache select {typeOf _x == "PortableHelipadLight_01_red_F"};
 			if (count _cAttached > 0) then {{deleteVehicle _x} forEach _cAttached};
