@@ -100,7 +100,7 @@
 		 *	2: Capture or Kill HVT
 		 *	3: Destroy or Secure Cache
 		 */
-	LMO_mType = 1;
+	LMO_mType = 3;
 
 	//HVT Outfit Params
 
@@ -236,38 +236,7 @@ if !(isDedicated || (isServer && hasInterface)) exitWith {};
 //Checks if VCOM is loaded
 if (Vcm_ActivateAI == false || isNil "Vcm_ActivateAI") then {LMO_VCOM_On = false} else {LMO_VCOM_On = true};
 
-private _interval = 20; // Change this to the desired interval
-
-[{
-      systemChat "LMO Debug: We are checking if it can be run";
-      if (count (allUnits select {side _x == GRLIB_side_enemy}) > 0) then {
-          // Calling populate enemy list function
-          if (!LMO_active) then {
-              call XEPKEY_fn_getEnemyList;
-          };
-  
-          if (!LMO_active && {count LMO_enyList > 0 && {((LMO_mChance <= LMO_mChanceSelect) || LMO_Debug)}}) then {
-              LMO_active = true;
-              call XEPKEY_fn_getBuildings;
-              if (!LMO_active) exitWith {
-                  if (LMO_Debug) then {
-                      systemChat "LMO Debug: No suitable buildings found, exiting scope fn_getBuildings.sqf";
-                  };
-              };
-              call XEPKEY_fn_markerFunctions;
-              call XEPKEY_fn_pickMission;
-          };
-  
-          if (LMO_Debug) then {
-              hintSilent format ["LMO Debug Hint\n\nMission Chance: %1\nTime Sensitive Chance: %7\nActive Mission: %2\nSpawn Building: %3\nEnyCount: %4\nInsideBuilding Player: %5\nVCOM Enabled: %6", LMO_mChance, LMO_active, LMO_spawnBldg, count LMO_enyList, insideBuilding player, LMO_VCOM_On, LMO_TSTchance];
-          };
-      };
-}, _interval, []] call CBA_fnc_addPerFrameHandler;
-
-
-
-
-/* while {count (allUnits select {side _x == GRLIB_side_enemy}) > 0} do {
+while {count (allUnits select {side _x == GRLIB_side_enemy}) > 0} do {
 
 	//calling populate enemy list function
 	if (LMO_active == false) then {
@@ -288,4 +257,4 @@ private _interval = 20; // Change this to the desired interval
 		sleep 10;
 		hintSilent format ["LMO Debug Hint\n\nMission Chance: %1\nTime Sensitive Chance: %7\nActive Mission: %2\nSpawn Building: %3\nEnyCount: %4\nInsideBuilding Player: %5\nVCOM Enabled: %6", LMO_mChance, LMO_active, LMO_spawnBldg, count LMO_enyList, insideBuilding player, LMO_VCOM_On, LMO_TSTchance];	
 	} else {sleep (LMO_mCheckRNG*60)};
-}; */
+};

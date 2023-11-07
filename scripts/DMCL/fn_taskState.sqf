@@ -18,8 +18,6 @@
  */
 
 params ["_s"];
-private _interval = 5;
-
 
 switch (_s) do
 {
@@ -31,12 +29,8 @@ switch (_s) do
 ["_taskMO", _s, false] call BIS_fnc_taskSetState;
 deleteMarker LMO_Mkr;
 deleteMarker LMO_MkrName;
-
-[{
-    systemChat "LMO Debug: Inside of task state";
-	if (LMO_Debug == true) then {deleteMarker LMO_MkrDebug};
-}, _interval, []] call CBA_fnc_addPerFrameHandler;
-
+if (LMO_Debug == true) then {deleteMarker LMO_MkrDebug};
+sleep 5;
 ["_taskMO"] call BIS_fnc_deleteTask;
 ["_taskMisMO"] call BIS_fnc_deleteTask;
 LMO_active = false;
