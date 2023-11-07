@@ -548,13 +548,19 @@ while {LMO_active == true} do {
 		if (((LMO_Penalties select 0) == true) && ((LMO_Penalties select 1) == true)) then {
 		//Deduct Civilian reputation as defined in kp_liberation_config.sqf
 		KP_liberation_civ_rep = KP_liberation_civ_rep - LMO_HR_Lose_CivRep;
-		if (KP_liberation_civ_rep > 100.00) then {
+		
+		switch (true) do {
+			case (KP_liberation_civ_rep > 100):{KP_liberation_civ_rep = 100.00};
+			case (KP_liberation_civ_rep < -100):{KP_liberation_civ_rep = -100.00};
+		};
+		
+		/* if (KP_liberation_civ_rep > 100.00) then {
 			KP_liberation_civ_rep = 100.00;
-		} else if (KP_liberation_civ_rep < -100.00) then {
-			KP_liberation_civ_rep = -100.00;
-		};
-
-		};
+		} else {
+			if (KP_liberation_civ_rep < -100.00) then {
+				KP_liberation_civ_rep = -100.00;
+			};
+		}; */
 
 		_enyUnitPlayers = [];
 		if (alive _hostage) then {_hostage setdamage 1};
@@ -596,10 +602,15 @@ while {LMO_active == true} do {
 			resources_intel = resources_intel + LMO_HR_Win_Intel;
 		};
 		
-		if (KP_liberation_civ_rep > 100.00) then {
+		/* if (KP_liberation_civ_rep > 100.00) then {
 			KP_liberation_civ_rep = 100.00;
 		} else if (KP_liberation_civ_rep < -100.00) then {
 			KP_liberation_civ_rep = -100.00;
+		}; */
+
+		switch (true) do {
+			case (KP_liberation_civ_rep > 100):{KP_liberation_civ_rep = 100.00};
+			case (KP_liberation_civ_rep < -100):{KP_liberation_civ_rep = -100.00};
 		};
 
 		{
