@@ -9,3 +9,4 @@ XEPKEY_fn_cacheFulton = compile preprocessFileLineNumbers "scripts\DMCL\fn_cache
 XEPKEY_fn_hvtOutfit = compile preprocessFileLineNumbers "scripts\DMCL\fn_hvtOutfit.sqf";
 XEPKEY_fn_removeThrowables = compile preprocessFileLineNumbers "scripts\DMCL\fn_removeThrowables.sqf";
 XEPKEY_fn_qrfCache = compile preprocessFileLineNumbers "scripts\DMCL\fn_qrfCache.sqf";
+XEPKEY_fn_diaryContent = compile preprocessFileLineNumbers "scripts\DMCL\fn_diaryContent.sqf";

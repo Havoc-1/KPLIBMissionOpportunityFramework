@@ -240,7 +240,7 @@ while {count (allUnits select {side _x == GRLIB_side_enemy}) > 0} do {
 
 	//calling populate enemy list function
 	if (LMO_active == false) then {
-		call XEPKEY_fn_getEnemyList;
+		[] call XEPKEY_fn_getEnemyList;
 	};
 	
 	if (LMO_active == false && count LMO_enyList > 0 && ((LMO_mChance <= LMO_mChanceSelect) || LMO_Debug == true)) then {
@@ -249,8 +249,8 @@ while {count (allUnits select {side _x == GRLIB_side_enemy}) > 0} do {
 		if (LMO_active == false) exitWith {
 			if (LMO_Debug == true) then {systemChat "LMO Debug: No suitable buildings found, exiting scope fn_getBuildings.sqf"};
 		};
-		call XEPKEY_fn_markerFunctions;
-		call XEPKEY_fn_pickMission;
+		[] call XEPKEY_fn_markerFunctions;
+		[] call XEPKEY_fn_pickMission;
 	};
 	
 	if (LMO_Debug == true) then {

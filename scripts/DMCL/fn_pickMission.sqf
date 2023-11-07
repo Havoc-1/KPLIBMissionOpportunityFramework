@@ -113,7 +113,7 @@ switch (_missionType) do {
 		//[(units _enyUnits), getPos LMO_spawnBldg, 30, 1, true] call zen_ai_fnc_garrison;
 		[getPos LMO_spawnBldg, LMO_bTypes, (units _enyUnits), 30, 1, true, true] call ace_ai_fnc_garrison;
 
-		call XEPKEY_fn_removeThrowables;
+		[] call XEPKEY_fn_removeThrowables;
 
 		//Prevents random glitch that shoots AI into the air
 		{
@@ -193,7 +193,7 @@ switch (_missionType) do {
 		
 		[getPos LMO_spawnBldg, LMO_bTypes, (units _enyUnits), 30, 1, true, true] call ace_ai_fnc_garrison;
 
-		call XEPKEY_fn_removeThrowables;
+		[] call XEPKEY_fn_removeThrowables;
 
 		//Prevents random glitch that shoots AI into the air
 		{
@@ -240,7 +240,7 @@ switch (_missionType) do {
 		};
 		
 		//HVT Custom Outfit
-		call XEPKEY_fn_hvtOutfit;
+		[] call XEPKEY_fn_hvtOutfit;
 		
 		//Unequips NVGs if day
 		if ((daytime <= 20) || (daytime >= 6)) then {_hvt unassignItem hmd _hvt};
@@ -639,7 +639,11 @@ while {LMO_active == true} do {
 			["LMOTaskOutcome", ["HVT has escaped", "\A3\ui_f\data\igui\cfg\simpletasks\types\run_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 			_missionState = 2;
 			
+			//Lose Intel if HVT escapes
+		if (((LMO_Penalties select 0) == true) && ((LMO_Penalties select 2) == true)) then {
 			resources_intel = resources_intel - LMO_HVT_Lose_Intel;
+			if (resources_intel < 0) then {resources_intel = 0};
+		};
 
 			if (_hvtRunner < 0.5 || LMO_HVTrunnerOnly == true) then {
 				deleteGroup _hvtRunnerGrp;
@@ -748,9 +752,9 @@ while {LMO_active == true} do {
 			_missionState = 1;
 			["LMOTaskOutcome", ["Cache has been destroyed", "a3\ui_f_oldman\data\igui\cfg\holdactions\destroy_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 			if (LMO_TST == true && LMO_TimeSenRNG <= LMO_TSTchance) then {
-				combat_readiness = combat_readiness - (LMO_Cache_Win_Rdy * LMO_TST_Reward);
+				combat_readiness = combat_readiness - (LMO_Cache_Win_Alert * LMO_TST_Reward);
 			} else {
-				combat_readiness = combat_readiness - LMO_Cache_Win_Rdy;
+				combat_readiness = combat_readiness - LMO_Cache_Win_Alert;
 			};
 
 			if (combat_readiness > 100.0) then {combat_readiness = 100.0};
@@ -784,8 +788,10 @@ while {LMO_active == true} do {
 		//If Timer expires
 		if (alive _cache && !(_cache getVariable ["LMO_CacheSecure", true])) then {
 			_missionState = 2;
-			combat_readiness = combat_readiness + LMO_Cache_Lose_Rdy;
-			if (combat_readiness > 100.0) then {combat_readiness = 100.0};
+			if (((LMO_Penalties select 0) == true) && ((LMO_Penalties select 1) == true)) then {
+				combat_readiness = combat_readiness + LMO_Cache_Lose_Alert;
+				if (combat_readiness > 100.0) then {combat_readiness = 100.0};
+			};
 			["LMOTaskOutcome", ["Cache has been lost", "a3\ui_f_oldman\data\igui\cfg\holdactions\destroy_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 			_cAttached = attachedObjects _cache select {typeOf _x == "PortableHelipadLight_01_red_F"};
 			if (count _cAttached > 0) then {{deleteVehicle _x} forEach _cAttached};
