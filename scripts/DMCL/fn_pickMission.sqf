@@ -280,82 +280,97 @@ switch (_missionType) do {
 					removeAllWeapons _hvt;
 					
 					//HVT stays put until alerted
-					[waitUntil {sleep 1; _hvt call BIS_fnc_enemyDetected},{
-						_hvt enableAI "PATH";
-					_hvt setVariable ["LMO_AngDeg",nil];
+					[
+						{_hvt call BIS_fnc_enemyDetected}, {
+							_hvt enableAI "PATH";
+							_hvt setVariable ["LMO_AngDeg",nil];
 
-					
-					//Checks whether armed west > east near HVT to surrender
-					[_hvt] spawn {
-						params ["_hvt"];
-						while {_hvt getVariable ["ace_captives_isSurrendering", true]} do {
-							_hvt setBehaviour "CARELESS";
-							_surInRngWest = ((_hvt nearEntities [["Man","LandVehicle"],LMO_HVTrunSurRng]) select {side _x == GRLIB_side_friendly}) select {!(currentWeapon _x == "")};
-							_surInRngEast = ((_hvt nearEntities [["Man","LandVehicle"],LMO_HVTrunSurRng]) select {side _x == GRLIB_side_enemy}) select {!(currentWeapon _x == "")};
-							if (count _surInRngWest > count _surInRngEast && (_hvt call BIS_fnc_enemyDetected)) exitWith {
-								[_hvt, true] call ace_captives_fnc_setSurrendered;
-								if (LMO_HVTDebug == true) then {systemChat "LMO: HVT surrendered, exiting scope"};
-							};
-							sleep 1;
-						};
-					};
-					
-					//HVT escape from zone
-					while {alive _hvt} do {
-						_targetsList = [];
-						_movePos = [];
-						_targetsInRange = ((_hvt nearEntities [["Man","LandVehicle"],LMO_HVTrunSearchRng]) select {side _x == GRLIB_side_friendly}) select {!(currentWeapon _x == "")};
-						_targetsList append _targetsInRange;
-						_hvt setBehaviour "CARELESS";
-						_angDeg = nil;
-						_targetDir = 0;
-						_targetGetDir = 0;
-
-						{
-							_targetGetDir = _hvt getDir _x;
-							_targetDir = _targetDir + _targetGetDir;
-						}forEach _targetsList;
-
-						//HVT Run Direction
-						_angDeg = _hvt getVariable "LMO_AngDeg";
-						if (count _targetsInRange == 0 || _targetDir == 0) then {
-							if (isNil "_angDeg") then {
-								_angDeg = random 360;
-
-								_hvt setVariable ["LMO_AngDeg",_angDeg];
-								_movePos = [getPos _hvt, LMO_HVTrunDist, _angDeg] call BIS_fnc_relPos;
-								group _hvt move _movePos;
-								if (LMO_HVTDebug == true) then {
-									systemChat format ["LMO: No AngDeg Found. Random AngDeg: %1.",_angDeg];
+							
+							//Checks whether armed west > east near HVT to surrender
+							[{
+								if (_hvt getVariable ["ace_captives_isSurrendering", true]) then {
+									_hvt setBehaviour "CARELESS";
+									_surInRngWest = ((_hvt nearEntities [["Man","LandVehicle"],LMO_HVTrunSurRng]) select {side _x == GRLIB_side_friendly}) select {!(currentWeapon _x == "")};
+									_surInRngEast = ((_hvt nearEntities [["Man","LandVehicle"],LMO_HVTrunSurRng]) select {side _x == GRLIB_side_enemy}) select {!(currentWeapon _x == "")};
+									if (count _surInRngWest > count _surInRngEast && (_hvt call BIS_fnc_enemyDetected)) exitWith {
+										[_hvt, true] call ace_captives_fnc_setSurrendered;
+										if (LMO_HVTDebug == true) then {systemChat "LMO: HVT surrendered, exiting scope"};
+									};
 								};
-							} else {
+							},1,[_hvt]] call CBA_fnc_addPerFrameHandler;
+
+							/* [_hvt] spawn {
+								params ["_hvt"];
+								while {_hvt getVariable ["ace_captives_isSurrendering", true]} do {
+									_hvt setBehaviour "CARELESS";
+									_surInRngWest = ((_hvt nearEntities [["Man","LandVehicle"],LMO_HVTrunSurRng]) select {side _x == GRLIB_side_friendly}) select {!(currentWeapon _x == "")};
+									_surInRngEast = ((_hvt nearEntities [["Man","LandVehicle"],LMO_HVTrunSurRng]) select {side _x == GRLIB_side_enemy}) select {!(currentWeapon _x == "")};
+									if (count _surInRngWest > count _surInRngEast && (_hvt call BIS_fnc_enemyDetected)) exitWith {
+										[_hvt, true] call ace_captives_fnc_setSurrendered;
+										if (LMO_HVTDebug == true) then {systemChat "LMO: HVT surrendered, exiting scope"};
+									};
+									sleep 1;
+								};
+							}; */
+							
+							//HVT escape from zone
+							while {alive _hvt} do {
+								_targetsList = [];
+								_movePos = [];
+								_targetsInRange = ((_hvt nearEntities [["Man","LandVehicle"],LMO_HVTrunSearchRng]) select {side _x == GRLIB_side_friendly}) select {!(currentWeapon _x == "")};
+								_targetsList append _targetsInRange;
+								_hvt setBehaviour "CARELESS";
+								_angDeg = nil;
+								_targetDir = 0;
+								_targetGetDir = 0;
+
+								{
+									_targetGetDir = _hvt getDir _x;
+									_targetDir = _targetDir + _targetGetDir;
+								}forEach _targetsList;
+
+								//HVT Run Direction
 								_angDeg = _hvt getVariable "LMO_AngDeg";
+								if (count _targetsInRange == 0 || _targetDir == 0) then {
+									if (isNil "_angDeg") then {
+										_angDeg = random 360;
 
-								_movePos = [getPos _hvt, LMO_HVTrunDist, _angDeg] call BIS_fnc_relPos;
-								group _hvt move _movePos;
-								if (LMO_HVTDebug == true) then {
-									systemChat format ["LMO: AngDeg Found: %1.",_angDeg];
+										_hvt setVariable ["LMO_AngDeg",_angDeg];
+										_movePos = [getPos _hvt, LMO_HVTrunDist, _angDeg] call BIS_fnc_relPos;
+										group _hvt move _movePos;
+										if (LMO_HVTDebug == true) then {
+											systemChat format ["LMO: No AngDeg Found. Random AngDeg: %1.",_angDeg];
+										};
+									} else {
+										_angDeg = _hvt getVariable "LMO_AngDeg";
+
+										_movePos = [getPos _hvt, LMO_HVTrunDist, _angDeg] call BIS_fnc_relPos;
+										group _hvt move _movePos;
+										if (LMO_HVTDebug == true) then {
+											systemChat format ["LMO: AngDeg Found: %1.",_angDeg];
+										};
+									};
+								} else {	
+									_angDeg = ((_targetDir/count _targetsInRange) + 180) % 360;
+									_hvt setVariable ["LMO_AngDeg",_angDeg];
+									if (LMO_HVTDebug == true) then {
+										systemChat format ["LMO: Armed enemy units in range, AngDeg made: %1",_angDeg];
+									};
+									_movePos = [getPos _hvt, LMO_HVTrunDist, _angDeg] call BIS_fnc_relPos;
+									group _hvt move _movePos;
 								};
-							};
-						} else {	
-							_angDeg = ((_targetDir/count _targetsInRange) + 180) % 360;
-							_hvt setVariable ["LMO_AngDeg",_angDeg];
-							if (LMO_HVTDebug == true) then {
-								systemChat format ["LMO: Armed enemy units in range, AngDeg made: %1",_angDeg];
-							};
-							_movePos = [getPos _hvt, LMO_HVTrunDist, _angDeg] call BIS_fnc_relPos;
-							group _hvt move _movePos;
-						};
 
-						if (LMO_HVTDebug == true) then {
-							systemChat format ["LMO: HVT Running from %1 armed enemies. Run Dir: %2. Move Pos: %3.",count _targetsList,round (_hvt getVariable "LMO_AngDeg"),_movePos];
+								if (LMO_HVTDebug == true) then {
+									systemChat format ["LMO: HVT Running from %1 armed enemies. Run Dir: %2. Move Pos: %3.",count _targetsList,round (_hvt getVariable "LMO_AngDeg"),_movePos];
+								};
+							
+								if (_hvt getVariable ["ace_captives_isSurrendering", false]) exitWith {
+									if (LMO_HVTDebug == true) then {systemChat "LMO: HVT surrendered, exiting scope."};
+								};
+								sleep 40;
+							};
 						};
-					
-						if (_hvt getVariable ["ace_captives_isSurrendering", false]) exitWith {
-							if (LMO_HVTDebug == true) then {systemChat "LMO: HVT surrendered, exiting scope."};
-						};
-						sleep 40;
-					}}] call CBA_fnc_waitUntilandExecute;
+					] call CBA_fnc_waitUntilandExecute;
 				};
 			};
 		};
