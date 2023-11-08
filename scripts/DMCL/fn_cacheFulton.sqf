@@ -39,9 +39,9 @@ params ["_cache"];
 			["LMOTaskOutcome", ["Cache was destroyed before uplift", "a3\ui_f_oldman\data\igui\cfg\holdactions\destroy_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 			[1] call XEPKEY_fn_taskState;
 			if (LMO_TST == true && LMO_TimeSenRNG <= LMO_TSTchance) then {
-				combat_readiness = combat_readiness - (LMO_Cache_Win_Alert * LMO_TST_Reward);
+				combat_readiness = combat_readiness - (LMO_Cache_Win_Rdy * LMO_TST_Reward);
 			} else {
-				combat_readiness = combat_readiness - LMO_Cache_Win_Alert;
+				combat_readiness = combat_readiness - LMO_Cache_Win_Rdy;
 			};
 		};
 
@@ -58,14 +58,15 @@ params ["_cache"];
 			if (LMO_Debug == true) then {systemChat "LMO: No players in range, secured cache hidden. Exiting scope with fulton."};
 			
 			_cFly = "C_supplyCrate_F" createVehicle _cPos;
-			_cBalloon = createSimpleObject ["a3\structures_f_mark\items\sport\balloon_01_air_f.p3d", _cPos];
-			_cBalloon attachTo [_cFly, [0,0,5]];
-			detach _cBalloon;
-
 			_cPara = "B_Parachute_02_F" createVehicle _cPos;
 			_cPara attachTo [_cFly, [0,0,7]];
 			detach _cPara;
 			_cPara hideObjectGlobal true;
+
+			_cBalloon = createSimpleObject ["a3\structures_f_mark\items\sport\balloon_01_air_f.p3d", _cPos];
+			_cBalloon attachTo [_cPara, [0,0,0]];
+			//detach _cBalloon;
+			
 			_cPara disableCollisionWith _cFly;
 			_cPara disableCollisionWith _cBalloon;
 
@@ -95,10 +96,10 @@ params ["_cache"];
 				_flyMax = 1000;
 				while {alive _cFly} do {
 					_bHeight = (getPosATL _cBalloon) select 2;
-					_cBalloon setPos getPos _cPara;
+					//_cBalloon setPos getPos _cPara;
 					if (_bHeight >= _flyMax*0.025 && _bHeight < _flyMax*0.03) then {_bRise = 1};
-					if (_bHeight >= _flyMax*0.03 && _bHeight < _flyMax*0.035) then {_bRise = 8};
-					if (_bHeight >= _flyMax*0.035 && _bHeight < _flyMax*0.95) then {_bRise = 26};
+					if (_bHeight >= _flyMax*0.03 && _bHeight < _flyMax*0.035) then {_bRise = 6};
+					if (_bHeight >= _flyMax*0.035 && _bHeight < _flyMax*0.95) then {_bRise = 20};
 					_cPara setVelocity [0,0,_bRise];
 					[_cPara, 0, 0] call BIS_fnc_setPitchBank;
 
@@ -112,9 +113,9 @@ params ["_cache"];
 						if (LMO_Debug == true) then {systemChat "LMO: Cache successfully airlifted. Cache deleted."};
 						[1] call XEPKEY_fn_taskState;
 						if (LMO_TST == true && LMO_TimeSenRNG <= LMO_TSTchance) then {
-							combat_readiness = combat_readiness - (LMO_Cache_Win_Alert * LMO_TST_Reward);
+							combat_readiness = combat_readiness - (LMO_Cache_Win_Rdy * LMO_TST_Reward);
 						} else {
-							combat_readiness = combat_readiness - LMO_Cache_Win_Alert;
+							combat_readiness = combat_readiness - LMO_Cache_Win_Rdy;
 						};
 						missionNamespace setVariable ["LMO_CacheTagged", nil];
 
@@ -201,7 +202,7 @@ params ["_cache"];
 							};
 						};
 					};
-					sleep 0.01;
+					sleep 0.1;
 				};
 			};				
 		};
