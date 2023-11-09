@@ -69,12 +69,13 @@ params ["_cache"];
 			_cPara disableCollisionWith _cFly;
 			_cPara disableCollisionWith _cBalloon;
 			
-			_cBalloon setPos (getPos _cPara);
+			_cBalloon setPosATL [(getPosATL _cPara) select 0,(getPosATL _cPara) select 1,((getPosATL _cPara) select 2)-2];
 			_handle = [
 				{
-					_cBalloon setPos (getPos _cPara);
+					(_this select 0) params ["_cBalloon","_cPara"];
+					_cBalloon setPosATL [(getPosATL _cPara) select 0,(getPosATL _cPara) select 1,((getPosATL _cPara) select 2)-2];
 				},
-				0,
+				0.05,
 				[_cBalloon,_cPara]
 			] call CBA_fnc_addPerFrameHandler;
 
