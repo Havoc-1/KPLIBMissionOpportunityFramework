@@ -1,5 +1,0 @@
-//CFG FUNCTIONS
-class CfgFunctions
-{
-	#include "scripts\DMCL\lib-SideOps.hpp"															// Liberation Mission of Opportunity
-};

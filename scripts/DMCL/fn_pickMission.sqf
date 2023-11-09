@@ -116,15 +116,15 @@ switch (_missionType) do {
 		[] call XEPKEY_fn_removeThrowables;
 
 		//Prevents random glitch that shoots AI into the air
-		{
-			if (((getPosATL _x) select 2) > 10) then {
-				_safePosUnit = (units _enyUnits) select {(getPosATL _x) select 2 < 5};
-				if (count _safePosUnit > 0) then {
-					_x setVelocity [0,0,0];
-					_x setPosATL getPosATL (selectRandom _safePosUnit);
-				};
-			};
-		}forEach units _enyUnits;
+		        {
+            if (((getPosATL _x) select 2) > 30) then {
+                _safePosUnit = (units _enyUnits) select {(getPosATL _x) select 2 <= 30};
+                if (count _safePosUnit > 0) then {
+                    _x setVelocity [0,0,0];
+                    _x setPosATL getPosATL (selectRandom units _enyUnits);
+                };
+            };
+        }forEach units _enyUnits;
 
 		{
 			_noMove = random 1;
@@ -196,15 +196,15 @@ switch (_missionType) do {
 		[] call XEPKEY_fn_removeThrowables;
 
 		//Prevents random glitch that shoots AI into the air
-		{
-			if (((getPosATL _x) select 2) > 10) then {
-				_safePosUnit = (units _enyUnits) select {(getPosATL _x) select 2 < 5};
-				if (count _safePosUnit > 0) then {
-					_x setVelocity [0,0,0];
-					_x setPosATL getPosATL (selectRandom _safePosUnit);
-				};
-			};
-		}forEach units _enyUnits;
+		        {
+            if (((getPosATL _x) select 2) > 30) then {
+                _safePosUnit = (units _enyUnits) select {(getPosATL _x) select 2 <= 30};
+                if (count _safePosUnit > 0) then {
+                    _x setVelocity [0,0,0];
+                    _x setPosATL getPosATL (selectRandom units _enyUnits);
+                };
+            };
+        }forEach units _enyUnits;
 
 		{
 			_noMove = random 1;
@@ -547,22 +547,9 @@ while {LMO_active == true} do {
 		
 		if (((LMO_Penalties select 0) == true) && ((LMO_Penalties select 1) == true)) then {
 		//Deduct Civilian reputation as defined in kp_liberation_config.sqf
-		KP_liberation_civ_rep = KP_liberation_civ_rep - LMO_HR_Lose_CivRep;
+		[KP_liberation_cr_kill_penalty, true] spawn F_cr_changeCR;
 		};
 		
-		switch (true) do {
-			case (KP_liberation_civ_rep > 100):{KP_liberation_civ_rep = 100.00};
-			case (KP_liberation_civ_rep < -100):{KP_liberation_civ_rep = -100.00};
-		};
-		
-		/* if (KP_liberation_civ_rep > 100.00) then {
-			KP_liberation_civ_rep = 100.00;
-		} else {
-			if (KP_liberation_civ_rep < -100.00) then {
-				KP_liberation_civ_rep = -100.00;
-			};
-		}; */
-
 		_enyUnitPlayers = [];
 		if (alive _hostage) then {_hostage setdamage 1};
 		[_enyUnits, _hostageGrp] spawn {
@@ -594,26 +581,15 @@ while {LMO_active == true} do {
 
 		//Increase Civilian reputation and intelligence
 		if (LMO_TST == true && LMO_TimeSenRNG <= LMO_TSTchance) then {
-			
+			_finalReward = round (LMO_HR_Win_CivRep * LMO_TST_Reward);
+			[_finalReward] call F_cr_changeCR;
 			KP_liberation_civ_rep = KP_liberation_civ_rep + (round (LMO_HR_Win_CivRep * LMO_TST_Reward));
 			resources_intel = resources_intel + (round (LMO_HR_Win_Intel * LMO_TST_Reward));
 		} else {
-
-			KP_liberation_civ_rep = KP_liberation_civ_rep + LMO_HR_Win_CivRep;
+			[LMO_HR_Win_CivRep] call F_cr_changeCR;
 			resources_intel = resources_intel + LMO_HR_Win_Intel;
 		};
 		
-		/* if (KP_liberation_civ_rep > 100.00) then {
-			KP_liberation_civ_rep = 100.00;
-		} else if (KP_liberation_civ_rep < -100.00) then {
-			KP_liberation_civ_rep = -100.00;
-		}; */
-
-		switch (true) do {
-			case (KP_liberation_civ_rep > 100):{KP_liberation_civ_rep = 100.00};
-			case (KP_liberation_civ_rep < -100):{KP_liberation_civ_rep = -100.00};
-		};
-
 		{
 			deleteVehicle _x;
 		}forEach units _enyUnits;

@@ -81,7 +81,7 @@ params ["_cache"];
 					if (getObjectScale _cBalloon >= 4 && getObjectScale _cBalloon < 7) then {_inflate = 0.03};
 					if (getObjectScale _cBalloon >= 7) then {_inflate = 0.01};
 					_cBalloon setObjectScale ((getObjectScale _cBalloon) + _inflate);
-					sleep .01;
+					sleep 0.1;
 				};
 			};
 
