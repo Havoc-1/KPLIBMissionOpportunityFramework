@@ -70,17 +70,29 @@ params ["_cache"];
 			_cPara disableCollisionWith _cBalloon;
 			
 			_cBalloon setPosATL [(getPosATL _cPara) select 0,(getPosATL _cPara) select 1,((getPosATL _cPara) select 2)-2];
+			_cBalloon setObjectScale 1;
+			_inflate = 0.08;
+			
 			_handle = [
 				{
-					(_this select 0) params ["_cBalloon","_cPara"];
-					_cBalloon setPosATL [(getPosATL _cPara) select 0,(getPosATL _cPara) select 1,((getPosATL _cPara) select 2)-2];
+					(_this select 0) params ["_cFly","_cBalloon","_cPara","_inflate","_cache"];
+					_cBalloon setPosATL [((getPosATL _cPara) select 0),((getPosATL _cPara) select 1),(((getPosATL _cPara) select 2)-2)];
+					[_cBalloon, _cache] call BIS_fnc_attachToRelative;
+					if (getObjectScale _cBalloon <= 20 || (getPosATL _cBalloon) select 2 <= 20) then {
+						_bHeight = (getPosATL _cBalloon) select 2;
+						if (getObjectScale _cBalloon >= 20) then {_inflate = 0};
+						if (getObjectScale _cBalloon >= 4 && getObjectScale _cBalloon < 7) then {_inflate = 0.15};
+						if (getObjectScale _cBalloon >= 15) then {_inflate = 0.03};
+						//_cBalloon setObjectScale ((getObjectScale _cBalloon) + _inflate);
+					};
+					[_cBalloon, ((getObjectScale _cBalloon) + _inflate)] remoteExec ["setObjectScale"];
 				},
 				0.05,
-				[_cBalloon,_cPara]
+				[_cFly,_cBalloon,_cPara,_inflate,_cache]
 			] call CBA_fnc_addPerFrameHandler;
 
 			//Inflate Fulton
-			[_cFly,_cBalloon,_cPara] spawn {
+			/* [_cFly,_cBalloon,_cPara] spawn {
 				params ["_cFly","_cBalloon","_cPara"];
 				_cBalloon setObjectScale 1;
 				_inflate = 0.08;
@@ -89,10 +101,11 @@ params ["_cache"];
 					if (getObjectScale _cBalloon == 20) then {_inflate = 0};
 					if (getObjectScale _cBalloon >= 4 && getObjectScale _cBalloon < 7) then {_inflate = 0.15};
 					if (getObjectScale _cBalloon >= 15) then {_inflate = 0.03};
-					_cBalloon setObjectScale ((getObjectScale _cBalloon) + _inflate);
+					//_cBalloon setObjectScale ((getObjectScale _cBalloon) + _inflate);
+					[_cBalloon, ((getObjectScale _cBalloon) + _inflate)] remoteExec ["setObjectScale"];
 					sleep 0.1;
 				};
-			};
+			}; */
 
 			[_cFly,_cBalloon,_cPara,_cache,_handle] spawn {
 				params ["_cFly","_cBalloon","_cPara","_cache","_handle"];
