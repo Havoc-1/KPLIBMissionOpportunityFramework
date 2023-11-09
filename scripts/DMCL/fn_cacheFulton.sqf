@@ -64,11 +64,19 @@ params ["_cache"];
 			_cPara hideObjectGlobal true;
 
 			_cBalloon = createSimpleObject ["a3\structures_f_mark\items\sport\balloon_01_air_f.p3d", _cPos];
-			_cBalloon attachTo [_cPara, [0,0,-2]];
+			//_cBalloon attachTo [_cPara, [0,0,-2]];
 			//detach _cBalloon;
-			
 			_cPara disableCollisionWith _cFly;
 			_cPara disableCollisionWith _cBalloon;
+			
+			_cBalloon setPos (getPos _cPara);
+			_handle = [
+				{
+					_cBalloon setPos (getPos _cPara);
+				},
+				0,
+				[_cBalloon,_cPara]
+			] call CBA_fnc_addPerFrameHandler;
 
 			//Inflate Fulton
 			[_cFly,_cBalloon,_cPara] spawn {
@@ -85,8 +93,8 @@ params ["_cache"];
 				};
 			};
 
-			[_cFly,_cBalloon,_cPara,_cache] spawn {
-				params ["_cFly","_cBalloon","_cPara","_cache"];
+			[_cFly,_cBalloon,_cPara,_cache,_handle] spawn {
+				params ["_cFly","_cBalloon","_cPara","_cache","_handle"];
 				_bRise = 3;
 				_cacheRope = ropeCreate [_cPara, [0,0,-2],_cFly, [0,0,0.5], 30];
 				ropeUnwind [_cBalloon, 20, 100];
@@ -103,6 +111,7 @@ params ["_cache"];
 					[_cPara, 0, 0] call BIS_fnc_setPitchBank;
 
 					if (_bHeight >= _flyMax) exitWith {
+						[_handle] call CBA_fnc_removePerFrameHandler;
 						ropeDestroy _cacheRope;
 						deleteVehicle _cFly;
 						deleteVehicle _cBalloon;
