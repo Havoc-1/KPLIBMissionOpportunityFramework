@@ -100,7 +100,7 @@
 		 *	2: Capture or Kill HVT
 		 *	3: Destroy or Secure Cache
 		 */
-	LMO_mType = 3;
+	LMO_mType = 0;
 
 	//HVT Outfit Params
 

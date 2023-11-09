@@ -28,7 +28,7 @@ _bCheckExclude = [];
 	_checkBuildingPos = [_x] call BIS_fnc_buildingPositions;		
 	if (count _checkBuildingPos < LMO_bSize) then {
 	
-		_allBuildingsFilter pushback _x;
+		_allBuildingsFilter pushbackUnique _x;
 
 	};
 }forEach _allBuildings;
@@ -47,7 +47,7 @@ _allBuildings = _allBuildings - _allBuildingsFilter;
     _bCheck = _x;
     {
         if (typeOf _bCheck == _x) then {
-            _bCheckExclude pushback _bCheck;
+            _bCheckExclude pushbackUnique _bCheck;
         };
     }forEach LMO_bListBldg;
 }forEach _allBuildings;
@@ -56,7 +56,7 @@ _allBuildings = _allBuildings - _allBuildingsFilter;
 if (count GRLIB_all_fobs > 0) then {
 	{
 		_bCheck = nearestTerrainObjects [_x, LMO_bTypes, LMO_objBlacklistRng, false, true];
-		_bCheckExclude pushback _bCheck;
+		_bCheckExclude pushbackUnique _bCheck;
 	}forEach GRLIB_all_fobs;
 };
 

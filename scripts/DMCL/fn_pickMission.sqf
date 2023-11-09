@@ -47,6 +47,12 @@ switch (_missionType) do {
 		["_taskMisMO","meet"] call BIS_fnc_taskSetType;
 		["LMOTask", ["Hostage Rescue", "\A3\ui_f\data\igui\cfg\simpletasks\types\meet_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 
+		if (LMO_TST == true && LMO_TimeSenRNG <= LMO_TSTchance) then {
+				["LMOTaskOutcomeO", ["Hostage Rescue", "\A3\ui_f\data\igui\cfg\simpletasks\types\meet_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
+			} else {
+				["LMOTask", ["Hostage Rescue", "\A3\ui_f\data\igui\cfg\simpletasks\types\meet_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
+			};
+
 		LMO_MkrName setMarkerColor "ColorBlue";
 		LMO_Mkr setMarkerColor "ColorBlue";
 		
@@ -414,7 +420,7 @@ switch (_missionType) do {
 			"Secure Cache",
 			"\a3\ui_f\data\IGUI\Cfg\holdactions\holdAction_unloaddevice_ca.paa",
 			"\a3\ui_f\data\IGUI\Cfg\holdactions\holdAction_unloaddevice_ca.paa",
-			"(_this distance _target < 3) && (alive _target) && ((_target getVariable 'LMO_CacheSecure') != true)",
+			"(_this distance _target < 3) && (alive _target) && (cursorObject == _target) && ((_target getVariable 'LMO_CacheSecure') != true)",
 			"(_caller distance _target < 3) && (alive _target) && ((_target getVariable 'LMO_CacheSecure') != true)",
 			{
 				_caller playMoveNow "Acts_carFixingWheel";
@@ -537,7 +543,7 @@ while {LMO_active == true} do {
 	
 	//Hostage Rescue Lose Conditions
 	if (_missionType == 1 && (!alive _hostage || LMO_mTimer == 0)) then {
-		["LMOTaskOutcome", ["Hostage was killed", "\A3\ui_f\data\igui\cfg\simpletasks\types\rifle_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
+		["LMOTaskOutcomeR", ["Hostage was killed", "\A3\ui_f\data\igui\cfg\simpletasks\types\rifle_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 	
 		_missionState = 2;
 		
@@ -574,7 +580,7 @@ while {LMO_active == true} do {
 	//Hostage Rescue Win Conditions
 	if (_missionType == 1 && (_hostage distance2D position LMO_spawnBldg > _HRrad) && alive _hostage && LMO_mTimer > 0) then {
 		
-		["LMOTaskOutcome", ["Hostage secured", "\A3\ui_f\data\igui\cfg\simpletasks\types\run_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
+		["LMOTaskOutcomeG", ["Hostage secured", "\A3\ui_f\data\igui\cfg\simpletasks\types\run_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 		
 		_missionState = 1;
 
@@ -614,7 +620,7 @@ while {LMO_active == true} do {
 		//if HVT is alive, mission timer expired, or not handcuffed and exited escape zone
 		if (alive _hvt && (LMO_mTimer == 0 || (!(_hvt getVariable ["ace_captives_isHandcuffed", false]) && ((_hvt distance2D position LMO_spawnBldg > LMO_HVTescRng) && (count _hvtEscChase == 0))))) then {
 		
-			["LMOTaskOutcome", ["HVT has escaped", "\A3\ui_f\data\igui\cfg\simpletasks\types\run_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
+			["LMOTaskOutcomeR", ["HVT has escaped", "\A3\ui_f\data\igui\cfg\simpletasks\types\run_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 			_missionState = 2;
 			
 			//Lose Intel if HVT escapes
@@ -683,7 +689,7 @@ while {LMO_active == true} do {
 						};
 					};
 
-					["LMOTaskOutcome", ["HVT has been captured", "\z\ace\addons\captives\ui\handcuff_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
+					["LMOTaskOutcomeG", ["HVT has been captured", "\z\ace\addons\captives\ui\handcuff_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 					deleteVehicle _hvt;
 				};
 				case false: {
@@ -696,7 +702,7 @@ while {LMO_active == true} do {
 
 						
 					};
-					["LMOTaskOutcome", ["HVT has been neutralized", "\A3\ui_f\data\igui\cfg\holdactions\holdaction_forcerespawn_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
+					["LMOTaskOutcomeG", ["HVT has been neutralized", "\A3\ui_f\data\igui\cfg\holdactions\holdaction_forcerespawn_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 				};
 			};
 			
@@ -728,7 +734,7 @@ while {LMO_active == true} do {
 		//If cache destroyed and NOT secured
 		if (!alive _cache && _cSecured != true) then {
 			_missionState = 1;
-			["LMOTaskOutcome", ["Cache has been destroyed", "a3\ui_f_oldman\data\igui\cfg\holdactions\destroy_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
+			["LMOTaskOutcomeG", ["Cache has been destroyed", "a3\ui_f_oldman\data\igui\cfg\holdactions\destroy_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 			if (LMO_TST == true && LMO_TimeSenRNG <= LMO_TSTchance) then {
 				combat_readiness = combat_readiness - (LMO_Cache_Win_Alert * LMO_TST_Reward);
 			} else {
@@ -754,7 +760,7 @@ while {LMO_active == true} do {
 			//Defend cache
 			[] spawn {
 				sleep 10;
-				["LMOTaskOutcome", ["Enemy forces are attempting to retake cache", "\a3\ui_f\data\igui\cfg\simpletasks\types\Radio_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
+				["LMOTaskOutcomeR", ["Enemy forces are attempting to retake cache", "\a3\ui_f\data\igui\cfg\simpletasks\types\Radio_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 			};
 			[_cache] call XEPKEY_fn_qrfCache;
 			[_cache] call XEPKEY_fn_cacheFulton;
@@ -772,7 +778,7 @@ while {LMO_active == true} do {
 				if (combat_readiness > 100.0) then {combat_readiness = 100.0};
 			};
 
-			["LMOTaskOutcome", ["Cache has been lost", "a3\ui_f_oldman\data\igui\cfg\holdactions\destroy_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
+			["LMOTaskOutcomeR", ["Cache has been moved by the enemy", "a3\ui_f_oldman\data\igui\cfg\holdactions\destroy_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 			_cAttached = attachedObjects _cache select {typeOf _x == "PortableHelipadLight_01_red_F"};
 			if (count _cAttached > 0) then {{deleteVehicle _x} forEach _cAttached};
 			deleteVehicle _cache;

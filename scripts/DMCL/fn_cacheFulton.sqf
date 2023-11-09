@@ -29,14 +29,14 @@ params ["_cache"];
 			if (count _cAttached > 0) then {{deleteVehicle _x} forEach _cAttached};
 			deleteVehicle _cache;
 			systemChat format ["LMO: Cache was secured by the enemy."];
-			["LMOTaskOutcome", ["Cache was retaken by the enemy", "z\ace\addons\dragging\ui\icons\box_carry.paa"]] remoteExec ["BIS_fnc_showNotification"];
+			["LMOTaskOutcomeR", ["Cache was retaken by the enemy", "z\ace\addons\dragging\ui\icons\box_carry.paa"]] remoteExec ["BIS_fnc_showNotification"];
 			[2] call XEPKEY_fn_taskState;
 		};
 
 		//Fail if cache is destroyed before uplift
 		if (!alive _cache) exitWith {
 			systemChat format ["LMO: Cache was destroyed before uplift."];
-			["LMOTaskOutcome", ["Cache was destroyed before uplift", "a3\ui_f_oldman\data\igui\cfg\holdactions\destroy_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
+			["LMOTaskOutcomeR", ["Cache was destroyed before uplift", "a3\ui_f_oldman\data\igui\cfg\holdactions\destroy_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 			[1] call XEPKEY_fn_taskState;
 			if (LMO_TST == true && LMO_TimeSenRNG <= LMO_TSTchance) then {
 				combat_readiness = combat_readiness - (LMO_Cache_Win_Rdy * LMO_TST_Reward);
@@ -64,7 +64,7 @@ params ["_cache"];
 			_cPara hideObjectGlobal true;
 
 			_cBalloon = createSimpleObject ["a3\structures_f_mark\items\sport\balloon_01_air_f.p3d", _cPos];
-			_cBalloon attachTo [_cPara, [0,0,0]];
+			_cBalloon attachTo [_cPara, [0,0,-2]];
 			//detach _cBalloon;
 			
 			_cPara disableCollisionWith _cFly;
@@ -74,12 +74,12 @@ params ["_cache"];
 			[_cFly,_cBalloon,_cPara] spawn {
 				params ["_cFly","_cBalloon","_cPara"];
 				_cBalloon setObjectScale 1;
-				_inflate = 0.03;
+				_inflate = 0.08;
 				while {getObjectScale _cBalloon <= 20 || (getPosATL _cBalloon) select 2 <= 20} do {
 					_bHeight = (getPosATL _cBalloon) select 2;
-					if (getObjectScale _cBalloon == 10) then {_inflate = 0};
-					if (getObjectScale _cBalloon >= 4 && getObjectScale _cBalloon < 7) then {_inflate = 0.03};
-					if (getObjectScale _cBalloon >= 7) then {_inflate = 0.01};
+					if (getObjectScale _cBalloon == 20) then {_inflate = 0};
+					if (getObjectScale _cBalloon >= 4 && getObjectScale _cBalloon < 7) then {_inflate = 0.15};
+					if (getObjectScale _cBalloon >= 15) then {_inflate = 0.03};
 					_cBalloon setObjectScale ((getObjectScale _cBalloon) + _inflate);
 					sleep 0.1;
 				};
@@ -119,7 +119,7 @@ params ["_cache"];
 						missionNamespace setVariable ["LMO_CacheTagged", nil];
 
 						//get the nearestFOB
-						if (GRLIB_all_fobs isEqualTo []) exitWith {["LMOTaskOutcome", ["Cache lost in transit FOB not found", "\a3\ui_f\data\igui\cfg\simpletasks\types\Plane_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];};
+						if (GRLIB_all_fobs isEqualTo []) exitWith {["LMOTaskOutcomeR", ["Cache lost in transit FOB not found", "\a3\ui_f\data\igui\cfg\simpletasks\types\Plane_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];};
 						
 						_cacheBox_Supply = 0;
 						_cacheBox_Ammo = 0;
@@ -145,7 +145,7 @@ params ["_cache"];
 
 						if (!isNull _foundStorage) then {
 							[(100*_cacheBox_Supply),(100*_cacheBox_Ammo),(100*_cacheBox_Fuel), _foundStorage] call KPLIB_fnc_fillStorage;
-							["LMOTaskOutcome", ["Cache supplies uplifted to base", "z\ace\addons\dragging\ui\icons\box_carry.paa"]] remoteExec ["BIS_fnc_showNotification"];
+							["LMOTaskOutcomeG", ["Cache supplies uplifted to base", "z\ace\addons\dragging\ui\icons\box_carry.paa"]] remoteExec ["BIS_fnc_showNotification"];
 						};
 						
 						if (isNull _foundStorage) then {
@@ -153,7 +153,7 @@ params ["_cache"];
 							XEPKEY_cacheReward = [];
 							private _LMOcrate = objNull;
 							
-							["LMOTaskOutcome", ["Cache supplies uplifted to base", "z\ace\addons\dragging\ui\icons\box_carry.paa"]] remoteExec ["BIS_fnc_showNotification"];
+							["LMOTaskOutcomeG", ["Cache supplies uplifted to base", "z\ace\addons\dragging\ui\icons\box_carry.paa"]] remoteExec ["BIS_fnc_showNotification"];
 			
 							//Supply
 							for "_i" from 1 to _cacheBox_Supply do { //Amount of box
