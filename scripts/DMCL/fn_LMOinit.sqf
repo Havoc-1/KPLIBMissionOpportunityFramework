@@ -100,7 +100,7 @@
 		 *	2: Capture or Kill HVT
 		 *	3: Destroy or Secure Cache
 		 */
-	LMO_mType = 2;
+	LMO_mType = 3;
 
 	//HVT Outfit Params
 
@@ -234,7 +234,6 @@ LMO_TSTState = false;
     waitUntil {missionNamespace getVariable ["BIS_fnc_init", false]};
 	remoteExec ["XEPKEY_fn_diaryContent"];
 };
-
 
 //Only runs for Server and HC Environments
 if !(isDedicated || (isServer && hasInterface)) exitWith {};

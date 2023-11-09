@@ -96,7 +96,6 @@ params ["_cache"];
 				_flyMax = 1000;
 				while {alive _cFly} do {
 					_bHeight = (getPosATL _cBalloon) select 2;
-					//_cBalloon setPos getPos _cPara;
 					if (_bHeight >= _flyMax*0.025 && _bHeight < _flyMax*0.03) then {_bRise = 1};
 					if (_bHeight >= _flyMax*0.03 && _bHeight < _flyMax*0.035) then {_bRise = 6};
 					if (_bHeight >= _flyMax*0.035 && _bHeight < _flyMax*0.95) then {_bRise = 20};

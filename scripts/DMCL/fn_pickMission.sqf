@@ -116,15 +116,15 @@ switch (_missionType) do {
 		[] call XEPKEY_fn_removeThrowables;
 
 		//Prevents random glitch that shoots AI into the air
-		        {
-            if (((getPosATL _x) select 2) > 30) then {
-                _safePosUnit = (units _enyUnits) select {(getPosATL _x) select 2 <= 30};
-                if (count _safePosUnit > 0) then {
-                    _x setVelocity [0,0,0];
-                    _x setPosATL getPosATL (selectRandom units _enyUnits);
-                };
-            };
-        }forEach units _enyUnits;
+		{
+			if (((getPosATL _x) select 2) > 30) then {
+				_safePosUnit = (units _enyUnits) select {(getPosATL _x) select 2 <= 30};
+				if (count _safePosUnit > 0) then {
+					_x setVelocity [0,0,0];
+					_x setPosATL getPosATL (selectRandom units _enyUnits);
+				};
+			};
+		}forEach units _enyUnits;
 
 		{
 			_noMove = random 1;
@@ -196,15 +196,15 @@ switch (_missionType) do {
 		[] call XEPKEY_fn_removeThrowables;
 
 		//Prevents random glitch that shoots AI into the air
-		        {
-            if (((getPosATL _x) select 2) > 30) then {
-                _safePosUnit = (units _enyUnits) select {(getPosATL _x) select 2 <= 30};
-                if (count _safePosUnit > 0) then {
-                    _x setVelocity [0,0,0];
-                    _x setPosATL getPosATL (selectRandom units _enyUnits);
-                };
-            };
-        }forEach units _enyUnits;
+		{
+			if (((getPosATL _x) select 2) > 30) then {
+				_safePosUnit = (units _enyUnits) select {(getPosATL _x) select 2 <= 30};
+				if (count _safePosUnit > 0) then {
+					_x setVelocity [0,0,0];
+					_x setPosATL getPosATL (selectRandom units _enyUnits);
+				};
+			};
+		}forEach units _enyUnits;
 
 		{
 			_noMove = random 1;
@@ -414,8 +414,8 @@ switch (_missionType) do {
 			"Secure Cache",
 			"\a3\ui_f\data\IGUI\Cfg\holdactions\holdAction_unloaddevice_ca.paa",
 			"\a3\ui_f\data\IGUI\Cfg\holdactions\holdAction_unloaddevice_ca.paa",
-			"(_this distance _target < 3) && (alive _target)",
-			"(_caller distance _target < 3) && (alive _target)",
+			"(_this distance _target < 3) && (alive _target) && ((_target getVariable 'LMO_CacheSecure') != true)",
+			"(_caller distance _target < 3) && (alive _target) && ((_target getVariable 'LMO_CacheSecure') != true)",
 			{
 				_caller playMoveNow "Acts_carFixingWheel";
 				playSound3D ["a3\sounds_f\characters\stances\rifle_to_launcher.wss", _target];
@@ -429,7 +429,6 @@ switch (_missionType) do {
 			},
 			{
 				_caller switchMove "";
-				
 				_target setVariable ["LMO_CacheSecure", true, true];
 				_cStrobe = "PortableHelipadLight_01_red_F" createVehicle getPos _target;
 				_cStrobe attachTo [_target, [0,0.2,-0.7]];
@@ -442,7 +441,7 @@ switch (_missionType) do {
 				if (LMO_Debug == true) then {
 					systemChat format ["LMO: CacheSecure: %1", _target getVariable "LMO_CacheSecure"];
 				};
-				
+				[_target,_actionId] call BIS_fnc_holdActionRemove;
 			},
 			{_caller switchMove ""},
 			[_cache],
@@ -546,10 +545,10 @@ while {LMO_active == true} do {
 		{_x enableAI "PATH"} forEach units _enyUnits;
 		
 		if (((LMO_Penalties select 0) == true) && ((LMO_Penalties select 1) == true)) then {
-		//Deduct Civilian reputation as defined in kp_liberation_config.sqf
-		[KP_liberation_cr_kill_penalty, true] spawn F_cr_changeCR;
+			//Deduct Civilian reputation as defined in kp_liberation_config.sqf
+			[LMO_HR_Lose_CivRep, true] spawn F_cr_changeCR;
 		};
-		
+
 		_enyUnitPlayers = [];
 		if (alive _hostage) then {_hostage setdamage 1};
 		[_enyUnits, _hostageGrp] spawn {
@@ -581,15 +580,18 @@ while {LMO_active == true} do {
 
 		//Increase Civilian reputation and intelligence
 		if (LMO_TST == true && LMO_TimeSenRNG <= LMO_TSTchance) then {
+
 			_finalReward = round (LMO_HR_Win_CivRep * LMO_TST_Reward);
 			[_finalReward] call F_cr_changeCR;
 			KP_liberation_civ_rep = KP_liberation_civ_rep + (round (LMO_HR_Win_CivRep * LMO_TST_Reward));
 			resources_intel = resources_intel + (round (LMO_HR_Win_Intel * LMO_TST_Reward));
 		} else {
+
+			KP_liberation_civ_rep = KP_liberation_civ_rep + LMO_HR_Win_CivRep;
 			[LMO_HR_Win_CivRep] call F_cr_changeCR;
 			resources_intel = resources_intel + LMO_HR_Win_Intel;
 		};
-		
+
 		{
 			deleteVehicle _x;
 		}forEach units _enyUnits;

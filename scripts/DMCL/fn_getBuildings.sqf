@@ -28,29 +28,37 @@ _bCheckExclude = [];
 	_checkBuildingPos = [_x] call BIS_fnc_buildingPositions;		
 	if (count _checkBuildingPos < LMO_bSize) then {
 	
-		_allBuildingsFilter append [_x];
+		_allBuildingsFilter pushback _x;
 
 	};
 }forEach _allBuildings;
 
 _allBuildings = _allBuildings - _allBuildingsFilter;
 
+//Prevents LMOs from spawning too close to players
 {
-	//prevent spawning from too close to player 		
 	_playerRangeCheck = nearestTerrainObjects [_x, LMO_bTypes, LMO_bPlayerRng, false, true];
-	//hint format ["%1", _playerRangeCheck];
 	_allBuildings = _allBuildings - _playerRangeCheck;
 	
 }forEach allPlayers;
 
+//Excludes blacklisted buildings
 {
     _bCheck = _x;
     {
         if (typeOf _bCheck == _x) then {
-            _bCheckExclude append [_bCheck];
+            _bCheckExclude pushback _bCheck;
         };
     }forEach LMO_bListBldg;
 }forEach _allBuildings;
+
+//Excludes all buildings nearby FOBs
+if (count GRLIB_all_fobs > 0) then {
+	{
+		_bCheck = nearestTerrainObjects [_x, LMO_bTypes, LMO_objBlacklistRng, false, true];
+		_bCheckExclude pushback _bCheck;
+	}forEach GRLIB_all_fobs;
+};
 
 if (LMO_Debug == true) then {systemChat format ["LMO: All Buildings: %1, Excluded Buildings: %2, Blacklisted Buildings: %3", count _allBuildings, count _bCheckExclude, count LMO_objBlacklist]};
 _allBuildings = _allBuildings - _bCheckExclude - LMO_objBlacklist;
