@@ -52,8 +52,6 @@ _qrfSpawnDist = LMO_CacheSqdSpawnDist;
 _qrfSpawnPos = [getPos _cache, _qrfSpawnDist, _qrfGrp1Rad] call BIS_fnc_relPos;
 _qrfFriendlyCount = count ((nearestObjects [_qrfSpawnPos, ["Man", "LandVehicle"], LMO_CacheSqdMinDist]) select {side _x == GRLIB_side_friendly});
 
-//if (LMO_Debug == true) then {systemChat format ["LMO: QRF Size: %1, QRF Pos: %2",_sqdSize,_qrfSpawnPos]};
-
 while {_qrfFriendlyCount != 0} do {
 	_qrfSpawnDist = _qrfSpawnDist + 20;
 	_qrfSpawnPos = [getPos _cache, _qrfSpawnDist, _qrfGrp1Rad] call BIS_fnc_relPos;
@@ -78,37 +76,16 @@ if (_splitGrp > 0.5) then {
 
 	_sqd2Size = round (_sqdSize/2);
 
-	//Checks for suitable QRF spawn location
-	_qrfGrp2Rad = random 360;
+	_qrfGrp2Rad = (_qrfGrp1Rad + ((random 260) + 50)) % 360;
+
 	_qrfSpawnDist = LMO_CacheSqdSpawnDist;
 	_qrfSpawnPos = [getPos _cache, _qrfSpawnDist, _qrfGrp2Rad] call BIS_fnc_relPos;
 	_qrfFriendlyCount = count ((nearestObjects [_qrfSpawnPos, ["Man", "LandVehicle"], LMO_CacheSqdMinDist]) select {side _x == GRLIB_side_friendly});
-
-	_minRad = _qrfGrp1Rad + _qrfRadDiff;
-	_maxRad = _qrfGrp1Rad - _qrfRadDiff;
-	
-	_qrfGrp2Rad = _minRad + (random (_maxRad - _minRad));
-	if (_qrfGrp2Rad < 0) then {
-		_qrfGrp2Rad = _qrfGrp2Rad + 360;
-	} else {
-		if (_qrfGrp2Rad >= 360) then {
-			_qrfGrp2Rad = _qrfGrp2Rad - 360;
-		};
-	};
-
 	
 	while {_qrfFriendlyCount != 0} do {
 		
-		_qrfGrp2Rad = random 360;
-		_qrfGrp2Rad = _minRad + (random (_maxRad - _minRad));
-		if (_qrfGrp2Rad < 0) then {
-			_qrfGrp2Rad = _qrfGrp2Rad + 360;
-		} else {
-			if (_qrfGrp2Rad >= 360) then {
-				_qrfGrp2Rad = _qrfGrp2Rad - 360;
-			};
-		};
-		
+		_qrfGrp2Rad = (_qrfGrp1Rad + ((random 260) + 50)) % 360;
+			
 		_qrfSpawnDist = _qrfSpawnDist + 20;
 		_qrfSpawnPos = [getPos _cache, _qrfSpawnDist, _qrfGrp2Rad] call BIS_fnc_relPos;
 		_qrfFriendlyCount = count ((nearestObjects [_qrfSpawnPos, ["Man", "LandVehicle"], LMO_CacheSqdMinDist]) select {side _x == GRLIB_side_friendly});
