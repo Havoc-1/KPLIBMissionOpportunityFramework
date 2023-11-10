@@ -88,7 +88,7 @@ params ["_cache"];
 				_cLight allowDamage false;
 				_cLight attachTo [_cFly, [0,0,0.6]];
 				_flyMax = 1000;
-				
+				_cacheRope allowDamage false;				
 				while {alive _cFly} do {
 					
 					//Fail-safe to reattach cache if detaches from rope
