@@ -1,3 +1,20 @@
+/* 
+ *	Author: [ANTEC] Xephros, [DMCL] Keystone
+ *	Inflate Balloon PFH for airlift cache
+ *
+ *	Arguments:
+ *		0: Uplift Cache Object <OBJECT>
+ *		1: Cache Balloon <OBJECT>
+ *		2: Cache Parachute <OBJECT>
+ *		3: Cache Balloon Inflate Rate <NUMBER>
+ *		4: Original Cache Object that gets hidden <OBJECT>
+ *
+ *	Examples:
+ *		[_cFly,_cBalloon,_cPara,_inflate,_cache] call XEPKEY_fn_cacheFulton;
+ *	
+ *	Return Value: _handle PFH
+ */
+
 params ["_cFly","_cBalloon","_cPara","_inflate","_cache"];
 _handle = [];
 _handle = [

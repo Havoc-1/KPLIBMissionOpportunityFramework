@@ -57,6 +57,7 @@ params ["_cache"];
 			
 			if (LMO_Debug == true) then {systemChat "LMO: No players in range, secured cache hidden. Exiting scope with fulton."};
 			
+			//Creates uplift Cache, hides original cache, creates Parachute
 			_cFly = "C_supplyCrate_F" createVehicle _cPos;
 			_cPara = "B_Parachute_02_F" createVehicle _cPos;
 			_cPara attachTo [_cFly, [0,0,7]];
@@ -64,54 +65,20 @@ params ["_cache"];
 			_cPara hideObjectGlobal true;
 			_cache enableSimulationGlobal false;
 
+			//Creates Fulton Balloon and attaches to invisible Parachute
 			_cBalloon = createSimpleObject ["a3\structures_f_mark\items\sport\balloon_01_air_f.p3d", _cPos];
 			_cBalloon attachTo [_cPara, [0,0,-2]];
 			//detach _cBalloon;
 			_cPara disableCollisionWith _cFly;
 			_cPara disableCollisionWith _cBalloon;
-			
 			_cBalloon setPosATL [(getPosATL _cPara) select 0,(getPosATL _cPara) select 1,((getPosATL _cPara) select 2)-2];
 			_cBalloon setObjectScale 1;
 			_inflate = 0.08;
-			_cache enableSimulationGlobal false;
 
+			//Inflates Fulton Balloon
 			[_cFly,_cBalloon,_cPara,_inflate,_cache] remoteExec ["XEPKEY_fn_inflateBalloon",0,true];
 
-			/* _handle = [
-				{
-					(_this select 0) params ["_cFly","_cBalloon","_cPara","_inflate","_cache"];
-					_cBalloon setPosATL [((getPosATL _cPara) select 0),((getPosATL _cPara) select 1),(((getPosATL _cPara) select 2)-2)];
-					[_cBalloon, _cache] call BIS_fnc_attachToRelative;
-					if (getObjectScale _cBalloon <= 20 || (getPosATL _cBalloon) select 2 <= 20) then {
-						_bHeight = (getPosATL _cBalloon) select 2;
-						if (getObjectScale _cBalloon >= 20) then {_inflate = 0};
-						if (getObjectScale _cBalloon >= 4 && getObjectScale _cBalloon < 7) then {_inflate = 0.15};
-						if (getObjectScale _cBalloon >= 15) then {_inflate = 0.03};
-						_cBalloon setObjectScale ((getObjectScale _cBalloon) + _inflate);
-					};
-					//[_cBalloon, ((getObjectScale _cBalloon) + _inflate)] remoteExec ["setObjectScale"];
-					//_cBalloon setObjectScale ((getObjectScale _cBalloon) + _inflate);
-				},
-				0.05,
-				[_cFly,_cBalloon,_cPara,_inflate,_cache]
-			] call CBA_fnc_addPerFrameHandler; */
-
-			//Inflate Fulton
-			/* [_cFly,_cBalloon,_cPara] spawn {
-				params ["_cFly","_cBalloon","_cPara"];
-				_cBalloon setObjectScale 1;
-				_inflate = 0.08;
-				while {getObjectScale _cBalloon <= 20 || (getPosATL _cBalloon) select 2 <= 20} do {
-					_bHeight = (getPosATL _cBalloon) select 2;
-					if (getObjectScale _cBalloon == 20) then {_inflate = 0};
-					if (getObjectScale _cBalloon >= 4 && getObjectScale _cBalloon < 7) then {_inflate = 0.15};
-					if (getObjectScale _cBalloon >= 15) then {_inflate = 0.03};
-					//_cBalloon setObjectScale ((getObjectScale _cBalloon) + _inflate);
-					[_cBalloon, ((getObjectScale _cBalloon) + _inflate)] remoteExec ["setObjectScale"];
-					sleep 0.1;
-				};
-			}; */
-
+			//Uplift cache setVelocity
 			[_cFly,_cBalloon,_cPara,_cache] spawn {
 				params ["_cFly","_cBalloon","_cPara","_cache"];
 				_bRise = 3;
@@ -121,12 +88,15 @@ params ["_cache"];
 				_cLight allowDamage false;
 				_cLight attachTo [_cFly, [0,0,0.6]];
 				_flyMax = 1000;
+				
 				while {alive _cFly} do {
-
+					
+					//Fail-safe to reattach cache if detaches from rope
 					if ((ropeAttachedTo _cFly) != _cPara) then {
 						[_cFly, [0,0,0.5], [0,0,-1]] ropeAttachTo _cacheRope;
 					};
 
+					//Changes fulton rise rate based on height
 					_bHeight = (getPosATL _cBalloon) select 2;
 					if (_bHeight >= _flyMax*0.025 && _bHeight < _flyMax*0.03) then {_bRise = 1};
 					if (_bHeight >= _flyMax*0.03 && _bHeight < _flyMax*0.035) then {_bRise = 6};
@@ -150,7 +120,7 @@ params ["_cache"];
 						};
 						missionNamespace setVariable ["LMO_CacheTagged", nil];
 
-						//get the nearestFOB
+						//get the nearestFOB and deliver cache boxes
 						if (GRLIB_all_fobs isEqualTo []) exitWith {["LMOTaskOutcomeR", ["Cache lost in transit FOB not found", "\a3\ui_f\data\igui\cfg\simpletasks\types\Plane_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];};
 						
 						_cacheBox_Supply = 0;
