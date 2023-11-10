@@ -62,9 +62,10 @@ params ["_cache"];
 			_cPara attachTo [_cFly, [0,0,7]];
 			detach _cPara;
 			_cPara hideObjectGlobal true;
+			_cache enableSimulationGlobal false;
 
 			_cBalloon = createSimpleObject ["a3\structures_f_mark\items\sport\balloon_01_air_f.p3d", _cPos];
-			//_cBalloon attachTo [_cPara, [0,0,-2]];
+			_cBalloon attachTo [_cPara, [0,0,-2]];
 			//detach _cBalloon;
 			_cPara disableCollisionWith _cFly;
 			_cPara disableCollisionWith _cBalloon;
@@ -72,8 +73,11 @@ params ["_cache"];
 			_cBalloon setPosATL [(getPosATL _cPara) select 0,(getPosATL _cPara) select 1,((getPosATL _cPara) select 2)-2];
 			_cBalloon setObjectScale 1;
 			_inflate = 0.08;
-			
-			_handle = [
+			_cache enableSimulationGlobal false;
+
+			[_cFly,_cBalloon,_cPara,_inflate,_cache] remoteExec ["XEPKEY_fn_inflateBalloon",0,true];
+
+			/* _handle = [
 				{
 					(_this select 0) params ["_cFly","_cBalloon","_cPara","_inflate","_cache"];
 					_cBalloon setPosATL [((getPosATL _cPara) select 0),((getPosATL _cPara) select 1),(((getPosATL _cPara) select 2)-2)];
@@ -83,13 +87,14 @@ params ["_cache"];
 						if (getObjectScale _cBalloon >= 20) then {_inflate = 0};
 						if (getObjectScale _cBalloon >= 4 && getObjectScale _cBalloon < 7) then {_inflate = 0.15};
 						if (getObjectScale _cBalloon >= 15) then {_inflate = 0.03};
-						//_cBalloon setObjectScale ((getObjectScale _cBalloon) + _inflate);
+						_cBalloon setObjectScale ((getObjectScale _cBalloon) + _inflate);
 					};
-					[_cBalloon, ((getObjectScale _cBalloon) + _inflate)] remoteExec ["setObjectScale"];
+					//[_cBalloon, ((getObjectScale _cBalloon) + _inflate)] remoteExec ["setObjectScale"];
+					//_cBalloon setObjectScale ((getObjectScale _cBalloon) + _inflate);
 				},
 				0.05,
 				[_cFly,_cBalloon,_cPara,_inflate,_cache]
-			] call CBA_fnc_addPerFrameHandler;
+			] call CBA_fnc_addPerFrameHandler; */
 
 			//Inflate Fulton
 			/* [_cFly,_cBalloon,_cPara] spawn {
@@ -107,8 +112,8 @@ params ["_cache"];
 				};
 			}; */
 
-			[_cFly,_cBalloon,_cPara,_cache,_handle] spawn {
-				params ["_cFly","_cBalloon","_cPara","_cache","_handle"];
+			[_cFly,_cBalloon,_cPara,_cache] spawn {
+				params ["_cFly","_cBalloon","_cPara","_cache"];
 				_bRise = 3;
 				_cacheRope = ropeCreate [_cPara, [0,0,-2],_cFly, [0,0,0.5], 30];
 				ropeUnwind [_cBalloon, 20, 100];
@@ -125,7 +130,6 @@ params ["_cache"];
 					[_cPara, 0, 0] call BIS_fnc_setPitchBank;
 
 					if (_bHeight >= _flyMax) exitWith {
-						[_handle] call CBA_fnc_removePerFrameHandler;
 						ropeDestroy _cacheRope;
 						deleteVehicle _cFly;
 						deleteVehicle _cBalloon;

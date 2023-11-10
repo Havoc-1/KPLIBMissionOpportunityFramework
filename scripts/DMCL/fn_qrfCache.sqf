@@ -115,8 +115,6 @@ if (_splitGrp > 0.5) then {
 		sleep 0.1;
 	};
 
-	if (LMO_Debug == true) then {systemChat format ["LMO: QRF Size: %1, QRF1 Dir: %2, QRF2 Dir: %3",_sqdSize,round _qrfGrp1Rad,round _qrfGrp2Rad]};
-
 	for "_i" from _sqd2Size to _sqdSize do {
 		_sqd2Unit = selectRandom units _enyUnits;
 		_sqd2Orbat append [_sqd2Unit];
@@ -130,6 +128,8 @@ if (_splitGrp > 0.5) then {
 	
 	_enyUnits2 setSpeedMode "FULL";
 	_enyUnits2 move getPos _cache;
+
+	if (LMO_Debug == true) then {systemChat format ["LMO: QRF Size: %1, QRF1 Dir: %2, QRF2 Dir: %3",_sqdSize,round ((getPos _cache) getDir (selectRandom units _enyUnits)),round ((getPos _cache) getDir (selectRandom units _enyUnits2))]};
 } else {
 	if (LMO_Debug == true) then {systemChat format ["LMO: QRF Size: %1, QRF Dir: %2",_sqdSize,round _qrfGrp1Rad]};
 };
