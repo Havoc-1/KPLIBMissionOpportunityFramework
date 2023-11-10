@@ -39,9 +39,9 @@ params ["_cache"];
 			["LMOTaskOutcomeR", ["Cache was destroyed before uplift", "a3\ui_f_oldman\data\igui\cfg\holdactions\destroy_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 			[1] call XEPKEY_fn_taskState;
 			if (LMO_TST == true && LMO_TimeSenRNG <= LMO_TSTchance) then {
-				combat_readiness = combat_readiness - (LMO_Cache_Win_Rdy * LMO_TST_Reward);
+				combat_readiness = combat_readiness - (LMO_Cache_Win_Alert * LMO_TST_Reward);
 			} else {
-				combat_readiness = combat_readiness - LMO_Cache_Win_Rdy;
+				combat_readiness = combat_readiness - LMO_Cache_Win_Alert;
 			};
 		};
 
@@ -122,6 +122,11 @@ params ["_cache"];
 				_cLight attachTo [_cFly, [0,0,0.6]];
 				_flyMax = 1000;
 				while {alive _cFly} do {
+
+					if ((ropeAttachedTo _cFly) != _cPara) then {
+						[_cFly, [0,0,0.5], [0,0,-1]] ropeAttachTo _cacheRope;
+					};
+
 					_bHeight = (getPosATL _cBalloon) select 2;
 					if (_bHeight >= _flyMax*0.025 && _bHeight < _flyMax*0.03) then {_bRise = 1};
 					if (_bHeight >= _flyMax*0.03 && _bHeight < _flyMax*0.035) then {_bRise = 6};
@@ -139,9 +144,9 @@ params ["_cache"];
 						if (LMO_Debug == true) then {systemChat "LMO: Cache successfully airlifted. Cache deleted."};
 						[1] call XEPKEY_fn_taskState;
 						if (LMO_TST == true && LMO_TimeSenRNG <= LMO_TSTchance) then {
-							combat_readiness = combat_readiness - (LMO_Cache_Win_Rdy * LMO_TST_Reward);
+							combat_readiness = combat_readiness - (LMO_Cache_Win_Alert * LMO_TST_Reward);
 						} else {
-							combat_readiness = combat_readiness - LMO_Cache_Win_Rdy;
+							combat_readiness = combat_readiness - LMO_Cache_Win_Alert;
 						};
 						missionNamespace setVariable ["LMO_CacheTagged", nil];
 

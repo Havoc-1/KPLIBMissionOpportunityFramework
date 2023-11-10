@@ -12,7 +12,7 @@ _handle = [
 			if (getObjectScale _cBalloon >= 15) then {_inflate = 0.03};
 			_cBalloon setObjectScale ((getObjectScale _cBalloon) + _inflate);
 			if (!alive _cFly) then {
-				[_this] call CBA_fnc_removePerFrameHandler;
+				[_handle] call CBA_fnc_removePerFrameHandler;
 			};
 		};
 		//[_cBalloon, ((getObjectScale _cBalloon) + _inflate)] remoteExec ["setObjectScale"];
