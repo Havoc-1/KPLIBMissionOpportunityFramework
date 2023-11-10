@@ -699,14 +699,10 @@ while {LMO_active == true} do {
 						} else {
 							combat_readiness = combat_readiness - LMO_HVT_Win_KillAlert;
 						};
-
-						
 					};
 					["LMOTaskOutcomeG", ["HVT has been neutralized", "\A3\ui_f\data\igui\cfg\holdactions\holdaction_forcerespawn_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 				};
 			};
-			
-			if (combat_readiness > 100.0) then {combat_readiness = 100.0};
 
 			_missionState = 1;
 			
@@ -740,8 +736,6 @@ while {LMO_active == true} do {
 			} else {
 				combat_readiness = combat_readiness - LMO_Cache_Win_Alert;
 			};
-
-			if (combat_readiness > 100.0) then {combat_readiness = 100.0};
 		};
 		
 		//If Secured Cache
@@ -775,7 +769,6 @@ while {LMO_active == true} do {
 
 			if (((LMO_Penalties select 0) == true) && ((LMO_Penalties select 1) == true)) then {
 				combat_readiness = combat_readiness + LMO_Cache_Lose_Alert;
-				if (combat_readiness > 100.0) then {combat_readiness = 100.0};
 			};
 
 			["LMOTaskOutcomeR", ["Cache has been moved by the enemy", "a3\ui_f_oldman\data\igui\cfg\holdactions\destroy_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];

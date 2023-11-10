@@ -127,6 +127,8 @@ params ["_cache"];
 						_cacheBox_Ammo = 0;
 						_cacheBox_Fuel = 0;
 						_foundStorage = objNull;
+						_fobStorageList = [];
+						_fobStorageListSort = [];
 
 						if (LMO_TST == true && LMO_TimeSenRNG <= LMO_TSTchance) then {
 							_cacheBox_Supply = round ((LMO_Cache_supplyBoxes call BIS_fnc_randomInt) * LMO_TST_Reward);
@@ -139,10 +141,26 @@ params ["_cache"];
 						};
 
 						_closeSupplyDump = [getPos _cache] call KPLIB_fnc_getNearestFob; 
-						_foundStorage = nearestObject [_closeSupplyDump, KP_liberation_large_storage_building];
+						//_foundStorage = nearestObject [_closeSupplyDump, KP_liberation_large_storage_building];
+
+						//getNearestObjects, filter by storage array
+
+						_supplyDumpObjects = nearestObjects [_closeSupplyDump, ["BUILDING"], GRLIB_fob_range];
+						{
+							if (typeOf _x == KP_liberation_large_storage_building || typeOf _x == KP_liberation_small_storage_building) then {
+								_fobStorageList pushBack _x;
+							};
+						}forEach _supplyDumpObjects;
+
+						//_fobStorageList = _fobStorageList sortBy {_x distance _closeSupplyDump};
+						_fobStorageListSort = [_fobStorageList, [], {_x distance _closeSupplyDump}, "ASCEND"] call BIS_fnc_sortBy;
+						//_fobStorageList sort true;
+						if (count _fobStorageListSort > 0) then {
+							_foundStorage = _fobStorageListSort select 0;
+						};
 						
 						if (LMO_Debug == true) then {
-							systemChat format ["LMO: Closest FOB: %1, foundStorage: %2",_closeSupplyDump,_foundStorage];
+							systemChat format ["LMO: Closest FOB: %1, foundStorage: %2, fobStorageList: %3",_closeSupplyDump,_foundStorage, count _fobStorageList];
 						};
 
 						if (!isNull _foundStorage) then {
