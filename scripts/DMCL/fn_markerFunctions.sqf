@@ -9,12 +9,23 @@
 _mkrRngLow = 50;
 _mkrRngHigh = 300;
 
+<<<<<<< Updated upstream
 //Array for objective names
 _objNamesArray = ["Albatross","Alpaca","Arcadia","Aegis","Arowana","Astral","Aurora","Bastion","Beacon","Catalyst","Cicada","Cipher","Citadel","Cobra","Crow","Dynamo","Eagle","Eclipse","Empyrean","Enigma","Falcon","Firefly","Goliath","Havoc","Hawk","Heron","Inferno","Kingfish","Lemur","Lion","Mallet","Mantis","Maverick","Mirage","Monolith","Nebula","Nexus","Nighthawk","Obsidian","Opah","Ostrich","Otter","Pantheon","Paradigm","Paragon","Pelican","Phoenix","Radiance","Rhino","Robin","Ruby","Sapphire","Seagull","Sparrow","Staple","Swift","Swan","Umbra","Vanguard","Velvet","Vertex","Vulture","Weevil","Zenith","Zebra"];
 
 //Mission Timer Range (minutes)
 _moTimeMin = 10;
 _moTimeMax = 20;
+=======
+//Time Sensitive Mission check
+LMO_TimeSenRNG = random 100;
+if (LMO_TST == true && LMO_TimeSenRNG <= LMO_TSTchance) then {
+	LMO_TSTState = true;
+	if (LMO_Debug) then {diag_log "Time Sensitive Mission Started."};
+} else {
+	LMO_TSTState = false;
+};
+>>>>>>> Stashed changes
 
 //Create Ellipse Marker on Obj
 objMarkerText = format ["OBJ %1", selectRandom _objNamesArray];
