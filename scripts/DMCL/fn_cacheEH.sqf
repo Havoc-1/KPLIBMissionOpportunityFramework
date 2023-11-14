@@ -321,48 +321,17 @@
 						};
 
 						if (!isNull _fobStorage) then {
-							//[(100*_cacheBox_Supply),(100*_cacheBox_Ammo),(100*_cacheBox_Fuel), _fobStorage] call KPLIB_fnc_fillStorage;
+							[(100*_cacheBox_Supply),(100*_cacheBox_Ammo),(100*_cacheBox_Fuel), _fobStorage] call KPLIB_fnc_fillStorage;
 							["LMOTaskOutcomeG", ["Cache supplies uplifted to base", "z\ace\addons\dragging\ui\icons\box_carry.paa"]] remoteExec ["BIS_fnc_showNotification"];
-							
-
-							for "_i" from 0 to ((count _fobStorageSort) - 1) do {
-
-								//{
-								
-								([_fobStorage] call KPLIB_fnc_getStoragePositions) params ["_storage_positions", "_unload_distance"];
-								
-								if (_crates_count >= (count _storage_positions)) then {
-									_fobStorage = objNull;
-								};
-
-								//Supply
-								private _height = [typeOf (KPLIB_crates select 0)] call KPLIB_fnc_getCrateHeight;
-								//Ammo
-								private _height = [typeOf (KPLIB_crates select 1)] call KPLIB_fnc_getCrateHeight;
-								//Fuel
-								private _height = [typeOf (KPLIB_crates select 2)] call KPLIB_fnc_getCrateHeight;
-
-								//Check Storage space
-								private _crates_count = count (attachedObjects _fobStorage);
-								
-								
-								//}forEach _fobStorageSort;
-							
-							
-								//[] call CBA_EH-Loadcrate;
-							};
-
 
 							if (LMO_Debug) then {
 							diag_log format ["[LMO] Rewards: %1 Supply Crates, %2 Ammo Crates, %3 Fuel Crates.",_cacheBox_Supply,_cacheBox_Ammo,_cacheBox_Fuel];
 							};
 
 							[_this select 1] call CBA_fnc_removePerFrameHandler;
-						};
-						
-						if (isNull _fobStorage) then {
+						} else {
 							
-							//XEPKEY_cacheReward = [];
+							=
 							private _LMOcrate = objNull;
 							
 							["LMOTaskOutcomeG", ["Cache supplies uplifted to base", "z\ace\addons\dragging\ui\icons\box_carry.paa"]] remoteExec ["BIS_fnc_showNotification"];
@@ -379,7 +348,7 @@
 								[_LMOcrate, true] call KPLIB_fnc_clearCargo;
 								_LMOcrate setVariable ["KP_liberation_crate_value", 100, true];
 								if (KP_liberation_ace) then {[_LMOcrate, true, [0, 1.5, 0], 0] remoteExec ["ace_dragging_fnc_setCarryable"];};
-								//XEPKEY_cacheReward pushBack _LMOcrate;
+								
 							};
 
 							//Ammo
@@ -394,7 +363,7 @@
 								[_LMOcrate, true] call KPLIB_fnc_clearCargo;
 								_LMOcrate setVariable ["KP_liberation_crate_value", 100, true];
 								if (KP_liberation_ace) then {[_LMOcrate, true, [0, 1.5, 0], 0] remoteExec ["ace_dragging_fnc_setCarryable"];};
-								//XEPKEY_cacheReward pushBack _LMOcrate;
+								
 							};
 
 							//Fuel
@@ -409,7 +378,7 @@
 								[_LMOcrate, true] call KPLIB_fnc_clearCargo;
 								_LMOcrate setVariable ["KP_liberation_crate_value", 100, true];
 								if (KP_liberation_ace) then {[_LMOcrate, true, [0, 1.5, 0], 0] remoteExec ["ace_dragging_fnc_setCarryable"];};
-								//XEPKEY_cacheReward pushBack _LMOcrate;
+								
 							};
 							[_this select 1] call CBA_fnc_removePerFrameHandler;
 						};
