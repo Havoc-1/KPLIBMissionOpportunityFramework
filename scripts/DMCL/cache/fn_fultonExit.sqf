@@ -87,48 +87,145 @@ _cacheRope allowDamage false;
 					[_this select 1] call CBA_fnc_removePerFrameHandler;
 				};
 				
-				_cacheBox_Supply = 0;
-				_cacheBox_Ammo = 0;
-				_cacheBox_Fuel = 0;
+				_crate_Supply = 0;
+				_crate_Ammo = 0;
+				_crate_Fuel = 0;
 				_fobStorage = objNull;
 				_fobStorageObj = [];
 				_fobStorageSort = [];
 
 				//Generates values based on TST
 				if (LMO_TST == true && LMO_TimeSenRNG <= LMO_TSTchance) then {
-					_cacheBox_Supply = round ((LMO_Cache_supplyBoxes call BIS_fnc_randomInt) * LMO_TST_Reward);
-					_cacheBox_Ammo = round ((LMO_Cache_ammoBoxes call BIS_fnc_randomInt) * LMO_TST_Reward);
-					_cacheBox_Fuel = round ((LMO_Cache_fuelBoxes call BIS_fnc_randomInt) * LMO_TST_Reward);
+					_crate_Supply = round ((LMO_Cache_supplyBoxes call BIS_fnc_randomInt) * LMO_TST_Reward);
+					_crate_Ammo = round ((LMO_Cache_ammoBoxes call BIS_fnc_randomInt) * LMO_TST_Reward);
+					_crate_Fuel = round ((LMO_Cache_fuelBoxes call BIS_fnc_randomInt) * LMO_TST_Reward);
 				} else {
-					_cacheBox_Supply = LMO_Cache_supplyBoxes call BIS_fnc_randomInt;
-					_cacheBox_Ammo = LMO_Cache_ammoBoxes call BIS_fnc_randomInt;
-					_cacheBox_Fuel = LMO_Cache_fuelBoxes call BIS_fnc_randomInt;
+					_crate_Supply = LMO_Cache_supplyBoxes call BIS_fnc_randomInt;
+					_crate_Ammo = LMO_Cache_ammoBoxes call BIS_fnc_randomInt;
+					_crate_Fuel = LMO_Cache_fuelBoxes call BIS_fnc_randomInt;
 				};
 
 				//Get nearest fobs
 				_nearFob = [getPos _cache] call KPLIB_fnc_getNearestFob; 
 				_nearFobObjects = nearestObjects [_nearFob, ["BUILDING"], GRLIB_fob_range];
 
+				//Filters objects to storage only
 				{
 					if (typeOf _x == KP_liberation_large_storage_building || typeOf _x == KP_liberation_small_storage_building) then {
 						_fobStorageObj pushBack _x;
 					};
 				}forEach _nearFobObjects;
 
+				//Sorts storage by ascending distance to FOB
 				_fobStorageSort = [_fobStorageObj, [], {_x distance _nearFob}, "ASCEND"] call BIS_fnc_sortBy;
 
-				if (count _fobStorageSort > 0) then {
+				/* if (count _fobStorageSort > 0) then {
 					_fobStorage = _fobStorageSort select 0;
+				}; */
+				
+				diag_log format ["[LMO] Closest FOB: %1, Storage Containers: %2",_nearFob, count _fobStorageSort];
+				
+				_cacheRewards = _crate_Supply + _crate_Ammo + _crate_Fuel;
+				_c1 = _crate_Supply;
+				_c2 = _crate_Ammo;
+				_c3 = _crate_Fuel;
+				
+				["LMOTaskOutcomeG", ["Cache supplies uplifted to base", "z\ace\addons\dragging\ui\icons\box_carry.paa"]] remoteExec ["BIS_fnc_showNotification"];
+				diag_log format ["[LMO] Rewards: %1 Supply Crates, %2 Ammo Crates, %3 Fuel Crates.",_crate_Supply,_crate_Ammo,_crate_Fuel];
+				if (count _fobStorageObj > 0) then {
+					[_fobStorageSort,_cacheRewards,_c1,_c2,_c3,_nearFob] spawn {
+						params ["_fobStorageSort","_cacheRewards","_c1","_c2","_c3","_nearFob"];
+						{
+							while {_cacheRewards >= 0} do {
+
+								if (_cacheRewards == 0) exitWith {
+								diag_log "[LMO] All Cache crates assigned, exiting fultonExit PFH.";
+								//[_this select 1] call CBA_fnc_removePerFrameHandler;
+								};
+
+								([_x] call KPLIB_fnc_getStoragePositions) params ["_storage_positions", "_unload_distance"];
+								_crates_count = count (attachedObjects _x);
+								if ((_crates_count >= (count _storage_positions)) && (count _fobStorageSort > 0) && ((_fobStorageSort find _x) != ((count _fobStorageSort) - 1))) exitWith {
+									diag_log format ["[LMO] %1 at %2 does not have enough space to store crates. Moving to next storage.", typeOf _x, _nearFob];
+								};
+								if ((_cacheRewards > 0) && (count _fobStorageSort > 1) && (_crates_count >= (count _storage_positions)) && (((_fobStorageSort find _x) == ((count _fobStorageSort) - 1)))) exitWith {
+									diag_log format ["[LMO] No storage containers available at FOB to store crates, delivering to FOB at %1", _nearFob];
+									_crateArray = [[_c1,0],[_c2,1],[_c3,2]];
+									{
+										if ((_x select 0) > 0) then {
+											for "_i" from 1 to (_x select 0) do { //Amount of box
+												_LMOcrate = createVehicle [
+													(KPLIB_crates select (_x select 1)), //Type of box
+													_nearFob,
+													[],
+													5,
+													"NONE"
+												];
+												[_LMOcrate, true] call KPLIB_fnc_clearCargo;
+												_LMOcrate setVariable ["KP_liberation_crate_value", 100, true];
+												if (KP_liberation_ace) then {[_LMOcrate, true, [0, 1.5, 0], 0] remoteExec ["ace_dragging_fnc_setCarryable"];};
+											};
+										};
+									}forEach _crateArray;
+									diag_log format ["[LMO] %1 Supply Crates, %2 Ammo Crates, %3 Fuel Crates delivered to %4", _c1, _c2, _c3, _nearFob];
+								};
+
+								diag_log format ["[LMO] fillStorage attempt on %1 at %2.", typeOf _x, _nearFob];
+								if (_c1 > 0) then {
+									[100, 0, 0, _x] call KPLIB_fnc_fillStorage;
+									_c1 = _c1 - 1;
+									_cacheRewards = _cacheRewards - 1;
+									diag_log format ["[LMO] fillStorage successful on %1 at %2. (Supply Crate)", typeOf _x, _nearFob];
+								} else {
+									if (_c2 > 0) then {
+										[0, 100, 0, _x] call KPLIB_fnc_fillStorage;
+										_c2 = _c2 - 1;
+										_cacheRewards = _cacheRewards - 1;
+										diag_log format ["[LMO] fillStorage successful on %1 at %2. (Ammo Crate)", typeOf _x, _nearFob];
+									} else {
+										if (_c3 > 0) then {
+											_c3 = _c3 - 1;
+											_cacheRewards = _cacheRewards - 1;
+											[0, 0, 100, _x] call KPLIB_fnc_fillStorage;
+											diag_log format ["[LMO] fillStorage successful on %1 at %2. (Fuel Crate)", typeOf _x, _nearFob];
+										};
+									};
+								};
+								sleep 0.1;
+							};
+							
+						}forEach _fobStorageSort;
+					};
+				} else {
+					diag_log format ["[LMO] No storage containers available at FOB to store crates, delivering to FOB at %1", _nearFob];
+					_crateArray = [[_c1,0],[_c2,1],[_c3,2]];
+					{
+						if ((_x select 0) > 0) then {
+							for "_i" from 1 to (_x select 0) do { //Amount of box
+								_LMOcrate = createVehicle [
+									(KPLIB_crates select (_x select 1)), //Type of box
+									_nearFob,
+									[],
+									5,
+									"NONE"
+								];
+								[_LMOcrate, true] call KPLIB_fnc_clearCargo;
+								_LMOcrate setVariable ["KP_liberation_crate_value", 100, true];
+								if (KP_liberation_ace) then {[_LMOcrate, true, [0, 1.5, 0], 0] remoteExec ["ace_dragging_fnc_setCarryable"];};
+							};
+						};
+					}forEach _crateArray;
+					diag_log format ["[LMO] %1 Supply Crates, %2 Ammo Crates, %3 Fuel Crates delivered to %4", _c1, _c2, _c3, _nearFob];
 				};
 				
-				diag_log format ["[LMO] Closest FOB: %1, fobStorage: %2, fobStorageList: %3",_nearFob,_fobStorage, count _fobStorageObj];
-				
+				//Remove PFH for while do spawn
+				[_this select 1] call CBA_fnc_removePerFrameHandler;
 
-				if (!isNull _fobStorage) then {
-					[(100*_cacheBox_Supply),(100*_cacheBox_Ammo),(100*_cacheBox_Fuel), _fobStorage] call KPLIB_fnc_fillStorage;
+				/* if (!isNull _fobStorage) then {
+					[(100*_crate_Supply),(100*_crate_Ammo),(100*_crate_Fuel), _fobStorage] call KPLIB_fnc_fillStorage;
 					["LMOTaskOutcomeG", ["Cache supplies uplifted to base", "z\ace\addons\dragging\ui\icons\box_carry.paa"]] remoteExec ["BIS_fnc_showNotification"];
 
-					diag_log format ["[LMO] Rewards: %1 Supply Crates, %2 Ammo Crates, %3 Fuel Crates.",_cacheBox_Supply,_cacheBox_Ammo,_cacheBox_Fuel];
+					diag_log format ["[LMO] Rewards: %1 Supply Crates, %2 Ammo Crates, %3 Fuel Crates.",_crate_Supply,_crate_Ammo,_crate_Fuel];
 					
 
 					[_this select 1] call CBA_fnc_removePerFrameHandler;
@@ -139,7 +236,7 @@ _cacheRope allowDamage false;
 					["LMOTaskOutcomeG", ["Cache supplies uplifted to base", "z\ace\addons\dragging\ui\icons\box_carry.paa"]] remoteExec ["BIS_fnc_showNotification"];
 
 					//Supply
-					for "_i" from 1 to _cacheBox_Supply do { //Amount of box
+					for "_i" from 1 to _crate_Supply do { //Amount of box
 						_LMOcrate = createVehicle [
 							(KPLIB_crates select 0), //Type of box
 							_nearFob,
@@ -154,7 +251,7 @@ _cacheRope allowDamage false;
 					};
 
 					//Ammo
-					for "_i" from 1 to _cacheBox_Ammo do { //Amount of box
+					for "_i" from 1 to _crate_Ammo do { //Amount of box
 						_LMOcrate = createVehicle [
 							(KPLIB_crates select 1), //Type of box
 							_nearFob,
@@ -169,7 +266,7 @@ _cacheRope allowDamage false;
 					};
 
 					//Fuel
-					for "_i" from 1 to _cacheBox_Fuel do { //Amount of box
+					for "_i" from 1 to _crate_Fuel do { //Amount of box
 						_LMOcrate = createVehicle [
 							(KPLIB_crates select 2), //Type of box
 							_nearFob,
@@ -183,7 +280,7 @@ _cacheRope allowDamage false;
 						
 					};
 					[_this select 1] call CBA_fnc_removePerFrameHandler;
-				};
+				}; */
 			};
 		};
 	},
