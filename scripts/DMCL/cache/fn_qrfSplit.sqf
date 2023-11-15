@@ -40,7 +40,7 @@ if (_splitGrp > 0.5) then {
 		[_cache,_sqdSize,_sqdOrbat,_qrfGrp1Rad,_sqd2Size,_qrfSpawnPos] call LMO_fn_qrfGrp2;
 	};
 } else {
-	if (LMO_Debug && (count units _enyUnits > 0)) then {diag_log format ["[LMO] QRF Size: %1, QRF Dir: %2",_sqdSize,round _qrfGrp1Rad]};
+	if (count units _enyUnits > 0) then {diag_log format ["[LMO] QRF Size: %1, QRF Dir: %2",_sqdSize,round _qrfGrp1Rad]};
 
 	if (LMO_VCOM_On == true) then {
 		_enyUnits setVariable ["VCM_NORESCUE",true];

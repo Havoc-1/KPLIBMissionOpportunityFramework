@@ -15,15 +15,24 @@ _objNamesArray = ["Aegis", "Astral", "Aurora", "Albatross", "Alpaca", "Arcadia",
 _TimeMin = 0;
 _TimeMax = 0;
 
-if (!(isNil LMO_Mkr)) then {deleteMarker "LMO_Mkr"; LMO_Mkr = nil};
-if (!(isNil LMO_MkrName)) then {deleteMarker "LMO_MkrName"; LMO_MkrName = nil};
+if (!(isNil LMO_Mkr)) then {
+	deleteMarker "LMO_Mkr";
+	LMO_Mkr = nil;
+	diag_log "[LMO] Old LMO_Mkr found, setting to nil."
+	};
+if (!(isNil LMO_MkrName)) then {
+	deleteMarker "LMO_MkrName";
+	LMO_MkrName = nil;
+	diag_log "[LMO] Old LMO_MkrName found, setting to nil."
+	};
 LMO_MkrPos = nil;
+diag_log "[LMO] LMO_MkrPos set to nil.";
 
 //Time Sensitive Mission check
 LMO_TimeSenRNG = random 100;
 if (LMO_TST == true && LMO_TimeSenRNG <= LMO_TSTchance) then {
 	LMO_TSTState = true;
-	if (LMO_Debug) then {diag_log "Time Sensitive Mission Started."};
+	diag_log "Time Sensitive Mission Started.";
 } else {
 	LMO_TSTState = false;
 };
@@ -36,6 +45,7 @@ LMO_Mkr = createMarker ["LMO_Mkr", LMO_MkrPos];
 LMO_Mkr setMarkerShape "ELLIPSE";
 LMO_Mkr setMarkerSize [LMO_objMkrRad,LMO_objMkrRad];
 LMO_Mkr setMarkerBrush "FDiagonal";
+diag_log "[LMO] Objective markers created.";
 
 //Set OBJ Marker Name & Timer
 
@@ -52,3 +62,4 @@ LMO_MkrName = createMarker ["LMO_MkrName", LMO_MkrPos];
 LMO_MkrName setMarkerShape "ICON";
 LMO_MkrName setMarkerSize [1,1];
 LMO_MkrName setMarkerType "mil_unknown";
+diag_log "[LMO] Objective Timer markers created."

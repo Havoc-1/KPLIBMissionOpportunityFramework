@@ -19,4 +19,4 @@ _enyUnits2 setSpeedMode "FULL";
 
 
 ["LMO_qrfDelete",[_enyUnits,_cache,_enyUnits2]] call CBA_fnc_serverEvent;
-if (LMO_Debug && (count units _enyUnits > 0)) then {diag_log format ["[LMO] QRF Size: %1, QRF1 Dir: %2, QRF2 Dir: %3",_sqdSize,round ((getPos _cache) getDir (selectRandom units _enyUnits)),round ((getPos _cache) getDir (selectRandom units _enyUnits2))]};
+if (count units _enyUnits > 0) then {diag_log format ["[LMO] QRF Size: %1, QRF1 Dir: %2, QRF2 Dir: %3",_sqdSize,round ((getPos _cache) getDir (selectRandom units _enyUnits)),round ((getPos _cache) getDir (selectRandom units _enyUnits2))]};

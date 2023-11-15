@@ -38,9 +38,11 @@
 				};
 			}forEach units _enyUnits;
 		} else {
+			diag_log "[LMO] removeThrowables PFH removed.";
 			[_this select 1] call CBA_fnc_removePerFrameHandler;
 		};
 	},
 	1,
 	[_enyUnits]
 ] call CBA_fnc_addPerFrameHandler;
+diag_log "[LMO] removeThrowables PFH initialized.";

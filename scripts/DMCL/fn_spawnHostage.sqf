@@ -33,7 +33,8 @@ _enyUnitsInside = ((units _enyUnits) select {insideBuilding _x == 1}) select {(g
 		_hRelDir = _hTaker getDir LMO_spawnBldg;
 		_hPos = [getPos _hTaker, _hDisOffset, _hRelDir] call BIS_fnc_relPos;
 		_x setPosASL [((_hPos select 0) + _hPosOffset), ((_hPos select 1) + _hPosOffset), (getPosASL _hTaker) select 2];
-	
+		diag_log "[LMO] Hostage moved to unit inside building.";
+
 	} else {
 		_enyUnitsInside = ((units _enyUnits) select {insideBuilding _x == 1});
 		if (count _enyUnitsInside > 0) then {
@@ -44,7 +45,8 @@ _enyUnitsInside = ((units _enyUnits) select {insideBuilding _x == 1}) select {(g
 			//_hPos = getPosASL _hTaker;
 			_hPos = [getPos _hTaker, _hDisOffset, _hRelDir] call BIS_fnc_relPos;
 			_x setPosASL [((_hPos select 0) + _hPosOffset), ((_hPos select 1) + _hPosOffset), (getPosASL _hTaker) select 2];
-		
+			diag_log "[LMO] Hostage moved to unit inside building.";
+
 		} else {
 			
 			_hTaker = selectRandom units _enyUnits;
@@ -53,7 +55,7 @@ _enyUnitsInside = ((units _enyUnits) select {insideBuilding _x == 1}) select {(g
 			//_hPos = getPosASL _hTaker;
 			_hPos = [getPos _hTaker, _hDisOffset, _hRelDir] call BIS_fnc_relPos;
 			_x setPosASL [((_hPos select 0) + _hPosOffset), ((_hPos select 1) + _hPosOffset), (getPosASL _hTaker) select 2];
-			
+			diag_log "[LMO] No inside units found, hostage moved to random unit at target building.";
 		};
 	};
 	_x setDir random 360;

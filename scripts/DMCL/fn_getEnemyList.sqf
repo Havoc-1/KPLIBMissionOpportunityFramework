@@ -21,4 +21,4 @@ LMO_enyList = [];
 	_enyListSelect = (_x nearEntities [["Man","LandVehicle"], LMO_enyRng]) select {side _x == GRLIB_side_enemy};
 	LMO_enyList append _enyListSelect;
 }forEach allPlayers;
-
+diag_log format ["[LMO] getEnemyList completed. %1 nearby enemy units found.", count LMO_enyList];

@@ -60,13 +60,13 @@ if (count GRLIB_all_fobs > 0) then {
 	}forEach GRLIB_all_fobs;
 };
 
-if (LMO_Debug) then {diag_log format ["[LMO] All Buildings: %1, Excluded Buildings: %2, Blacklisted Buildings: %3", count _allBuildings, count _bCheckExclude, count LMO_objBlacklist]};
+diag_log format ["[LMO] All Buildings: %1, Excluded Buildings: %2, Blacklisted Buildings: %3", count _allBuildings, count _bCheckExclude, count LMO_objBlacklist];
 _allBuildings = _allBuildings - _bCheckExclude - LMO_objBlacklist;
-if (LMO_Debug) then {diag_log format ["[LMO] Suitable LMO Buildings: %1", count _allBuildings]};
+diag_log format ["[LMO] Suitable LMO Buildings: %1", count _allBuildings];
 
-if (count _allBuildings < 1) exitWith {
+if (count _allBuildings == 0) exitWith {
 		LMO_active = false;
-		if (LMO_Debug) then {diag_log "[LMO] No Buildings Found, exiting fn_getBuildings.sqf"};
+		diag_log "[LMO] No Buildings Found, exiting fn_getBuildings.sqf. LMO_active is set to false.";
 };
 
 //Selects random building from filtered array

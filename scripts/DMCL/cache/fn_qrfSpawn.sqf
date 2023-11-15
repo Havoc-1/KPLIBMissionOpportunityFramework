@@ -13,7 +13,7 @@ _enyUnits = createGroup east;
     _qrfCounter = _qrfCounter + 1;
     
     if (_qrfCounter == _sqdSize) then {
-        //["LMO_qrfSplit",[_enyUnits,_sqdSize,_qrfGrp1Rad,_cache]] call CBA_fnc_serverEvent;
         [_enyUnits,_sqdSize,_qrfGrp1Rad,_cache] call LMO_fn_qrfSplit;
     };
 } forEach _sqdOrbat;
+diag_log "[LMO] Spawning enemies for hostage rescue.";

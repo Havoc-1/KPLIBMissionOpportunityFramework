@@ -36,6 +36,7 @@ if (LMO_Debug && LMO_mType != 0) then {
 } else {
 	_missionType = [1,3] call BIS_fnc_randomInt;
 };
+diag_log format ["[LMO] missionType assigned: %1", _missionType];
 
 //Model used for Cache OBJ
 _cModel = "Box_FIA_Wps_F";
@@ -70,12 +71,16 @@ switch (_missionType) do {
 			LMO_MkrDebug setMarkerShape "ICON";
 			LMO_MkrDebug setMarkerSize [1,1];
 			LMO_MkrDebug setMarkerType "mil_dot";
+			diag_log "[LMO] Debug Marker created";
 		};
 		
 		//Checks whether hostage is in city
 		_nearbyBuildings = nearestTerrainObjects [LMO_spawnBldg, LMO_bTypes, (LMO_objMkrRadRescue/2), false, true];
 		//Increase escape radius if not in city
-		if (count _nearbyBuildings < 10) then {_HRrad = LMO_objMkrRadRescue * 1.5};
+		if (count _nearbyBuildings < 15) then {
+			_HRrad = LMO_objMkrRadRescue * 1.5;
+			diag_log format ["[LMO] Hostage target building is not near a city, rescue range expanded to %1 meters.",_HRrad];
+		};
 		
 		//Empties Variables
 		_enyUnitHostages = [];
@@ -93,7 +98,7 @@ switch (_missionType) do {
 			0,
 			"NONE"
 		];
-		
+		diag_log "[LMO] Hostage spawned.";
 		_hostage = selectRandom units _hostageGrp;
 		
 		//Spawns Enemies
@@ -111,7 +116,8 @@ switch (_missionType) do {
 					_sqdOrbat append [_sqdAdd];
 			};
 		};
-		
+		diag_log "[LMO] Spawning enemies for hostage rescue.";
+
 		{
 			_enyUnitsHolder = _enyUnits createUnit [
 				_x, //classname 
@@ -125,7 +131,6 @@ switch (_missionType) do {
 
 		} forEach _sqdOrbat;
 		
-		//[(units _enyUnits), getPos LMO_spawnBldg, 30, 1, true] call zen_ai_fnc_garrison;
 		[getPos LMO_spawnBldg, LMO_bTypes, (units _enyUnits), 30, 1, true, true] call ace_ai_fnc_garrison;
 
 		[] call LMO_fn_removeThrowables;
@@ -166,7 +171,7 @@ switch (_missionType) do {
 		
 		[GRLIB_side_friendly, ["_taskMisMO", "_taskMO"], [format ["A high value target was reported to be within the vicinity nearby <marker name =%1>%2</marker>. Capturing HVT will provide intelligence and slightly reduce enemy readiness while killing the HVT will provide no intelligence while greatly reducing enemy readiness.<br/><br/>Locate and extract kill the high value target.", LMO_MkrName,LMO_MkrText], "LMO: Capture or Kill HVT", "Kill"], objNull, 1, 3, false] call BIS_fnc_taskCreate;
 		["_taskMisMO","Kill"] call BIS_fnc_taskSetType;
-		["LMOTask", ["Kill or Capture HVT", "\A3\ui_f\data\igui\cfg\simpletasks\types\kill_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
+		//["LMOTask", ["Kill or Capture HVT", "\A3\ui_f\data\igui\cfg\simpletasks\types\kill_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 		
 		if (LMO_TST == true && LMO_TimeSenRNG <= LMO_TSTchance) then {
 			//["LMOTaskOutcomeO", ["Hostage Rescue", "\A3\ui_f\data\igui\cfg\simpletasks\types\meet_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
@@ -185,6 +190,7 @@ switch (_missionType) do {
 			LMO_MkrDebug setMarkerShape "ICON";
 			LMO_MkrDebug setMarkerSize [1,1];
 			LMO_MkrDebug setMarkerType "mil_dot";
+			diag_log "[LMO] Debug Marker created";
 		};
 		
 		_enyUnits = createGroup east;
@@ -204,7 +210,7 @@ switch (_missionType) do {
 					_sqdOrbat append [_sqdAdd];
 			};
 		};
-		
+		diag_log "[LMO] Spawning enemies for HVT.";
 		{
 			_enyUnitsHolder = _enyUnits createUnit [
 				_x, //classname 
@@ -322,7 +328,7 @@ switch (_missionType) do {
 									_surInRngEast = ((_hvt nearEntities [["Man","LandVehicle"],LMO_HVTrunSurRng]) select {side _x == GRLIB_side_enemy}) select {!(currentWeapon _x == "")};
 									if (count _surInRngWest > count _surInRngEast && (_hvt call BIS_fnc_enemyDetected)) exitWith {
 										[_hvt, true] call ace_captives_fnc_setSurrendered;
-										if (LMO_HVTDebug == true) then {diag_log "[LMO] HVT surrendered, exiting scope"};
+										diag_log "[LMO] HVT surrendered, exiting scope";
 										[_this select 1] call CBA_fnc_removePerFrameHandler;
 									};
 								};
@@ -359,37 +365,33 @@ switch (_missionType) do {
 											_hvt setVariable ["LMO_AngDeg",_angDeg];
 											_movePos = [getPos _hvt, LMO_HVTrunDist, _angDeg] call BIS_fnc_relPos;
 											group _hvt move _movePos;
-											if (LMO_HVTDebug == true) then {
-												diag_log format ["[LMO] No AngDeg Found. Random AngDeg: %1.",_angDeg];
-											};
+											diag_log format ["[LMO] No AngDeg Found. Random AngDeg: %1.",_angDeg];
+											
 										} else {
 											_angDeg = _hvt getVariable "LMO_AngDeg";
 
 											_movePos = [getPos _hvt, LMO_HVTrunDist, _angDeg] call BIS_fnc_relPos;
 											group _hvt move _movePos;
-											if (LMO_HVTDebug == true) then {
-												diag_log format ["[LMO] AngDeg Found: %1.",_angDeg];
-											};
+											diag_log format ["[LMO] AngDeg Found: %1.",_angDeg];
+											
 										};
 									} else {	
 										_angDeg = ((_targetDir/count _targetsInRange) + 180) % 360;
 										_hvt setVariable ["LMO_AngDeg",_angDeg];
-										if (LMO_HVTDebug == true) then {
-											diag_log format ["[LMO] Armed enemy units in range, AngDeg made: %1",_angDeg];
-										};
+										diag_log format ["[LMO] Armed enemy units in range, AngDeg made: %1",_angDeg];
+										
 										_movePos = [getPos _hvt, LMO_HVTrunDist, _angDeg] call BIS_fnc_relPos;
 										group _hvt move _movePos;
 									};
 
-									if (LMO_HVTDebug == true) then {
-										diag_log format ["[LMO] HVT Running from %1 armed enemies. Run Dir: %2. Move Pos: %3.",count _targetsList,round (_hvt getVariable "LMO_AngDeg"),_movePos];
-									};
-								
+									diag_log format ["[LMO] HVT Running from %1 armed enemies. Run Dir: %2. Move Pos: %3.",count _targetsList,round (_hvt getVariable "LMO_AngDeg"),_movePos];
+																	
 									if (_hvt getVariable ["ace_captives_isSurrendering", false]) exitWith {
-										if (LMO_HVTDebug == true) then {diag_log "[LMO] HVT surrendered, exiting scope."};
+										diag_log "[LMO] HVT surrendered, exiting runner PFH.";
 										[_this select 1] call CBA_fnc_removePerFrameHandler;
 									};
 								} else {
+									diag_log "[LMO] HVT is dead or deleted, exiting runner PFH.";
 									[_this select 1] call CBA_fnc_removePerFrameHandler;
 								};
 							},
@@ -426,10 +428,10 @@ switch (_missionType) do {
 		//Spawn Cache
 		if (count _cSpawnPos > 0) then {
 			_cache = createVehicle [_cModel, _cSpawnPos, [], 0, "CAN_COLLIDE"];
-			if (LMO_Debug) then {diag_log format ["[LMO] Cache created at %1", getPos _cache]};
+			diag_log format ["[LMO] Cache created at %1", getPos _cache];
 		} else {
 			_cache = createVehicle [getPos LMO_spawnBldg, _cModel, [], 0, "CAN_COLLIDE"];
-			if (LMO_Debug) then {diag_log format ["[LMO] No suitable cache spot found. Creating cache in target building at %1", getPos _cache]};
+			diag_log format ["[LMO] No suitable cache spot found. Creating cache in target building at %1", getPos _cache];
 		};
 
 		//Empty contents of Cache
@@ -437,7 +439,7 @@ switch (_missionType) do {
 			clearItemCargoGlobal _cache;
 			clearWeaponCargoGlobal _cache;
 			clearMagazineCargoGlobal _cache;
-			if (LMO_Debug) then {diag_log "[LMO] Cache cargo emptied."};
+			diag_log "[LMO] Cache cargo emptied.";
 		};
 		
 		//Add explosives to cache
@@ -445,7 +447,7 @@ switch (_missionType) do {
 			{
 				_cache addItemCargoGlobal [(_x select 0), (_x select 1)];
 			} forEach LMO_CacheItemArray;
-			if (LMO_Debug) then {diag_log "[LMO] Cache items added."};
+			diag_log "[LMO] Cache items added.";
 		};
 		_cache setVariable ["LMO_CacheSecure", false, true];
 		
@@ -455,6 +457,7 @@ switch (_missionType) do {
 			LMO_MkrDebug setMarkerShape "ICON";
 			LMO_MkrDebug setMarkerSize [1,1];
 			LMO_MkrDebug setMarkerType "mil_dot";
+			diag_log "[LMO] Debug Marker created";
 		};
 		
 		//Adds hold action to cache to secure
@@ -473,7 +476,7 @@ switch (_missionType) do {
 				if (_target getVariable ["LMO_CacheSecure",true]) then {
 					_caller switchMove "";
 					[_target,_actionId] call BIS_fnc_holdActionRemove;
-					if (LMO_Debug) then {diag_log "[LMO] Cache secured, cancelling action and deleting holdAction."};
+					diag_log "[LMO] Cache secured, cancelling action and deleting holdAction.";
 				};
 			},
 			{
@@ -490,9 +493,8 @@ switch (_missionType) do {
 					[_target],
 					0.5
 				] call CBA_fnc_waitAndExecute;
-				if (LMO_Debug) then {
-					diag_log format ["[LMO] CacheSecure: %1", _target getVariable "LMO_CacheSecure"];
-				};
+				diag_log format ["[LMO] CacheSecure: %1", _target getVariable "LMO_CacheSecure"];
+				
 				[_target,_actionId] call BIS_fnc_holdActionRemove;
 			},
 			{_caller switchMove ""},
@@ -502,19 +504,19 @@ switch (_missionType) do {
 			true,
 			false
 		] remoteExec ["BIS_fnc_holdActionAdd", 0, _cache];
-		
+		diag_log "[LMO] Cache Hold action created.";
+
 		_cache addEventHandler ["Explosion", {
 			params ["_vehicle", "_damage"];
 			if (_damage > 1) then {
 				_cAttached = attachedObjects _vehicle select {typeOf _x == "PortableHelipadLight_01_red_F"};
 				if (count _cAttached > 0) then {{deleteVehicle _x} forEach _cAttached};
-				if (LMO_Debug) then {
-					diag_log format ["[LMO] Cache destroyed, CacheSecure variable: %1", _vehicle getVariable "LMO_CacheSecure"];
-				};
+				diag_log format ["[LMO] Cache destroyed, CacheSecure variable: %1", _vehicle getVariable "LMO_CacheSecure"];
+				
 				_vehicle setDamage 1;
 				
 			};
-			if (LMO_Debug) then {diag_log format ["[LMO] Cache Damaged: %1", _damage]};
+			diag_log format ["[LMO] Cache Damaged: %1", _damage];
 		}];		
 	};
 };
@@ -592,6 +594,7 @@ switch (_missionType) do {
 			//Fail LMO if timer expires
 			if (LMO_mTimer == 0) then {
 				_missionState = 2;
+				diag_log "[LMO] Timer has expired.";
 			};
 			
 			//----Win Lose Conditions----//
@@ -608,9 +611,13 @@ switch (_missionType) do {
 				if (((LMO_Penalties select 0) == true) && ((LMO_Penalties select 1) == true)) then {
 					//Deduct Civilian reputation as defined in kp_liberation_config.sqf
 					[LMO_HR_Lose_CivRep, true] call F_cr_changeCR;
+					diag_log format ["[LMO] Hostage Rescue CivRep deducted by %1, new CivRep is %2", LMO_HR_Lose_CivRep, KP_liberation_civ_rep];
 				};
 				
-				if (alive _hostage) then {_hostage setdamage 1};
+				if (alive _hostage) then {
+					_hostage setdamage 1;
+					diag_log "[LMO] Hostage timer expired, killing hostage.";
+				};
 
 				[
 					{
@@ -629,9 +636,11 @@ switch (_missionType) do {
 								deleteGroup _enyUnits;
 								deleteGroup _hostageGrp;
 								[_this select 1] call CBA_fnc_removePerFrameHandler;
+								diag_log "[LMO] Exiting delete units PFH for Hostage Rescue.";
 							};
 						} else {
 							[_this select 1] call CBA_fnc_removePerFrameHandler;
+							diag_log "[LMO] Exiting delete units PFH for Hostage Rescue.";
 						};
 					},
 					5,
@@ -653,13 +662,17 @@ switch (_missionType) do {
 
 					_finalReward = round (LMO_HR_Win_CivRep * LMO_TST_Reward);
 					[_finalReward] call F_cr_changeCR;
-					KP_liberation_civ_rep = KP_liberation_civ_rep + (round (LMO_HR_Win_CivRep * LMO_TST_Reward));
+					//KP_liberation_civ_rep = KP_liberation_civ_rep + (round (LMO_HR_Win_CivRep * LMO_TST_Reward));
 					resources_intel = resources_intel + (round (LMO_HR_Win_Intel * LMO_TST_Reward));
+					diag_log format ["[LMO] CivRep increased by %1 (TST), new CivRep is %2", _finalReward, KP_liberation_civ_rep];
+					diag_log format ["[LMO] Intelligence increased by %1 (TST), new Intelligence is %2", (round (LMO_HR_Win_Intel * LMO_TST_Reward)), resources_intel];
 				} else {
 
-					KP_liberation_civ_rep = KP_liberation_civ_rep + LMO_HR_Win_CivRep;
+					//KP_liberation_civ_rep = KP_liberation_civ_rep + LMO_HR_Win_CivRep;
 					[LMO_HR_Win_CivRep] call F_cr_changeCR;
 					resources_intel = resources_intel + LMO_HR_Win_Intel;
+					diag_log format ["[LMO] CivRep increased by %1, new CivRep is %2", _finalReward, KP_liberation_civ_rep];
+					diag_log format ["[LMO] Intelligence increased by %1, new Intelligence is %2", (round (LMO_HR_Win_Intel * LMO_TST_Reward)), resources_intel];
 				};
 
 				{
@@ -733,6 +746,7 @@ switch (_missionType) do {
 					if (_hvtRunner < 0.5 || LMO_HVTrunnerOnly == true) then {
 						deleteGroup _hvtRunnerGrp;
 						_hvt setVariable ["LMO_AngDeg",nil];
+						diag_log "[LMO] Deleteing HVT Runner group, setting LMO_AngDeg to nil.";
 					};
 
 					switch (alive _hvt) do {
@@ -742,17 +756,26 @@ switch (_missionType) do {
 								if (LMO_TST == true && LMO_TimeSenRNG <= LMO_TSTchance) then {
 									resources_intel = resources_intel + (round (LMO_HVT_Win_intelUnarmed * LMO_TST_Reward));
 									combat_readiness = combat_readiness - (round (LMO_HVT_Win_CapAlert * LMO_TST_Reward));
+									diag_log format ["[LMO] Intelligence increased by %1 (TST), new Intelligence is %2", (round (LMO_HVT_Win_intelUnarmed * LMO_TST_Reward)), resources_intel];
+									diag_log format ["[LMO] Alert level reduced by %1 (TST), new Alert level is %2", (round (LMO_HVT_Win_CapAlert * LMO_TST_Reward)), combat_readiness];
 								} else {
 									resources_intel = resources_intel + LMO_HVT_Win_intelUnarmed;
 									combat_readiness = combat_readiness - LMO_HVT_Win_CapAlert;
+									diag_log format ["[LMO] Intelligence increased by %1, new Intelligence is %2", LMO_HVT_Win_intelUnarmed, resources_intel];
+									diag_log format ["[LMO] Alert level reduced by %1, new Alert level is %2", LMO_HVT_Win_CapAlert, combat_readiness];
 								};
 							} else { //hasweapon, alive
 								if (LMO_TST == true && LMO_TimeSenRNG <= LMO_TSTchance) then {
 									resources_intel = resources_intel + (round (LMO_HVT_Win_intelArmed * LMO_TST_Reward));
 									combat_readiness = combat_readiness - (round (LMO_HVT_Win_CapAlert * LMO_TST_Reward));
+									diag_log format ["[LMO] Intelligence increased by %1 (TST), new Intelligence is %2", (round (LMO_HVT_Win_intelArmed * LMO_TST_Reward)), resources_intel];
+									diag_log format ["[LMO] Alert level reduced by %1 (TST), new Alert level is %2", (round (LMO_HVT_Win_CapAlert * LMO_TST_Reward)), combat_readiness];
+								
 								} else {
 									resources_intel = resources_intel + LMO_HVT_Win_intelArmed;
 									combat_readiness = combat_readiness - LMO_HVT_Win_CapAlert;
+									diag_log format ["[LMO] Intelligence increased by %1, new Intelligence is %2", LMO_HVT_Win_intelArmed, resources_intel];
+									diag_log format ["[LMO] Alert level reduced by %1, new Alert level is %2", LMO_HVT_Win_CapAlert, combat_readiness];
 								};
 							};
 
@@ -764,8 +787,10 @@ switch (_missionType) do {
 							if (!(primaryWeapon _hvt == "")) then {
 								if (LMO_TST == true && LMO_TimeSenRNG <= LMO_TSTchance) then {
 									combat_readiness = combat_readiness - (round (LMO_HVT_Win_KillAlert * LMO_TST_Reward));
+									diag_log format ["[LMO] Alert level reduced by %1, new Alert level is %2", (round (LMO_HVT_Win_KillAlert * LMO_TST_Reward)), combat_readiness];
 								} else {
 									combat_readiness = combat_readiness - LMO_HVT_Win_KillAlert;
+									diag_log format ["[LMO] Alert level reduced by %1, new Alert level is %2", LMO_HVT_Win_KillAlert, combat_readiness];
 								};
 							};
 							["LMOTaskOutcomeG", ["HVT has been neutralized", "\A3\ui_f\data\igui\cfg\holdactions\holdaction_forcerespawn_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
@@ -802,48 +827,45 @@ switch (_missionType) do {
 				//If cache destroyed and NOT secured
 				if ((!alive _cache) && ((_cSecured != true))) then {
 					_missionState = 1;
-					diag_log "[LMO] Cache was destroyed.";
+					diag_log "[LMO] Cache was destroyed and not secured.";
 					["LMOTaskOutcomeG", ["Cache has been destroyed", "a3\ui_f_oldman\data\igui\cfg\holdactions\destroy_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 					if (LMO_TST == true && LMO_TimeSenRNG <= LMO_TSTchance) then {
 						combat_readiness = combat_readiness - (LMO_Cache_Win_Alert * LMO_TST_Reward);
+						diag_log format ["[LMO] Alert level reduced by %1, new Alert level is %2", (LMO_Cache_Win_Alert * LMO_TST_Reward), combat_readiness];
 					} else {
 						combat_readiness = combat_readiness - LMO_Cache_Win_Alert;
+						diag_log format ["[LMO] Alert level reduced by %1, new Alert level is %2", LMO_Cache_Win_Alert, combat_readiness];
 					};
 				};
 				
 				_cSecured = missionNamespace getVariable ["LMO_CacheTagged",false];
-				//diag_log format ["[LMO] cSecured missionNamespace: %1", _cSecured];
-
-				//if (!_cSecured) then {diag_log "[LMO] cSecured is false"};
 
 				//If Secured Cache
 				if ((alive _cache) && (_cache getVariable ["LMO_CacheSecure", true] && (!_cSecured))) then {
 					["LMOTaskOutcome", ["Cache has been located", "a3\ui_f\data\gui\rsccommon\rscbuttonsearch\search_start_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 					
 					//Marks cache as tagged in missionNameSpace to prevent loop executions
-					//_cSecured = missionNamespace getVariable "LMO_CacheTagged";
-					//if (isNil "_cSecured" || !(_cSecured)) then {
 						missionNamespace setVariable ["LMO_CacheTagged", true];
-						if (LMO_Debug) then {diag_log format ["[LMO] missionnameSpace _cSecured: %1. qrfCache and cacheFulton initializing.",missionNamespace getVariable "LMO_CacheTagged"]};
-					
-						//Defend cache
-						[
-							{
-								["LMOTaskOutcomeR", ["Enemy forces are attempting to retake cache", "\a3\ui_f\data\igui\cfg\simpletasks\types\Radio_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
-							},
-							[],
-							11
-						] call CBA_fnc_waitAndExecute;
-						[
-							{
-								params ["_cache","_taskMO","_taskMisMO"];
-								[_cache] call LMO_fn_qrfCache;
-								[_cache,"_taskMO","_taskMisMO"] call LMO_fn_cacheFulton;
-							},
-							[_cache,"_taskMO","_taskMisMO"],
-							1
-						] call CBA_fnc_waitAndExecute;
-					//};
+						diag_log format ["[LMO] missionnameSpace _cSecured: %1. qrfCache and cacheFulton initializing.",missionNamespace getVariable "LMO_CacheTagged"];
+				
+					//Defend cache
+					[
+						{
+							["LMOTaskOutcomeR", ["Enemy forces are attempting to retake cache", "\a3\ui_f\data\igui\cfg\simpletasks\types\Radio_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
+						},
+						[],
+						11
+					] call CBA_fnc_waitAndExecute;
+					[
+						{
+							params ["_cache","_taskMO","_taskMisMO"];
+							[_cache] call LMO_fn_qrfCache;
+							[_cache,"_taskMO","_taskMisMO"] call LMO_fn_cacheFulton;
+						},
+						[_cache,"_taskMO","_taskMisMO"],
+						1
+					] call CBA_fnc_waitAndExecute;
+
 				};
 			};
 			
@@ -855,13 +877,14 @@ switch (_missionType) do {
 					missionNamespace setVariable ["LMO_CacheTagged", nil];
 					if (((LMO_Penalties select 0) == true) && ((LMO_Penalties select 1) == true)) then {
 						combat_readiness = combat_readiness + LMO_Cache_Lose_Alert;
+						diag_log format ["[LMO] Alert level increased by %1, new Alert level is %2", LMO_Cache_Lose_Alert, combat_readiness];
 					};
 
 					["LMOTaskOutcomeR", ["Cache has been moved by the enemy", "a3\ui_f_oldman\data\igui\cfg\holdactions\destroy_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 					_cAttached = attachedObjects _cache select {typeOf _x == "PortableHelipadLight_01_red_F"};
 					if (count _cAttached > 0) then {{deleteVehicle _x} forEach _cAttached};
 					deleteVehicle _cache;
-					if (LMO_Debug) then {diag_log "[LMO] Cache deleted."};
+					diag_log "[LMO] Cache deleted.";
 				};
 			};
 			
@@ -869,10 +892,11 @@ switch (_missionType) do {
 			if (_missionState != 0) exitWith {
 				[_missionState,"_taskMO","_taskMisMO"] call LMO_fn_taskState;
 				[_this select 1] call CBA_fnc_removePerFrameHandler;
-				diag_log "[LMO] Mission Finished, exiting PFH."
+				diag_log "[LMO] Mission Finished, exiting pickMission PFH."
 			};
 		} else {
 			[_this select 1] call CBA_fnc_removePerFrameHandler;
+			diag_log "[LMO] LMO_active is false, exiting pickMission PFH."
 		};
 	},
 	1,

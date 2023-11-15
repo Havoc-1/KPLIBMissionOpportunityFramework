@@ -12,7 +12,7 @@
  */
 
 params ["_cache","_taskMO","_taskMisMO"];
-if (LMO_Debug) then {diag_log format ["[LMO] Delete loop started for Cache at %1.", getPos _cache]};
+diag_log format ["[LMO] Delete loop started for Cache at %1.", getPos _cache];
 	
 [	
 	{

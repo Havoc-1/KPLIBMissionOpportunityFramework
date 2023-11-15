@@ -10,7 +10,7 @@ _cache allowDamage false;
 _cache setDamage 0;
 _cache enableSimulationGlobal false;
 
-if (LMO_Debug) then {diag_log "[LMO] No players in range, secured cache hidden. Exiting scope with fulton."};
+diag_log "[LMO] No players in range, secured cache hidden. Exiting scope with fulton.";
 
 //Creates uplift Cache
 _cFly = "C_supplyCrate_F" createVehicle _cPos;
@@ -72,7 +72,7 @@ _cacheRope allowDamage false;
 				deleteVehicle _cPara;
 				deleteVehicle _cLight;
 				deleteVehicle _cache;
-				if (LMO_Debug) then {diag_log "[LMO] Cache successfully airlifted. Cache deleted."};
+				diag_log "[LMO] Cache successfully airlifted. Cache deleted.";
 				[1,"_taskMO","_taskMisMO"] call LMO_fn_taskState;
 				if (LMO_TST == true && LMO_TimeSenRNG <= LMO_TSTchance) then {
 					combat_readiness = combat_readiness - (LMO_Cache_Win_Alert * LMO_TST_Reward);
@@ -121,17 +121,15 @@ _cacheRope allowDamage false;
 					_fobStorage = _fobStorageSort select 0;
 				};
 				
-				if (LMO_Debug) then {
-					diag_log format ["[LMO] Closest FOB: %1, fobStorage: %2, fobStorageList: %3",_nearFob,_fobStorage, count _fobStorageObj];
-				};
+				diag_log format ["[LMO] Closest FOB: %1, fobStorage: %2, fobStorageList: %3",_nearFob,_fobStorage, count _fobStorageObj];
+				
 
 				if (!isNull _fobStorage) then {
 					[(100*_cacheBox_Supply),(100*_cacheBox_Ammo),(100*_cacheBox_Fuel), _fobStorage] call KPLIB_fnc_fillStorage;
 					["LMOTaskOutcomeG", ["Cache supplies uplifted to base", "z\ace\addons\dragging\ui\icons\box_carry.paa"]] remoteExec ["BIS_fnc_showNotification"];
 
-					if (LMO_Debug) then {
 					diag_log format ["[LMO] Rewards: %1 Supply Crates, %2 Ammo Crates, %3 Fuel Crates.",_cacheBox_Supply,_cacheBox_Ammo,_cacheBox_Fuel];
-					};
+					
 
 					[_this select 1] call CBA_fnc_removePerFrameHandler;
 				} else {

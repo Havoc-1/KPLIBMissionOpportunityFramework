@@ -253,15 +253,16 @@ if (Vcm_ActivateAI == false || isNil "Vcm_ActivateAI") then {LMO_VCOM_On = false
 			
 			if (count LMO_enyList > 0 && ((LMO_mChance <= LMO_mChanceSelect) || LMO_Debug)) then {
 				LMO_active = true;
+				diag_log "[LMO] LMO_active is now true.";
 				[] call LMO_fn_getBuildings;
 				if (LMO_active == false) exitWith {
-					if (LMO_Debug) then {diag_log "[LMO] Debug: No suitable buildings found, exiting scope fn_getBuildings.sqf"};
+					diag_log "[LMO] Debug: No suitable buildings found, exiting scope fn_getBuildings.sqf";
 				};
 				[] call LMO_fn_markerFunctions;
 				[] call LMO_fn_pickMission;
 			};
 		};
-		if (LMO_Debug && !LMO_active) then {
+		if (!(LMO_active)) then {
 			diag_log format ["[LMO] Debug: Mission Chance: %1, TST Chance: %2, LMO_active: %3, Spawn Building: %4, EnyCount: %5, VCOM Enabled: %6", LMO_mChance,LMO_TimeSenRNG, LMO_active, LMO_spawnBldg, count LMO_enyList, LMO_VCOM_On];	
 		};
 	},

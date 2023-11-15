@@ -61,3 +61,4 @@ if (LMO_hvtOutfit select 6 == true) then {
 		_hvt addMagazines [(_hvtWeap select 1),(_hvtWeap select 2)];
 	};
 };
+diag_log "[LMO] hvtOutfit completed.";
