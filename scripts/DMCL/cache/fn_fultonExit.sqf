@@ -10,7 +10,7 @@ _cache allowDamage false;
 _cache setDamage 0;
 _cache enableSimulationGlobal false;
 
-diag_log "[LMO] No players in range, secured cache hidden. Exiting scope with fulton.";
+diag_log "[LMO] Cache defense complete, secured cache hidden. Exiting scope with fulton.";
 
 //Creates uplift Cache
 _cFly = "C_supplyCrate_F" createVehicle _cPos;
@@ -146,7 +146,7 @@ _cacheRope allowDamage false;
 								([_x] call KPLIB_fnc_getStoragePositions) params ["_storage_positions", "_unload_distance"];
 								_crates_count = count (attachedObjects _x);
 								if ((_crates_count >= (count _storage_positions)) && (count _fobStorageSort > 0) && ((_fobStorageSort find _x) != ((count _fobStorageSort) - 1))) exitWith {
-									diag_log format ["[LMO] %1 at %2 does not have enough space to store crates. Moving to next storage.", typeOf _x, _nearFob];
+									diag_log format ["[LMO] %1 at FOB does not have enough space to store crates. Moving to next storage.", typeOf _x];
 								};
 								if ((_cacheRewards > 0) && (count _fobStorageSort > 1) && (_crates_count >= (count _storage_positions)) && (((_fobStorageSort find _x) == ((count _fobStorageSort) - 1)))) exitWith {
 									diag_log format ["[LMO] No storage containers available at FOB to store crates, delivering to FOB at %1", _nearFob];
@@ -170,30 +170,29 @@ _cacheRope allowDamage false;
 									diag_log format ["[LMO] %1 Supply Crates, %2 Ammo Crates, %3 Fuel Crates delivered to %4", _c1, _c2, _c3, _nearFob];
 								};
 
-								diag_log format ["[LMO] fillStorage attempt on %1 at %2.", typeOf _x, _nearFob];
+								diag_log format ["[LMO] fillStorage attempt on %1 at FOB.", typeOf _x];
 								if (_c1 > 0) then {
 									[100, 0, 0, _x] call KPLIB_fnc_fillStorage;
 									_c1 = _c1 - 1;
 									_cacheRewards = _cacheRewards - 1;
-									diag_log format ["[LMO] fillStorage successful on %1 at %2. (Supply Crate)", typeOf _x, _nearFob];
+									diag_log format ["[LMO] fillStorage successful on %1 at FOB. (Supply Crate)", typeOf _x];
 								} else {
 									if (_c2 > 0) then {
 										[0, 100, 0, _x] call KPLIB_fnc_fillStorage;
 										_c2 = _c2 - 1;
 										_cacheRewards = _cacheRewards - 1;
-										diag_log format ["[LMO] fillStorage successful on %1 at %2. (Ammo Crate)", typeOf _x, _nearFob];
+										diag_log format ["[LMO] fillStorage successful on %1 at FOB. (Ammo Crate)", typeOf _x];
 									} else {
 										if (_c3 > 0) then {
 											_c3 = _c3 - 1;
 											_cacheRewards = _cacheRewards - 1;
 											[0, 0, 100, _x] call KPLIB_fnc_fillStorage;
-											diag_log format ["[LMO] fillStorage successful on %1 at %2. (Fuel Crate)", typeOf _x, _nearFob];
+											diag_log format ["[LMO] fillStorage successful on %1 at FOB. (Fuel Crate)", typeOf _x];
 										};
 									};
 								};
 								sleep 0.1;
 							};
-							
 						}forEach _fobStorageSort;
 					};
 				} else {

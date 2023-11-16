@@ -21,13 +21,13 @@ diag_log format ["[LMO] Delete loop started for Cache at %1.", getPos _cache];
 		_cNear = (nearestObjects [_cache, ["Man", "LandVehicle"], LMO_CacheDefDist]) select {side _x == GRLIB_side_enemy};
 		_cNearPlayer = ((nearestObjects [_cache, ["Man", "LandVehicle"], LMO_CacheDefDist]) select {side _x == GRLIB_side_friendly}) select {!(_x getVariable ["ACE_isUnconscious", false])};
 		if ((count _cNear > 0) && (count _cNearPlayer == 0)) exitWith {
+			diag_log format ["[LMO] Cache was secured by the enemy."];
 			[
 				{
 					params ["_cache","_taskMO","_taskMisMO"];
 					_cAttached = attachedObjects _cache select {typeOf _x == "PortableHelipadLight_01_red_F"};
 					if (count _cAttached > 0) then {{deleteVehicle _x} forEach _cAttached};
 					deleteVehicle _cache;
-					diag_log format ["[LMO] Cache was secured by the enemy."];
 					["LMOTaskOutcomeR", ["Cache was retaken by the enemy", "z\ace\addons\dragging\ui\icons\box_carry.paa"]] remoteExec ["BIS_fnc_showNotification"];
 					missionNamespace setVariable ["LMO_CacheTagged", nil];
 					[2,"_taskMO","_taskMisMO"] call LMO_fn_taskState;
@@ -56,6 +56,7 @@ diag_log format ["[LMO] Delete loop started for Cache at %1.", getPos _cache];
 		if (LMO_cTimer == 0 && alive _cache) exitWith {
 			//missionNamespace setVariable ["LMO_CacheTagged", nil];
 			[_cache,"_taskMO","_taskMisMO"] call LMO_fn_fultonExit;
+			diag_log "[LMO] Cache has been defended, initializing fultonExit. Exiting cacheFulton PFH.";
 			[_this select 1] call CBA_fnc_removePerFrameHandler;
 		};
 	},

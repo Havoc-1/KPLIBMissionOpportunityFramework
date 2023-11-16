@@ -11,9 +11,10 @@ _enyUnits = createGroup east;
     [_enyUnitsHolder] joinSilent _enyUnits;
     
     _qrfCounter = _qrfCounter + 1;
-    
+    diag_log format ["[LMO] qrfCounter: %1, Squad Size: %2", _qrfCounter, _sqdSize];
+
     if (_qrfCounter == _sqdSize) then {
         [_enyUnits,_sqdSize,_qrfGrp1Rad,_cache] call LMO_fn_qrfSplit;
     };
 } forEach _sqdOrbat;
-diag_log "[LMO] Spawning enemies for hostage rescue.";
+diag_log "[LMO] Spawning enemies for cache.";
