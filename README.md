@@ -17,17 +17,20 @@ Designed for Arma 3
     - Mission radius
     - Chance of mission generation
     - Mission marker properties
-- Works in any map
+    - Rewards and Penalties for each mission type
+    - Type of mission
+    - Variety of HVT, defenders, and QRF outfit and equipment
+- Works in any map with KP Liberation Scenario (0.96.7a)
 - Custom markers with timer function 
 - Optimized and reasonably lightweight 
-- HVT has a chance of running away 
 
+## Mission Types
+- Kill or Capture HVT
+- Hostage Rescue
+- Cache retrieval / destruction
 
 ## Roadmap
-
 - More mission types and variety
-- GRAD_Civilians integration
-- Further optimize pickMission.sqf with CBA_eventHandlers
 - Offload customization to CBA settings 
 
 ## Installation
