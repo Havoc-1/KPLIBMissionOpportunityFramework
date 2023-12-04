@@ -22,7 +22,9 @@ Designed for Arma 3
     - Variety of HVT, defenders, and QRF outfit and equipment
 - Works in any map with KP Liberation Scenario (0.96.7a)
 - Custom markers with timer function 
-- Optimized and reasonably lightweight 
+- Optimized and reasonably lightweight
+- Compatible with VCOM and LAMBs
+- Works with headlessclients
 
 ## Mission Types
 - Kill or Capture HVT
