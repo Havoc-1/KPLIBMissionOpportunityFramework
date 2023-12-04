@@ -16,7 +16,7 @@ class CfgNotifications {
 		iconPicture = "%2";
 		description = "%1";
 		priority = "7";
-		color[] = {252/256,141/256,31/256,1};
+		color[] = {198/256,131/256,45/256,1};
     };
 	class LMOTaskOutcomeG {
         title = "Mission of Opportunity";

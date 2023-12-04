@@ -1,5 +1,5 @@
 /*	
- *	Author: [ANTEC] Xephros, [DMCL] Keystone
+ *	Author: [SGC] Xephros, [DMCL] Keystone
  *	Function to update LMO Timer, Marker Color, Marker Position and Marker Radius	
  *
  *	Arguments:
@@ -11,7 +11,7 @@
  *		5: Marker Brush <STRING>
  *
  *	Example:
- *		[0,"ColorGrey",position _unit,300,false,"Solid"] call XEPKEY_fn_mTimerAdjust;
+ *		[0,"ColorGrey",position _unit,300,false,"Solid"] call LMO_fn_mTimerAdjust;
  *
  *	Return Value: NONE
  */

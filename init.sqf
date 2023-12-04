@@ -1,4 +1,5 @@
 if ((!isServer) && (player != player)) then {waitUntil {player == player};};
 enableSaving [ false, false ];
 
-[] execVM "scripts\DMCL\fn_LMOinit.sqf";										//Liberation Side Ops
+//Liberation Mission of Opportunities
+[] execVM "scripts\LMO\fn_LMOinit.sqf";		
