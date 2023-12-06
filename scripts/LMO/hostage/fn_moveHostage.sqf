@@ -7,16 +7,16 @@
  *		1: Hostage Units Group <GROUP>
  *
  *	Example:
- *		[_enyUnits,_hostage] call LMO_fn_spawnHostage;
+ *		[_enyUnits,_hostage] call LMO_fn_moveHostage;
  *
  */
 
 params ["_enyUnits","_hostage"];
 
 //Predefine variables
-_hPosOffset = selectRandom [-0.5,0.5];
-_hDisOffset = [0.5,2] call BIS_fnc_randomNum;
-
+private _hPosOffset = selectRandom [-0.5,0.5];
+private _hDisOffset = [0.5,2] call BIS_fnc_randomNum;
+private _hTaker = objNull;
 
 //Handcuffs hostage
 [_hostage, true, objNull] call ACE_captives_fnc_setHandcuffed;

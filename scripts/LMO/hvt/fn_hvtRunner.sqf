@@ -1,8 +1,20 @@
-_hvtRunner = random 1;
+/* 
+ *	Author: [SGC] Xephros, [DMCL] Keystone
+ *	Function to initialize HVT runner.
+ *
+ *	Arguments: None
+ *
+ *	Return Value: None
+ *
+ *	Example:
+ *		[] call LMO_fn_hvtRunner;
+ */
+
+private _hvtRunner = random 1;
 
 if (_hvtRunner < 0.5 || LMO_HVTrunnerOnly == true) then {
 
-diag_log "[LMO] [HVT] HVT is a runner.";
+	["HVT is a runner.",LMO_DebugFull] call LMO_fn_rptSysChat;
 
 	//HVT's group has a chance to start moving
 	{
@@ -12,10 +24,11 @@ diag_log "[LMO] [HVT] HVT is a runner.";
 		};
 	}forEach units group _hvt;
 
-	_hvtRunnerGrp = createGroup east;
+	private _hvtRunnerGrp = createGroup east;
 	
 	//HVT Runner
 	[_hvt] joinSilent _hvtRunnerGrp;
+	_hvtRunnerGrp deleteGroupWhenEmpty true;
 	
 	if (LMO_VCOM_On == true) then {
 		_hvtRunnerGrp setVariable ["VCM_NOFLANK",true];
@@ -161,4 +174,6 @@ diag_log "[LMO] [HVT] HVT is a runner.";
 		},
 		[_hvt]
 	] call CBA_fnc_waitUntilAndExecute;
+} else {
+	["HVT is armed.",LMO_DebugFull] call LMO_fn_rptSysChat;
 };

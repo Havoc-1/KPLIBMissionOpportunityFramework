@@ -144,6 +144,18 @@ params ["_unit","_eq"];
 				};
 			};
 		};
+
+		//Attempts to reoutfit unit if uniform is missing
+		[
+			{
+				params ["_unit","_eq"];
+				if (uniform _unit == "") then {
+					[_unit,_eq] call LMO_fn_enyOutfit;
+				};
+			},
+			[_unit,_eq],
+			10
+		] call CBA_fnc_waitAndExecute;
 	},
 	[_unit,_eq],
 	5

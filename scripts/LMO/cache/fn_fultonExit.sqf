@@ -4,17 +4,29 @@
  *
  *	Arguments:
  *		0: Cache <OBJECT>
- *		1: Parent Task <STRING>
- *		2: Child task <STRING>
+ *		1: Task Array <ARRAY>
+ *			1: Parent Task <STRING>
+ *			2: Child Task <STRING>
  *
  *	Examples:
- *		[_cache,"_taskMO","_taskMisMO"] call LMO_fn_fultonExit
+ *		[_cache,_tasks] call LMO_fn_fultonExit;
  *	
  *	Return Value: None
  */
 
-params ["_cache","_taskMO","_taskMisMO"];
+params ["_cache","_tasks"];
 ["LMOTaskOutcome", ["Cache preparing for uplift", "z\ace\addons\dragging\ui\icons\box_carry.paa"]] remoteExec ["BIS_fnc_showNotification"];
+private _cAttached = [];
+private _cPos = [];
+private _cPara = objNull;
+private _cFly = objNull;
+private _cBalloon = objNull;
+private _inflate = 0.08;
+private _bRise = 3;
+private _cacheRope = objNull;
+private _cLight = objNull;
+private _flyMax = 1000;
+
 _cAttached = attachedObjects _cache;
 if (count _cAttached > 0) then {{deleteVehicle _x} forEach _cAttached};
 _cPos = getPosATL _cache;
@@ -47,24 +59,22 @@ _cPara disableCollisionWith _cFly;
 _cPara disableCollisionWith _cBalloon;
 _cBalloon setPosATL [(getPosATL _cPara) select 0,(getPosATL _cPara) select 1,((getPosATL _cPara) select 2)-2];
 _cBalloon setObjectScale 1;
-_inflate = 0.08;
 
 //Inflates Fulton Balloon
 [_cFly,_cBalloon,_cPara,_inflate,_cache] remoteExec ["LMO_fn_inflateBalloon",0,true];
 
 //Uplift cache setVelocity
-_bRise = 3;
+
 _cacheRope = ropeCreate [_cPara, [0,0,-2],_cFly, [0,0,0.5], 30];
 ropeUnwind [_cBalloon, 20, 100];
 _cLight = "PortableHelipadLight_01_red_F" createVehicle getPos _cFly;
 _cLight allowDamage false;
 _cLight attachTo [_cFly, [0,0,0.6]];
-_flyMax = 1000;
 _cacheRope allowDamage false;	
 
 [
 	{			
-		(_this select 0) params ["_cFly","_cBalloon","_cPara","_cache","_bRise","_cacheRope","_cLight","_flyMax","_taskMO","_taskMisMO"];
+		(_this select 0) params ["_cFly","_cBalloon","_cPara","_cache","_bRise","_cacheRope","_cLight","_flyMax","_tasks"];
 		if (alive _cFly) then {
 			
 			//Fail-safe to reattach cache if detaches from rope
@@ -73,7 +83,7 @@ _cacheRope allowDamage false;
 			};
 
 			//Changes fulton rise rate based on height
-			_bHeight = (getPosATL _cBalloon) select 2;
+			private _bHeight = (getPosATL _cBalloon) select 2;
 			if (_bHeight >= _flyMax*0.025 && _bHeight < _flyMax*0.03) then {_bRise = 1};
 			if (_bHeight >= _flyMax*0.03 && _bHeight < _flyMax*0.035) then {_bRise = 6};
 			if (_bHeight >= _flyMax*0.035 && _bHeight < _flyMax*0.95) then {_bRise = 20};
@@ -88,13 +98,11 @@ _cacheRope allowDamage false;
 				deleteVehicle _cLight;
 				deleteVehicle _cache;
 				["Cache successfully airlifted. Cache deleted.",LMO_Debug] call LMO_fn_rptSysChat;
-				[1,"_taskMO","_taskMisMO"] call LMO_fn_taskState;
-				[LMO_Cache_Win_Alert,false,0] call LMO_fn_rewards;
+				[1,_tasks] call LMO_fn_taskState;
+				[LMO_Cache_Win_Alert,0,false] call LMO_fn_rewards;
 
 				[
-					{
-						!LMO_active
-					},
+					{!LMO_active},
 					{
 						missionNamespace setVariable ["LMO_CacheTagged", nil, true];
 						["LMO_CacheTagged set to nil.",LMO_Debug] call LMO_fn_rptSysChat;
@@ -108,13 +116,13 @@ _cacheRope allowDamage false;
 					["LMOTaskOutcomeR", ["Cache lost in transit FOB not found", "\a3\ui_f\data\igui\cfg\simpletasks\types\Plane_ca.paa"]] remoteExec ["BIS_fnc_showNotification"];
 					[_this select 1] call CBA_fnc_removePerFrameHandler;
 				};
-				
-				_crate_Supply = 0;
-				_crate_Ammo = 0;
-				_crate_Fuel = 0;
-				_fobStorage = objNull;
-				_fobStorageObj = [];
-				_fobStorageSort = [];
+				[[LMO_Cache_supplyBoxes,LMO_Cache_ammoBoxes,LMO_Cache_fuelBoxes,getPos _cache],3] call LMO_fn_rewards;
+				/* private _crate_Supply = 0;
+				private _crate_Ammo = 0;
+				private _crate_Fuel = 0;
+				private _fobStorage = objNull;
+				private _fobStorageObj = [];
+				private _fobStorageSort = [];
 
 				//Generates values based on TST
 				if (LMO_TST == true && LMO_TimeSenRNG <= LMO_TSTchance) then {
@@ -144,10 +152,10 @@ _cacheRope allowDamage false;
 				
 				diag_log format ["[LMO] [Cache] Closest FOB: FOB %1, Storage Containers: %2",_nearFobName, count _fobStorageSort];
 				
-				_cacheRewards = _crate_Supply + _crate_Ammo + _crate_Fuel;
-				_c1 = _crate_Supply;
-				_c2 = _crate_Ammo;
-				_c3 = _crate_Fuel;
+				private _cacheRewards = _crate_Supply + _crate_Ammo + _crate_Fuel;
+				private _c1 = _crate_Supply;
+				private _c2 = _crate_Ammo;
+				private _c3 = _crate_Fuel;
 				
 				["LMOTaskOutcomeG", [format ["Cache supplies uplifted to FOB %1", _nearFobName], "z\ace\addons\dragging\ui\icons\box_carry.paa"]] remoteExec ["BIS_fnc_showNotification"];
 				diag_log format ["[LMO] [Reward] %1 Supply Crates, %2 Ammo Crates, %3 Fuel Crates.",_crate_Supply,_crate_Ammo,_crate_Fuel];
@@ -233,7 +241,7 @@ _cacheRope allowDamage false;
 						};
 					}forEach _crateArray;
 					diag_log format ["[LMO] [Reward] %1 Supply Crates, %2 Ammo Crates, %3 Fuel Crates delivered to FOB %4", _c1, _c2, _c3, _nearFobName];
-				};
+				}; */
 				
 				//Remove PFH for while do spawn
 				[_this select 1] call CBA_fnc_removePerFrameHandler;
@@ -241,5 +249,5 @@ _cacheRope allowDamage false;
 		};
 	},
 	0.1,
-	[_cFly,_cBalloon,_cPara,_cache,_bRise,_cacheRope,_cLight,_flyMax,"_taskMO","_taskMisMO"]
+	[_cFly,_cBalloon,_cPara,_cache,_bRise,_cacheRope,_cLight,_flyMax,_tasks]
 ] call CBA_fnc_addPerFrameHandler;

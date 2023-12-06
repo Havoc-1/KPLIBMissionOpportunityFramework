@@ -2,11 +2,15 @@
  *	Author: [SGC] Xephros, [DMCL] Keystone
  *	Function that grabs suitable buildings nearby enemy units to use for LMO target building.
  * 
- *	Return Value: LMO_spawnBldg
+ *	Arguments:
+ *		0: Enemy units in range <ARRAY>
+ *
+ *	Return Value: None
  *
  *	Example:
- *		[] call LMO_fn_getBuildings
+ *		[_eList] call LMO_fn_getBuildings
  */
+params ["_e"];
 
 //Initializing Variables
 _allBuildings = [];
@@ -21,8 +25,8 @@ _bCheckExclude = [];
 		{_allBuildings pushbackUnique _x}forEach _buildingArray;
 
 	};
-}forEach LMO_enyList;
-[format ["All buildings with sufficient garrison: %1", count _allBuildings],LMO_Debug] call LMO_fn_rptSysChat;
+}forEach _e;
+[format ["Buildings with %1+ garrison spots: %2", LMO_bSize,count _allBuildings],LMO_Debug] call LMO_fn_rptSysChat;
 
 //Prevents LMOs from spawning too close to players
 {
@@ -54,11 +58,10 @@ if (count GRLIB_all_fobs > 0) then {
 _allBuildings = _allBuildings - _bCheckExclude - LMO_objBlacklist;
 [format ["Suitable LMO Buildings: %1", count _allBuildings],LMO_Debug] call LMO_fn_rptSysChat;
 
-if (count _allBuildings == 0) exitWith {
-		LMO_active = false;
-		["No Buildings Found, exiting fn_getBuildings.sqf. LMO_active is set to false.",LMO_Debug] call LMO_fn_rptSysChat;
-};
+if (count _allBuildings == 0) exitWith {LMO_active = false};
 
+LMO_active = true;
+["LMO_active is now true.",LMO_DebugFull] call LMO_fn_rptSysChat;
 //Selects random building from filtered array
 LMO_spawnBldg = selectRandom _allBuildings;
 LMO_objBlacklist = (nearestTerrainObjects [LMO_spawnBldg, LMO_bTypes, LMO_objBlacklistRng, false, true]) select {count ([_x] call BIS_fnc_buildingPositions) >= LMO_bSize};

@@ -29,7 +29,7 @@
 	LMO_TST = true;											//Enable or disable Time Sensitive Tasks
 
 	//Mission Chance
-	LMO_mCheckRNG = 5;									//How often (in minutes) the server will check to start an LMO
+	LMO_mCheckRNG = 1/6;									//How often (in minutes) the server will check to start an LMO
 	LMO_mChanceSelect = 30;									//Percentage chance of LMO per check rate
 	LMO_TSTchance = 20;										//Percentage chance of Time Sensitive LMO after spawning objective
 
@@ -52,6 +52,7 @@
 	//HVT Runner Params
 	LMO_HVTrunSearchRng = 200;								//Runs away from player faction units within this range
 	LMO_HVTrunSurRng = 5;									//Distance to determine whether HVT will consider surrender
+	LMO_HVTholdRng = 10;									//Distance to halt mission timer when HVT is being escorted
 	LMO_HVTescRng = LMO_bRadius * 0.6;						//HVT Escape radius from target building (LMO_spawnBldg)
 	LMO_HVTrunDist = LMO_HVTescRng + 50;					//Distance HVT runs once spooked
 	LMO_HVTchaseRng = 150;									//Distance from players to HVT to prevent escape once HVT leaves escape radius (LMO_HVTescRng)
@@ -102,7 +103,7 @@
 	LMO_Cache_Lose_Alert = 20;								//Cache Lost Enemy Readiness Lose
 
 	//Debug Mode
-	LMO_Debug = false;										//Makes the mission chance 100% on every check rate
+	LMO_Debug = true;										//Makes the mission chance 100% on every check rate
 	LMO_DebugFull = false;									//Shows non-essential RPT logs in systemChat
 	LMO_Debug_Mkr = false;									//Shows marker on target objective position
 
@@ -181,8 +182,8 @@
 		],
 		[
 			false,		//Headgear
-			false,		//Goggles
-			false,		//Vest
+			true,		//Goggles
+			true,		//Vest
 			false,		//Uniform
 			false,		//Backpack
 			false,		//NVG
@@ -288,17 +289,30 @@
 			[ //NVG
 				"NVGoggles_OPFOR"
 			],
-			[ //Weapon
-				["arifle_AK12_F","30Rnd_762x39_AK12_Mag_F",7,"optic_Arco_AK_blk_F","ACE_muzzle_mzls_B","acc_flashlight"],
-				["arifle_SPAR_02_blk_F","30Rnd_556x45_Stanag",7,"optic_Holosight_blk_F","ACE_muzzle_mzls_L","acc_flashlight"]
+			[
+				[
+					"arifle_AK12_GL_F","30Rnd_762x39_AK12_Mag_F",7,"optic_Arco_AK_blk_F","muzzle_snds_B","acc_pointer_IR",
+					[
+						["MiniGrenade",3],
+						["SmokeShell",2]
+					],
+					"1Rnd_HE_Grenade_shell",3
+				],
+				[
+					"arifle_SPAR_02_blk_F","30Rnd_556x45_Stanag",7,"optic_Holosight_blk_F","muzzle_snds_M","acc_pointer_IR",
+					[
+						["MiniGrenade",3],
+						["SmokeShell",2]
+					]
+				]
 			]
 		],
 		[
 			true,		//Headgear
 			true,		//Goggles
 			true,		//Vest
-			true,		//Uniform
-			false,		//Backpack
+			false,		//Uniform
+			true,		//Backpack
 			true,		//NVG
 			true		//Weapons
 		]
@@ -342,14 +356,13 @@
 //Predefining Global Variables DO NOT TOUCH
 LMO_active = false;
 LMO_spawnBldg = objnull;
-LMO_mChance = 0;
 LMO_TimeSenRNG = 0;
 LMO_VCOM_On = false;
 LMO_objBlacklist = [];
 
 //Compile all functions
 #include "compile.sqf";
-[] execVM "scripts\LMO\fn_diaryContent.sqf";
+[] execVM "LMO\fn_diaryContent.sqf";
 
 //Only runs for Server and HC Environments
 if !(isDedicated || (isServer && hasInterface)) exitWith {};
@@ -365,36 +378,4 @@ if (!Vcm_ActivateAI || isNil "Vcm_ActivateAI") then {
 	diag_log "[LMO] VCOM is enabled.";
 };
 
-[
-	{
-		if ((count (allUnits select {side _x == GRLIB_side_enemy}) > 0) && !LMO_active) then {
-
-			//calling populate enemy list function
-			[] call LMO_fn_getEnemyList;
-			
-			if (count LMO_enyList > 0 && ((LMO_mChance <= LMO_mChanceSelect) || LMO_Debug)) then {
-				
-				private _missions = [];
-				{
-					if (_x == true) then {_missions pushback (_forEachIndex + 1)};
-				}forEach LMO_Missions;
-				if (count _missions == 0) exitWith {
-					["No missions are enabled. Setting LMO_active to false.", LMO_Debug] call LMO_fn_rptSysChat;
-					LMO_active = false;
-				};
-
-				LMO_active = true;
-				diag_log "[LMO] LMO_active is now true.";
-				[] call LMO_fn_getBuildings;
-				if (!LMO_active) exitWith {["No suitable buildings found exiting LMO main scope.",LMO_Debug] call LMO_fn_rptSysChat;};
-				[] call LMO_fn_markerFunctions;
-				[_missions] call LMO_fn_pickMission;
-			};
-		};
-		if (!LMO_active) then {
-			[format ["Mission Chance: %1, TST: %2, Building: %3, Nearby Enemies: %4", LMO_mChance,LMO_TimeSenRNG, typeOf LMO_spawnBldg, count LMO_enyList],LMO_Debug] call LMO_fn_rptSysChat;
-		};
-	},
-	LMO_mCheckRNG*60,
-	[]
-] call CBA_fnc_addPerFrameHandler;
+[] call LMO_fn_missionCheck;

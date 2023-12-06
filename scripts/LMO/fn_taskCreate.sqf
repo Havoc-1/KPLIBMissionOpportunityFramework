@@ -6,21 +6,21 @@
  *	None
  *	
  *	Example:
- *		[] call LMO_fn_taskCreate;
+ *		_tasks = [] call LMO_fn_taskCreate;
  *
  *	Return Value:
- *	None
+ *		[Parent Task, Child Task] <ARRAY>
  */
 
-_t1 = "";
-_t2 = "";
-_t3 = "";
-_taskDesc = "";
-_taskTitle = "";
-_taskIcon = "";
-_notifTitle = "";
-_notifIcon = "";
-_mkrColor = "";
+private _t1 = "";
+private _t2 = "";
+private _t3 = "";
+private _taskDesc = "";
+private _taskTitle = "";
+private _taskIcon = "";
+private _notifTitle = "";
+private _notifIcon = "";
+private _mkrColor = "";
 
 
 
@@ -72,6 +72,10 @@ switch (_missionType) do {
 	};
 };
 
+//Creates Parent Task
+[GRLIB_side_friendly, "_taskMO", ["A mission of opporunity has appeared on the map, complete the task before the timer expires.", "Mission of Opportunity", "LMO_Mkr"], objNull, 1, 3, false] call BIS_fnc_taskCreate;
+["_taskMO","Box"] call BIS_fnc_taskSetType;
+
 [GRLIB_side_friendly, ["_taskMisMO", "_taskMO"], [format ["%2 <marker name ='LMO_MkrName'>%1</marker>. %3",LMO_MkrText, _taskDesc select 0, _taskDesc select 1], _taskTitle, _taskIcon], objNull, 1, 3, false] call BIS_fnc_taskCreate;																						
 ["_taskMisMO",_taskIcon] call BIS_fnc_taskSetType;
 
@@ -91,3 +95,8 @@ if (LMO_Debug_Mkr && _missionType != 3) then {
 	LMO_MkrDebug setMarkerType "mil_dot";
 	["Debug Marker created", LMO_DebugFull] call LMO_fn_rptSysChat;
 };
+
+["Task Made",LMO_DebugFull] call LMO_fn_rptSysChat;
+
+//Return Value
+["_taskMO","_taskMisMO"];

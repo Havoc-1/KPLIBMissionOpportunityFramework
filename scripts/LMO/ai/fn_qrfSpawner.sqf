@@ -1,22 +1,22 @@
 /* 
-	Author: [SGC] Xephros, [DMCL] Keystone
-	Function to spawn QRF.
-
-	Arguments:
-	0: Positon or Unit <ARRAY> OR <OBJECT> - Positon center of QRF.
-	1: Outfit <ARRAY> - Equipment array for QRF (Refer to Outfit Params in fn_LMOinit.sqf).
-	2: Chance to spawn <NUMBER> (Optional) - Chance from 0 to 1 to determine whether QRF is spawned. Default 1.
-	3: Multiplier <NUMBER> (Optional) - Adds extra unit based on each player. Default 0.
-	4: Chance to split QRF <NUMBER> (Optional) - Chance from 0 to 1 to determine whether QRF splits into two groups. Default is 0.5.
-	5: Range of players <NUMBER> (Optional) - Range to determine whether a player is counted in the squad multiplier. Default 500.
-	6: QRF Spawn distance <ARRAY> (Optional)
-		0: Minimum distance from players <NUMBER>
-		1: Distance from Position <NUMBER>
-
-	Example:
-	[getPos _cache, LMO_qrfOutfit, 0.5, 1.5, 0.5, 500, [200,300]] call LMO_fn_qrfSpawner
-	[_hvt, LMO_qrfOutfit] call LMO_fn_qrfSpawner;
-*/
+ *	Author: [SGC] Xephros, [DMCL] Keystone
+ *	Function to spawn QRF.
+ *
+ *	Arguments:
+ *		0: Positon or Unit <ARRAY> OR <OBJECT> - Positon center of QRF.
+ *		1: Outfit <ARRAY> - Equipment array for QRF (Refer to Outfit Params in fn_LMOinit.sqf).
+ *		2: Chance to spawn <NUMBER> (Optional) - Chance from 0 to 1 to determine whether QRF is spawned. Default 1.
+ *		3: Multiplier <NUMBER> (Optional) - Adds extra unit based on each player. Default 0.
+ *		4: Chance to split QRF <NUMBER> (Optional) - Chance from 0 to 1 to determine whether QRF splits into two groups. Default is 0.5.
+ *		5: Range of players <NUMBER> (Optional) - Range to determine whether a player is counted in the squad multiplier. Default 500.
+ *		6: QRF Spawn distance <ARRAY> (Optional)
+ *			0: Minimum distance from players <NUMBER>
+ *			1: Distance from Position <NUMBER>
+ *
+ *	Example:
+ *		[getPos _cache, LMO_qrfOutfit, 0.5, 1.5, 0.5, 500, [200,300]] call LMO_fn_qrfSpawner
+ *		[_hvt, LMO_qrfOutfit] call LMO_fn_qrfSpawner;
+ */
 
 params ["_pos",["_outfit",LMO_qrfOutfit],["_c",1],["_m",0],["_split",0.5],["_playerRng",500],["_dist",[300,350]]];
 
@@ -172,13 +172,13 @@ if (random 1 <= _c) then {
 											[_enyUnits2,_pos] call LMO_fn_qrfAttackDel;
 										};
 	
-										[format ["QRF Size: %1, QRF Dir: %2, QRF2 Dir: %3.", _sqdSize, _pos getDir (selectRandom units _enyUnits),_pos getDir _spawnPos2],LMO_Debug] call LMO_fn_rptSysChat;
+										[format ["QRF Size: %1, QRF Dir: %2, QRF2 Dir: %3.", _sqdSize, round(_pos getDir (selectRandom units _enyUnits)), round(_pos getDir _spawnPos2)],LMO_Debug] call LMO_fn_rptSysChat;
 										
 									},
 									[_pCount,_enyUnits,_sqdSize,_sqd2Size,_spawnPos2,_outfit,_pos,_posObj]
 								] call CBA_fnc_waitUntilandExecute;
 							} else {
-								[format ["QRF Size: %1, QRF Dir: %2.", _sqdSize, _pos getDir (selectRandom units _enyUnits)],LMO_Debug] call LMO_fn_rptSysChat;
+								[format ["QRF Size: %1, QRF Dir: %2.", _sqdSize, round(_pos getDir (selectRandom units _enyUnits))],LMO_Debug] call LMO_fn_rptSysChat;
 
 								{
 									[_x, _outfit] call LMO_fn_enyOutfit;
