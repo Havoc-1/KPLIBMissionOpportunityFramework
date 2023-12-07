@@ -23,17 +23,30 @@ if (LMO_Debug && LMO_mType != 0) then {
 	_missionType = LMO_mType;
 } else {
 
-	//If missiontype is duplicate, try again
+	//Prevents same mission from occuring 3 times in a row
 	if (!isNil "_missionHist") then {
 		if (count _missionHist > 0 && count _missions > 1) then {
-			if ((count _missionHist >= 2) && ((_missionHist select 0) == (_missionHist select 1))) then {
-				_missions = _missions - [(_missionHist select 0)];
-				missionNamespace setVariable ["LMO_missionHist",nil,true];
+			if ((count _missionHist >= 2)) then {
+				if ((_missionHist select 0) == (_missionHist select 1)) then {
+					_missions = _missions - [(_missionHist select 0)];
+					["Preventing mission from being selected a third time.",LMO_Debug] call LMO_fn_rptSysChat;
+					missionNamespace setVariable ["LMO_missionHist",nil,true];
+					_missionHist = [];
+				} else {
+					missionNamespace setVariable ["LMO_missionHist",nil,true];
+					_missionHist = [];
+				};
 			};
 		};
+	} else {
+		_missionHist = [];
 	};
 	_missionType = selectRandom _missions;
-	_missionHist = _missionHist pushback _missionType;
+	_missionHist pushback _missionType;
+	missionNamespace setVariable ["LMO_missionHist",_missionHist,true];
+	if (count _missionHist > 0) then {
+		[format ["Mission History: %1", _missionHist],LMO_DebugFull] call LMO_fn_rptSysChat;
+	};
 };
 
 missionNamespace setVariable ["LMO_MissionType",_missionType,true];

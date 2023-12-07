@@ -111,7 +111,8 @@ switch (_num) do {
 			};
 		};
 	};
-
+	
+	//SAF
 	case 3: {
 
 		_value params [["_cSupply",0],["_cAmmo",0],["_cFuel",0],["_pos",[0,0,0]]];
@@ -123,36 +124,27 @@ switch (_num) do {
 		//Generates values based on TST
 		if (LMO_TST == true && LMO_TimeSenRNG <= LMO_TSTchance) then {
 			
-			//Supply
 			if (_cSupply isEqualType []) then {
 				_cSupply = round ((_cSupply call BIS_fnc_randomInt) * LMO_TST_Reward);
 			} else {
 				_cSupply = _cSupply * LMO_TST_Reward;
 			};
-			
-			//Ammo
+
 			if (_cAmmo isEqualType []) then {
 				_cAmmo = round ((_cAmmo call BIS_fnc_randomInt) * LMO_TST_Reward);
 			} else {
 				_cAmmo = _cAmmo * LMO_TST_Reward;
 			};
-			
-			//Fuel
+
 			if (_cFuel isEqualType []) then {
 				_cFuel = round ((_cFuel call BIS_fnc_randomInt) * LMO_TST_Reward);
 			} else {
 				_cFuel = _cFuel * LMO_TST_Reward;
 			};
 		} else {
-			if (_cSupply isEqualType []) then {
-				_cSupply = round (_cSupply call BIS_fnc_randomInt);
-			};
-			if (_cAmmo isEqualType []) then {
-				_cAmmo = round (_cAmmo call BIS_fnc_randomInt);
-			};
-			if (_cFuel isEqualType []) then {
-				_cFuel = round (_cFuel call BIS_fnc_randomInt);
-			};
+			if (_cSupply isEqualType []) then {_cSupply = round (_cSupply call BIS_fnc_randomInt)};
+			if (_cAmmo isEqualType []) then {_cAmmo = round (_cAmmo call BIS_fnc_randomInt)};
+			if (_cFuel isEqualType []) then {_cFuel = round (_cFuel call BIS_fnc_randomInt)};
 		};
 
 		//Get nearest fobs

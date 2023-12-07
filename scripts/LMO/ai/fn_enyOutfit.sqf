@@ -1,4 +1,3 @@
-//Randomizes HVT outfit based on LMO_hvtOutfit parameters in LMOinit.sqf
 /* 
  *	Author: [SGC] Xephros, [DMCL] Keystone
  *	Function to apply custom loadouts to unit.
