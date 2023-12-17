@@ -25,17 +25,15 @@ if (LMO_Debug && LMO_mType != 0) then {
 
 	//Prevents same mission from occuring 3 times in a row
 	if (!isNil "_missionHist") then {
-		if (count _missionHist > 0 && count _missions > 1) then {
-			if ((count _missionHist >= 2)) then {
-				if ((_missionHist select 0) == (_missionHist select 1)) then {
-					_missions = _missions - [(_missionHist select 0)];
-					["Preventing mission from being selected a third time.",LMO_Debug] call LMO_fn_rptSysChat;
-					missionNamespace setVariable ["LMO_missionHist",nil,true];
-					_missionHist = [];
-				} else {
-					missionNamespace setVariable ["LMO_missionHist",nil,true];
-					_missionHist = [];
-				};
+		if ((count _missionHist >= 2) && count _missions > 1) then {
+			if ((_missionHist select 0) == (_missionHist select 1)) then {
+				_missions = _missions - [(_missionHist select 0)];
+				_missionHist deleteAt 0;
+				["Preventing mission from being selected a third time.",LMO_Debug] call LMO_fn_rptSysChat;
+				missionNamespace setVariable ["LMO_missionHist",_missionHist,true];
+			} else {
+				_missionHist deleteAt 0;
+				missionNamespace setVariable ["LMO_missionHist",_missionHist,true];
 			};
 		};
 	} else {

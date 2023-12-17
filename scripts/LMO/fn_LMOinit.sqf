@@ -48,6 +48,21 @@
 	LMO_objMkrRadRescue = 300;								//Win radius for hostage extraction
 	LMO_bHRrad = 15;										//Expand LMO_objMkrRadRescue if target building is surrounded by less than LMO_bHRrad buildings
 	LMO_HRradMultiplier = 1.5;								//Multiply LMO_objMkrRadRescue by this if target building is surrounded by less than LMO_bHRrad
+	LMO_HRallowBomb = true;									//Allow hostages to wear bomb vests (Detonates if timer expires, killed, or removed without defuse)
+	LMO_HRbombChance = 0.9;									//Chance for bomb vest to appear on hostage (1 = 100%)
+	LMO_HRbombVest = "V_TacVest_blk";						//Model of bomb vest for hostage to wear
+	LMO_HRbomb = "APERSMine_Range_Ammo";					//Bomb explosion if vest is detonated
+	LMO_HRbombBeep = true;									//Enable beeping sound of vest is close to detonation
+	LMO_HRbeepTime = 10;									//Seconds to begin beeping for detonation
+	LMO_HRbombDelay = 2;									//Delay in seconds to trigger bomb vest if activated
+	LMO_HRdefuseTime = 10;
+	/* LMO_HRdefuse allows types of units to defuse bomb vest <NUMBER>
+	 *	0: Any Unit
+	 *	1: Must be Engineer
+	 *	2: Must be Explosive Specialist
+	 *	3: Must be Engineer and Explosives Specialist
+	 */
+	LMO_HRdefuse = 2;
 
 	//HVT Runner Params
 	LMO_HVTrunSearchRng = 200;								//Runs away from player faction units within this range
