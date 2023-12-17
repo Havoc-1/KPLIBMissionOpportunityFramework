@@ -49,7 +49,7 @@
 	LMO_bHRrad = 15;										//Expand LMO_objMkrRadRescue if target building is surrounded by less than LMO_bHRrad buildings
 	LMO_HRradMultiplier = 1.5;								//Multiply LMO_objMkrRadRescue by this if target building is surrounded by less than LMO_bHRrad
 	LMO_HRallowBomb = true;									//Allow hostages to wear bomb vests (Detonates if timer expires, killed, or removed without defuse)
-	LMO_HRbombChance = 0.9;									//Chance for bomb vest to appear on hostage (1 = 100%)
+	LMO_HRbombChance = 0.3;									//Chance for bomb vest to appear on hostage (1 = 100%)
 	LMO_HRbombVest = "V_TacVest_blk";						//Model of bomb vest for hostage to wear
 	LMO_HRbomb = "APERSMine_Range_Ammo";					//Bomb explosion if vest is detonated
 	LMO_HRbombBeep = true;									//Enable beeping sound of vest is close to detonation
