@@ -55,7 +55,7 @@
 	LMO_HRbombBeep = true;									//Enable beeping sound of vest is close to detonation
 	LMO_HRbeepTime = 10;									//Seconds to begin beeping for detonation
 	LMO_HRbombDelay = 2;									//Delay in seconds to trigger bomb vest if activated
-	LMO_HRdefuseTime = 10;
+	LMO_HRdefuseTime = 10;									//Seconds to defuse bomb vest
 	/* LMO_HRdefuse allows types of units to defuse bomb vest <NUMBER>
 	 *	0: Any Unit
 	 *	1: Must be Engineer
